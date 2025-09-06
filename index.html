@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宠物综合体经营测算 v2.0</title>
+  <meta name="description" content="专业的宠物综合体财务建模工具，支持收入预测、成本分析、投资回报计算和情景分析">
+  <meta name="keywords" content="宠物综合体,经营测算,财务建模,投资回报,盈亏平衡">
+  
+  <!-- 外部依赖 -->
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.9/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.9/locale/zh-cn.js"></script>
+  
+  <!-- Ant Design CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/antd@5.12.8/dist/reset.css" />
+  <script src="https://unpkg.com/antd@5.12.8/dist/antd.min.js"></script>
+  
+  <!-- 保留 Tailwind 用于自定义样式 -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  
+  <!-- 自定义样式 -->
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    /* 加载动画 */
+    .loading-spinner {
+      border: 2px solid #f3f4f6;
+      border-top: 2px solid #3b82f6;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* 错误状态样式 */
+    .error-state {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    }
+    
+    /* 成功状态样式 */
+    .success-state {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+    
+    /* 平滑过渡 */
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 640px) {
+      .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    }
+    
+    /* 打印样式 */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      
+      body {
+        background: white !important;
+      }
+      
+      .shadow {
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 应用根节点 -->
+  <div id="root">
+    <!-- 初始加载状态 -->
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md">
+        <div class="text-6xl mb-4">🐾</div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">宠物综合体经营测算</h1>
+        <p class="text-gray-600 mb-6">v2.0 模块化版本</p>
+        <div class="loading-spinner mx-auto mb-4"></div>
+        <p class="text-sm text-gray-500">正在加载模块...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 核心模块加载 -->
+  <script>
+    // 模块加载状态跟踪
+    let loadedModules = 0;
+    const totalModules = 60; // 实际加载的script数量
+    
+    function updateLoadingProgress() {
+      loadedModules++;
+      const progress = (loadedModules / totalModules) * 100;
+      
+      // 只在关键进度点显示日志
+      if (loadedModules === 1 || loadedModules % 10 === 0 || loadedModules >= totalModules) {
+        console.log(`📦 加载进度: ${progress.toFixed(0)}% (${loadedModules}/${totalModules})`);
+      }
+      
+      // 更新页面加载指示器（如果存在）
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+        loadingIndicator.textContent = `加载中... ${progress.toFixed(0)}%`;
+      }
+      
+      // 所有模块加载完成后，触发应用启动检查
+      if (loadedModules >= totalModules && !window.modulesLoadComplete) {
+        window.modulesLoadComplete = true;
+        console.log('🎉 所有模块加载完成，启动应用...');
+        setTimeout(() => {
+          if (window.startApp) {
+            window.startApp();
+          }
+        }, 300); // 给模块注册更多时间
+      }
+    }
+    
+    // 模块加载错误处理
+    function handleModuleError(moduleName, error) {
+      console.error(`模块 ${moduleName} 加载失败:`, error);
+      document.getElementById('root').innerHTML = `
+        <div class="min-h-screen bg-red-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
+            <div class="text-6xl mb-4">❌</div>
+            <h2 class="text-xl font-bold text-red-600 mb-4">模块加载失败</h2>
+            <p class="text-gray-600 mb-4">模块 <code>${moduleName}</code> 无法加载</p>
+            <p class="text-sm text-gray-500 mb-6">请检查网络连接或联系技术支持</p>
+            <button 
+              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              onclick="window.location.reload()"
+            >
+              重新加载
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+
+  <!-- 1. 数据管理核心 -->
+  <script src="js/core/data-manager.js" onerror="handleModuleError('DataManager', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 2. 公式引擎 -->
+  <script src="js/core/formula-engine.js" onerror="handleModuleError('FormulaEngine', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 3. 计算器引擎 (拆分后) -->
+  <script src="js/core/calculators/revenue-calculator.js" onerror="handleModuleError('RevenueCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/cost-calculator.js" onerror="handleModuleError('CostCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/investment-calculator.js" onerror="handleModuleError('InvestmentCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/profitability-calculator.js" onerror="handleModuleError('ProfitabilityCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/breakeven-calculator.js" onerror="handleModuleError('BreakevenCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/scenario-calculator.js" onerror="handleModuleError('ScenarioCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/analysis-helper.js" onerror="handleModuleError('AnalysisHelper', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/main-calculator.js" onerror="handleModuleError('MainCalculator', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/core/calculators/index.js" onerror="handleModuleError('Calculator', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 4. UI组件库 (Ant Design版本) -->
+  <script src="js/components/ui-components-antd.js" onerror="handleModuleError('UIComponents', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 5. 图表组件 (拆分后) -->
+  <script src="js/components/charts/revenue-chart.js" onerror="handleModuleError('RevenueChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/charts/cost-chart.js" onerror="handleModuleError('CostChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/charts/breakeven-chart.js" onerror="handleModuleError('BreakevenChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/charts/scenario-chart.js" onerror="handleModuleError('ScenarioChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/charts/breakeven-svg-chart.js" onerror="handleModuleError('BreakevenSVGChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/charts/margin-chart.js" onerror="handleModuleError('MarginChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/charts/index.js" onerror="handleModuleError('ChartComponents', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 6. 公式显示组件 -->
+  <script src="js/components/formula-display.js" onerror="handleModuleError('FormulaDisplay', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 7. 设置组件模块 -->
+  <script src="js/components/settings/basic-settings.js" onerror="handleModuleError('BasicSettings', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/settings/revenue-settings.js" onerror="handleModuleError('RevenueSettings', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/settings/investment-settings.js" onerror="handleModuleError('InvestmentSettings', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/components/settings/cost-settings.js" onerror="handleModuleError('CostSettings', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 8. 自定义模块管理 (拆分后的业务模块) -->
+  <script src="js/modules/business/module-editor.js" onerror="handleModuleError('ModuleEditor', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/business/formula-help.js" onerror="handleModuleError('FormulaHelp', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/business/revenue-manager.js" onerror="handleModuleError('RevenueManager', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/business/cost-manager.js" onerror="handleModuleError('CostManager', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/business/investment-manager.js" onerror="handleModuleError('InvestmentManager', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/business/index.js" onerror="handleModuleError('CustomModules', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 9. 盈亏平衡分析模块 (拆分后) -->
+  <script src="js/modules/breakeven/utils.js" onerror="handleModuleError('BreakevenUtils', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/analysis-core.js" onerror="handleModuleError('BreakevenCore', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/risk-tolerance.js" onerror="handleModuleError('RiskTolerance', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/target-margin-calc.js" onerror="handleModuleError('TargetMarginCalc', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/target-margin.js" onerror="handleModuleError('TargetMargin', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/sensitivity-calc.js" onerror="handleModuleError('SensitivityCalc', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/sensitivity.js" onerror="handleModuleError('Sensitivity', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/visualization-svg.js" onerror="handleModuleError('VisualizationSVG', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/visualization-data.js" onerror="handleModuleError('VisualizationData', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/insights-analysis.js" onerror="handleModuleError('InsightsAnalysis', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/visualization-insights.js" onerror="handleModuleError('VisualizationInsights', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/visualization-core.js" onerror="handleModuleError('VisualizationCore', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/visualization.js" onerror="handleModuleError('Visualization', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/breakeven/index.js" onerror="handleModuleError('BreakevenAnalysis', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 10. 情景分析模块 (拆分后) -->
+  <script src="js/modules/scenario/parameters.js" onerror="handleModuleError('ScenarioParameters', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/scenario/comparison.js" onerror="handleModuleError('ScenarioComparison', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/scenario/chart.js" onerror="handleModuleError('ScenarioChart', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/scenario/insights.js" onerror="handleModuleError('ScenarioInsights', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/scenario/recommendations.js" onerror="handleModuleError('ScenarioRecommendations', event)" onload="updateLoadingProgress()"></script>
+  <script src="js/modules/scenario/index.js" onerror="handleModuleError('ScenarioAnalysis', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 11. 概览页面 -->
+  <script src="js/pages/overview-page.js" onerror="handleModuleError('OverviewPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 12. 设置页面 (v2.0 双栏布局) -->
+  <script src="js/pages/settings-page-v2.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 13. 分析页面 -->
+  <script src="js/pages/analysis-page.js" onerror="handleModuleError('AnalysisPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 主应用启动 -->
+  <script src="app.js" onerror="handleModuleError('App', event)"></script>
+
+  <!-- Google Analytics (可选) -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'GA_MEASUREMENT_ID');
+  </script>
+  -->
+
+  <!-- 服务工作者注册 (PWA支持，可选) -->
+  <!--
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('SW registered: ', registration);
+          }).catch(function(registrationError) {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+  -->
+
+</body>
+</html>

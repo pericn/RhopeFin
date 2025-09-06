@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>MemberSettings测试</title>
+</head>
+<body>
+  <h1>MemberSettings测试</h1>
+  <div id="output"></div>
+
+  <script src="js/components/ui-components-antd.js"></script>
+  <script src="js/components/settings/member-settings.js"></script>
+  
+  <script>
+    function log(message) {
+      const div = document.createElement('div');
+      div.textContent = message;
+      document.getElementById('output').appendChild(div);
+      console.log(message);
+    }
+    
+    window.addEventListener('load', function() {
+      log('页面加载完成');
+      
+      if (window.MemberSettings) {
+        log('✅ MemberSettings已加载');
+        log('MemberSettings对象: ' + typeof window.MemberSettings);
+        log('MemberSettings.MemberSettings: ' + typeof window.MemberSettings.MemberSettings);
+      } else {
+        log('❌ MemberSettings未加载');
+      }
+    });
+  </script>
+</body>
+</html>

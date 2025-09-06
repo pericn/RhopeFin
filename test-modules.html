@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>模块测试页面</title>
+</head>
+<body>
+  <h1>模块加载测试</h1>
+  <div id="output"></div>
+
+  <script>
+    function log(message) {
+      const div = document.createElement('div');
+      div.textContent = message;
+      document.getElementById('output').appendChild(div);
+      console.log(message);
+    }
+    
+    function testModules() {
+      log('=== 开始测试模块 ===');
+      
+      // 测试核心模块
+      const coreModules = [
+        'React', 'ReactDOM', 'DataManager', 'FormulaEngine', 'Calculator'
+      ];
+      
+      // 测试UI组件模块
+      const uiModules = [
+        'UIComponents', 'ChartComponents', 'FormulaDisplay'
+      ];
+      
+      // 测试自定义模块
+      const customModules = [
+        'CustomModules', 'MemberSettings'
+      ];
+      
+      // 测试分析模块
+      const analysisModules = [
+        'BreakevenAnalysis', 'ScenarioAnalysis'
+      ];
+      
+      // 测试页面模块
+      const pageModules = [
+        'OverviewPage', 'SettingsPage', 'AnalysisPage'
+      ];
+      
+      // 测试设置组件模块
+      const settingModules = [
+        'BasicSettings', 'RevenueSettings', 'InvestmentSettings', 'CostSettings'
+      ];
+      
+      log('--- 核心模块 ---');
+      coreModules.forEach(function(module) {
+        if (window[module]) {
+          log('✅ ' + module + ' 已加载');
+        } else {
+          log('❌ ' + module + ' 未加载');
+        }
+      });
+      
+      log('--- UI组件模块 ---');
+      uiModules.forEach(function(module) {
+        if (window[module]) {
+          log('✅ ' + module + ' 已加载');
+        } else {
+          log('❌ ' + module + ' 未加载');
+        }
+      });
+      
+      log('--- 自定义模块 ---');
+      customModules.forEach(function(module) {
+        if (window[module]) {
+          log('✅ ' + module + ' 已加载');
+        } else {
+          log('❌ ' + module + ' 未加载');
+        }
+      });
+      
+      log('--- 分析模块 ---');
+      analysisModules.forEach(function(module) {
+        if (window[module]) {
+          log('✅ ' + module + ' 已加载');
+        } else {
+          log('❌ ' + module + ' 未加载');
+        }
+      });
+      
+      log('--- 页面模块 ---');
+      pageModules.forEach(function(module) {
+        if (window[module]) {
+          log('✅ ' + module + ' 已加载');
+        } else {
+          log('❌ ' + module + ' 未加载');
+        }
+      });
+      
+      log('--- 设置组件模块 ---');
+      settingModules.forEach(function(module) {
+        if (window[module]) {
+          log('✅ ' + module + ' 已加载');
+        } else {
+          log('❌ ' + module + ' 未加载');
+        }
+      });
+      
+      log('=== 测试完成 ===');
+    }
+    
+    // 页面加载完成后执行测试
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', testModules);
+    } else {
+      testModules();
+    }
+  </script>
+</body>
+</html>
