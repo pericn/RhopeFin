@@ -116,7 +116,7 @@ Hopeful Finance is a pet complex business forecasting application specifically d
 ## Core Modules
 
 1. **DataManager** (`js/core/data-manager.js`): Handles data structure, localStorage operations, and data validation
-2. **FormulaEngine** (`js/core/formula-engine.js``): Evaluates mathematical formulas and manages system variables
+2. **FormulaEngine** (`js/core/formula-engine.js`): Evaluates mathematical formulas and manages system variables
 3. **Calculator Modules** (`js/core/calculators/`): Modular financial calculation engine for revenue, costs, profitability, etc.
    - MainCalculator (`main-calculator.js`): Main calculator coordinator
    - RevenueCalculator (`revenue-calculator.js`): Revenue calculations
@@ -158,6 +158,26 @@ npx serve .
 npx http-server
 # Visit http://localhost:8080/index_v2.html
 ```
+
+### Deployment
+The application can be easily deployed using free hosting services:
+
+1. **GitHub Pages** (Completely free)
+   - Push code to a GitHub repository
+   - Enable GitHub Pages in repository settings
+   - Select branch (e.g., main) and folder (root or docs)
+   - Access at: username.github.io/repository
+
+2. **Vercel** (Free tier available)
+   - Connect GitHub account
+   - Import project repository
+   - Automatic deployment and CI/CD
+   - Custom domain support
+
+3. **Netlify** (Free tier available)
+   - Drag and drop files or connect Git repository
+   - Automatic deployment and continuous integration
+   - Free SSL and custom domains
 
 ## Development Conventions
 

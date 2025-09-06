@@ -44,10 +44,12 @@ window.ProfitabilityCalculator = (function() {
       const revTotal = isNaN(revenue.total) ? 0 : (revenue.total || 0);
       const costVariableTotal = isNaN(cost.variable.total) ? 0 : (cost.variable.total || 0);
       const costFixedTotal = isNaN(cost.fixed.total) ? 0 : (cost.fixed.total || 0);
+      const costCOGSTotal = isNaN(cost.cogs?.total) ? 0 : (cost.cogs?.total || 0);
       const invTotal = isNaN(investment.total) ? 0 : (investment.total || 0);
       
-      const grossProfit = (revTotal - costVariableTotal) || 0;
-      const grossMargin = revTotal > 0 ? (((revTotal - costVariableTotal) / revTotal) * 100) || 0 : 0;
+      // 综合毛利率应该使用COGS而不是变动成本
+      const grossProfit = (revTotal - costCOGSTotal) || 0;
+      const grossMargin = revTotal > 0 ? (((revTotal - costCOGSTotal) / revTotal) * 100) || 0 : 0;
       
       // 净利润率
       const netMargin = revTotal > 0 ? ((profit / revTotal) * 100) || 0 : 0;

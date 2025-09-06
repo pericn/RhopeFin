@@ -783,6 +783,16 @@ window.AnalysisPage = (function() {
     const baseGrossMargin = calculations?.profitability?.grossMargin || 0;
     const dataPoints = [];
     
+    console.log(`[基准值验证] 参数:${selectedParam}`, {
+      baseValue,
+      basePaybackYears,
+      baseProfitMargin,
+      baseGrossMargin,
+      calculationsSource: !!calculations?.profitability,
+      totalRevenue: calculations?.revenue?.total,
+      totalCost: calculations?.cost?.total
+    });
+    
     // 如果没有计算器或基础数据，返回估算值
     if (!window.calculator || !data) {
       console.warn('敏感度分析：使用估算模式 - 计算器:', !!window.calculator, '数据:', !!data, '基准回本:', basePaybackYears);
@@ -810,19 +820,67 @@ window.AnalysisPage = (function() {
     
     for (let i = -paramRange; i <= paramRange; i += stepSize) {
       const variation = i / 100;
-      const newValue = baseValue * (1 + variation);
-      const modifiedData = createModifiedData(data, selectedParam, newValue);
+      
+      // 当i=0时（基准点），直接使用已计算的基准值，不重新计算
+      if (i === 0) {
+        console.log('基准点: 直接使用已计算值 - 回本周期', basePaybackYears + '年', '利润率:', baseProfitMargin + '%', '综合毛利率:', baseGrossMargin + '%');
+        dataPoints.push({
+          paramChange: 0,
+          paybackYears: Math.round(basePaybackYears * 10) / 10,
+          profitMargin: Math.round(baseProfitMargin * 10) / 10,
+          grossMargin: Math.round(baseGrossMargin * 10) / 10
+        });
+        continue;
+      }
+      
+      let newValue = baseValue * (1 + variation);
+      
+      // 设置合理的约束，避免不合理的值
+      if (selectedParam === 'totalRevenue' || selectedParam === 'totalCost' || selectedParam === 'totalCOGS') {
+        newValue = Math.max(newValue, baseValue * 0.1); // 最低不低于基准值的10%
+      } else if (selectedParam.includes('Revenue') || selectedParam.includes('Price')) {
+        newValue = Math.max(newValue, 0); // 收入和价格不能为负
+      } else if (selectedParam === 'occupancyRate') {
+        newValue = Math.max(0, Math.min(100, newValue)); // 入住率在0-100%之间
+      } else if (selectedParam === 'memberCount') {
+        newValue = Math.max(0, Math.round(newValue)); // 会员数量不能为负，且为整数
+      } else if (selectedParam.includes('Cost') || selectedParam.includes('Salary')) {
+        newValue = Math.max(0, newValue); // 成本不能为负
+      }
+      
+      const modifiedData = createModifiedData(data, selectedParam, newValue, calculations);
       
       try {
         const newCalculations = window.calculator.calculate(modifiedData);
         const newPaybackYears = newCalculations?.profitability?.paybackYears || 0;
-        const newProfitMargin = newCalculations?.profitability?.margin || 0;
-        const newGrossMargin = newCalculations?.profitability?.grossMargin || 0;
+        let newProfitMargin = newCalculations?.profitability?.margin || 0;
+        let newGrossMargin = newCalculations?.profitability?.grossMargin || 0;
         
-        if (i === 0) {
-          console.log('基准验证: 回本周期', newPaybackYears + '年', '利润率:', newProfitMargin + '%', '综合毛利率:', newGrossMargin + '%');
-        } else {
-          console.log('参数变化:', variation, '回本周期:', newPaybackYears + '年', '利润率:', newProfitMargin + '%', '综合毛利率:', newGrossMargin + '%');
+        // 验证计算结果的逻辑合理性
+        const totalRevenue = newCalculations?.revenue?.total || 0;
+        const totalCost = newCalculations?.cost?.total || 0;
+        const profit = newCalculations?.profitability?.profit || 0;
+        
+        // 基本逻辑验证
+        if (totalRevenue === 0 && newProfitMargin !== 0) {
+          console.warn(`逻辑错误: 总营收为0但利润率为${newProfitMargin}%`, {
+            selectedParam, variation, newValue, totalRevenue, totalCost, profit, newProfitMargin
+          });
+          newProfitMargin = 0;
+        }
+        
+        if (totalRevenue === 0 && newGrossMargin !== 0) {
+          console.warn(`逻辑错误: 总营收为0但毛利率为${newGrossMargin}%`);
+          newGrossMargin = 0;
+        }
+        
+        // 更多逻辑验证
+        if (profit > totalRevenue) {
+          console.warn(`逻辑错误: 利润(${profit})大于总营收(${totalRevenue})`);
+        }
+        
+        if (totalRevenue < 0 || totalCost < 0) {
+          console.warn(`逻辑错误: 存在负数值 - 营收:${totalRevenue}, 成本:${totalCost}`);
         }
         
         dataPoints.push({
@@ -867,7 +925,7 @@ window.AnalysisPage = (function() {
       
       if (config.factor !== 1 && window.calculator && data) {
         try {
-          const modifiedData = createModifiedData(data, selectedParam, paramValue);
+          const modifiedData = createModifiedData(data, selectedParam, paramValue, calculations);
           const newCalculations = window.calculator.calculate(modifiedData);
           paybackYears = newCalculations?.profitability?.paybackYears || basePaybackYears;
           
@@ -903,7 +961,7 @@ window.AnalysisPage = (function() {
   }
 
   // 创建修改后的数据副本 - 修正数据路径映射
-  function createModifiedData(originalData, paramName, newValue) {
+  function createModifiedData(originalData, paramName, newValue, baseCalculations = null) {
     const modifiedData = JSON.parse(JSON.stringify(originalData));
     
     // 根据实际数据结构设置数据路径
@@ -959,7 +1017,7 @@ window.AnalysisPage = (function() {
             name: '自定义收入',
             monthlyRevenue: monthlyValue,
             margin: 60, // 默认毛利率60%
-            formula: `${monthlyValue}`, // 使用固定值作为公式
+            formula: `${monthlyValue} * 12`, // 月度值 × 12 = 年度值
             variables: [],
             enabled: true
           });
@@ -969,10 +1027,10 @@ window.AnalysisPage = (function() {
             item.name && item.name.includes('洗护'));
           if (groomingIndex >= 0) {
             modifiedData.revenue.custom[groomingIndex].monthlyRevenue = monthlyValue;
-            modifiedData.revenue.custom[groomingIndex].formula = `${monthlyValue}`;
+            modifiedData.revenue.custom[groomingIndex].formula = `${monthlyValue} * 12`;
           } else {
             modifiedData.revenue.custom[0].monthlyRevenue = monthlyValue;
-            modifiedData.revenue.custom[0].formula = `${monthlyValue}`;
+            modifiedData.revenue.custom[0].formula = `${monthlyValue} * 12`;
           }
         }
         break;
@@ -990,29 +1048,80 @@ window.AnalysisPage = (function() {
         break;
         
       case 'totalRevenue':
-        // 总营收是计算结果，不能直接修改原始数据，这里使用会员基础价格作为调整点
-        const currentBasePrice = modifiedData.revenue?.member?.basePrice || 2499;
-        const currentTotalRevenue = getParamValue(modifiedData, 'totalRevenue'); // 使用估算值
+        // 总营收是计算结果，需要按比例调整所有收入来源
+        const currentTotalRevenue = baseCalculations?.revenue?.total || getParamValue(modifiedData, 'totalRevenue'); // 优先使用准确的基准值
         if (currentTotalRevenue > 0) {
           const scaleFactor = newValue / currentTotalRevenue;
-          ensurePath(modifiedData, 'revenue.member').basePrice = Math.round(currentBasePrice * scaleFactor);
+          
+          // 按比例调整所有主要收入来源
+          const currentBasePrice = modifiedData.revenue?.member?.basePrice || 2499;
+          ensurePath(modifiedData, 'revenue.member').basePrice = Math.round(Math.max(0, currentBasePrice * scaleFactor));
+          
+          const currentMedical = modifiedData.revenue?.medical?.monthlyRevenue || 50000;
+          ensurePath(modifiedData, 'revenue.medical').monthlyRevenue = Math.round(Math.max(0, currentMedical * scaleFactor));
+          
+          const currentRetail = modifiedData.revenue?.retail?.monthlyRevenue || 30000;
+          ensurePath(modifiedData, 'revenue.retail').monthlyRevenue = Math.round(Math.max(0, currentRetail * scaleFactor));
+          
+          const currentCafe = modifiedData.revenue?.cafe?.monthlyRevenue || 25000;
+          ensurePath(modifiedData, 'revenue.cafe').monthlyRevenue = Math.round(Math.max(0, currentCafe * scaleFactor));
+          
+          // 调整自定义收入
+          if (modifiedData.revenue?.custom && modifiedData.revenue.custom.length > 0) {
+            modifiedData.revenue.custom.forEach(item => {
+              if (item.monthlyRevenue) {
+                item.monthlyRevenue = Math.round(Math.max(0, item.monthlyRevenue * scaleFactor));
+                item.formula = `${item.monthlyRevenue} * 12`;
+              }
+            });
+          }
+        } else {
+          // 如果当前总营收为0，将所有收入设为0
+          ensurePath(modifiedData, 'revenue.member').basePrice = 0;
+          ensurePath(modifiedData, 'revenue.medical').monthlyRevenue = 0;
+          ensurePath(modifiedData, 'revenue.retail').monthlyRevenue = 0;
+          ensurePath(modifiedData, 'revenue.cafe').monthlyRevenue = 0;
+          if (modifiedData.revenue?.custom) {
+            modifiedData.revenue.custom.forEach(item => {
+              item.monthlyRevenue = 0;
+              item.formula = '0';
+            });
+          }
         }
         break;
         
       case 'totalCost':
-        // 总成本也是计算结果，通过调整租金单价来影响总成本
-        const currentRentPerDay = modifiedData.cost?.fixed?.rentPerSqmPerDay || 8;
-        const currentTotalCost = getParamValue(modifiedData, 'totalCost'); // 使用估算值
+        // 总成本也是计算结果，需要按比例调整主要成本组件
+        const currentTotalCost = baseCalculations?.cost?.total || getParamValue(modifiedData, 'totalCost'); // 优先使用准确的基准值
         if (currentTotalCost > 0) {
           const costScaleFactor = newValue / currentTotalCost;
-          ensurePath(modifiedData, 'cost.fixed').rentPerSqmPerDay = Math.round(currentRentPerDay * costScaleFactor);
+          
+          // 调整固定成本
+          const currentRentPerDay = modifiedData.cost?.fixed?.rentPerSqmPerDay || 8;
+          ensurePath(modifiedData, 'cost.fixed').rentPerSqmPerDay = Math.round(Math.max(0, currentRentPerDay * costScaleFactor));
+          
+          const currentSalary = modifiedData.cost?.fixed?.staffSalaryPerMonth || 12000;
+          ensurePath(modifiedData, 'cost.fixed').staffSalaryPerMonth = Math.round(Math.max(0, currentSalary * costScaleFactor));
+          
+          // 调整变动成本
+          const currentUtilities = modifiedData.cost?.variable?.utilitiesPerYear || 240000;
+          ensurePath(modifiedData, 'cost.variable').utilitiesPerYear = Math.round(Math.max(0, currentUtilities * costScaleFactor));
+          
+          const currentMisc = modifiedData.cost?.variable?.miscVariableAnnual || 48300;
+          ensurePath(modifiedData, 'cost.variable').miscVariableAnnual = Math.round(Math.max(0, currentMisc * costScaleFactor));
+        } else {
+          // 如果目标总成本为0，将主要成本组件设为0（但这在实际中不合理）
+          ensurePath(modifiedData, 'cost.fixed').rentPerSqmPerDay = 0;
+          ensurePath(modifiedData, 'cost.fixed').staffSalaryPerMonth = 0;
+          ensurePath(modifiedData, 'cost.variable').utilitiesPerYear = 0;
+          ensurePath(modifiedData, 'cost.variable').miscVariableAnnual = 0;
         }
         break;
         
       case 'totalCOGS':
         // 总业务成本通过调整会员毛利率来影响
         const currentMemberMargin = modifiedData.cost?.margins?.members || 60;
-        const currentCOGS = getParamValue(modifiedData, 'totalCOGS'); // 使用估算值
+        const currentCOGS = baseCalculations?.cost?.cogs?.total || getParamValue(modifiedData, 'totalCOGS'); // 优先使用准确的基准值
         if (currentCOGS > 0) {
           const cogsScaleFactor = newValue / currentCOGS;
           // 反向计算所需的毛利率调整
