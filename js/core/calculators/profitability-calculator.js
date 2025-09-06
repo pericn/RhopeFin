@@ -15,7 +15,7 @@ window.ProfitabilityCalculator = (function() {
       const invTotal = isNaN(investment.total) ? 0 : (investment.total || 0);
       
       const profit = (revTotal - costTotal) || 0;
-      const margin = revTotal > 0 ? ((profit / revTotal) * 100) || 0 : 0;
+      const margin = (revTotal > 0 && Math.abs(revTotal) >= 1) ? ((profit / revTotal) * 100) || 0 : 0;
       const paybackYears = (profit > 0 && invTotal > 0) ? (invTotal / profit) || 0 : Infinity;
 
       // ROI计算
@@ -25,15 +25,22 @@ window.ProfitabilityCalculator = (function() {
       const monthlyCashFlow = (profit / 12) || 0;
       const breakEvenRevenue = costTotal || 0;
 
+      // 额外的逻辑验证 - 确保财务逻辑正确性
+      let finalMargin = isNaN(margin) ? 0 : margin;
+      if (Math.abs(revTotal) < 1 && Math.abs(finalMargin) > 0.01) {
+        console.warn(`ProfitabilityCalculator: 总营收为${revTotal}，强制利润率从${finalMargin}%修正为0%`);
+        finalMargin = 0;
+      }
+
       return {
         profit: isNaN(profit) ? 0 : profit,
-        margin: isNaN(margin) ? 0 : margin,
+        margin: finalMargin,
         paybackYears: isNaN(paybackYears) ? Infinity : paybackYears,
         roi: isNaN(roi) ? 0 : roi,
         monthlyCashFlow: isNaN(monthlyCashFlow) ? 0 : monthlyCashFlow,
         breakEvenRevenue: isNaN(breakEvenRevenue) ? 0 : breakEvenRevenue,
         isProfitable: profit > 0,
-        profitLevel: this.categorizeProfitLevel(margin),
+        profitLevel: this.categorizeProfitLevel(finalMargin),
         metrics: this.calculateAdvancedMetrics(revenue, cost, investment, profit)
       };
     }
@@ -49,10 +56,10 @@ window.ProfitabilityCalculator = (function() {
       
       // 综合毛利率应该使用COGS而不是变动成本
       const grossProfit = (revTotal - costCOGSTotal) || 0;
-      const grossMargin = revTotal > 0 ? (((revTotal - costCOGSTotal) / revTotal) * 100) || 0 : 0;
+      const grossMargin = (revTotal > 0 && Math.abs(revTotal) >= 1) ? (((revTotal - costCOGSTotal) / revTotal) * 100) || 0 : 0;
       
       // 净利润率
-      const netMargin = revTotal > 0 ? ((profit / revTotal) * 100) || 0 : 0;
+      const netMargin = (revTotal > 0 && Math.abs(revTotal) >= 1) ? ((profit / revTotal) * 100) || 0 : 0;
       
       // 投资回报率（年化）
       const annualROI = invTotal > 0 ? ((profit / invTotal) * 100) || 0 : 0;
@@ -69,10 +76,17 @@ window.ProfitabilityCalculator = (function() {
       // 现金回收周期
       const cashRecoveryPeriod = (profit > 0) ? ((invTotal / (profit + costFixedTotal)) || 0) : Infinity;
 
+      // 额外的逻辑验证 - 确保毛利率逻辑正确性
+      let finalGrossMargin = isNaN(grossMargin) ? 0 : grossMargin;
+      if (Math.abs(revTotal) < 1 && Math.abs(finalGrossMargin) > 0.01) {
+        console.warn(`ProfitabilityCalculator: 总营收为${revTotal}，强制毛利率从${finalGrossMargin}%修正为0%`);
+        finalGrossMargin = 0;
+      }
+
       return {
         // 毛利润和毛利率
         grossProfit: isNaN(grossProfit) ? 0 : grossProfit,
-        grossMargin: isNaN(grossMargin) ? 0 : grossMargin,
+        grossMargin: finalGrossMargin,
         
         // 净利润率
         netMargin: isNaN(netMargin) ? 0 : netMargin,

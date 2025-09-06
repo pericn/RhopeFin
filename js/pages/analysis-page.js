@@ -861,16 +861,27 @@ window.AnalysisPage = (function() {
         const totalCost = newCalculations?.cost?.total || 0;
         const profit = newCalculations?.profitability?.profit || 0;
         
-        // 基本逻辑验证
-        if (totalRevenue === 0 && newProfitMargin !== 0) {
-          console.warn(`逻辑错误: 总营收为0但利润率为${newProfitMargin}%`, {
-            selectedParam, variation, newValue, totalRevenue, totalCost, profit, newProfitMargin
-          });
-          newProfitMargin = 0;
+        // 强制逻辑验证 - 总营收接近0时，所有利润率必须为0
+        if (Math.abs(totalRevenue) < 1) {
+          if (Math.abs(newProfitMargin) > 0.01) {
+            console.warn(`逻辑修正: 总营收为${totalRevenue}，强制利润率从${newProfitMargin}%修正为0%`, {
+              selectedParam, variation, newValue, totalRevenue, totalCost, profit, newProfitMargin
+            });
+            newProfitMargin = 0;
+          }
+          if (Math.abs(newGrossMargin) > 0.01) {
+            console.warn(`逻辑修正: 总营收为${totalRevenue}，强制毛利率从${newGrossMargin}%修正为0%`);
+            newGrossMargin = 0;
+          }
         }
         
-        if (totalRevenue === 0 && newGrossMargin !== 0) {
-          console.warn(`逻辑错误: 总营收为0但毛利率为${newGrossMargin}%`);
+        // 额外的NaN和无效值清理
+        if (isNaN(newProfitMargin) || !isFinite(newProfitMargin)) {
+          console.warn('利润率为NaN或无限值，重置为0');
+          newProfitMargin = 0;
+        }
+        if (isNaN(newGrossMargin) || !isFinite(newGrossMargin)) {
+          console.warn('毛利率为NaN或无限值，重置为0');
           newGrossMargin = 0;
         }
         
