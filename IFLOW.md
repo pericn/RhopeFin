@@ -226,6 +226,29 @@ The application can be easily deployed using free hosting services:
 - localStorage implementation for data persistence
 - Support for one-click preset parameter application
 
+## Version Management Rules
+
+### Version Number Format
+Using Semantic Versioning (SemVer) format: `Major.Minor.Patch`
+- **Major**: Incremented for major feature updates or architectural restructuring
+- **Minor**: Incremented for new features or significant improvements
+- **Patch**: Incremented for bug fixes or minor optimizations
+
+### Version Number Update Rules
+1. Update the version number with each commit that introduces new features or significant improvements
+2. Keep version numbers consistent across these locations:
+   - HTML page title
+   - HTML page corner display
+   - CLAUDE.md document
+   - IFLOW.md document
+3. Check and update version numbers before each push to GitHub
+
+### Version Number Locations
+1. HTML page title: `<title>宠物综合体经营测算 v2.0</title>`
+2. HTML page corner: `<div class="fixed bottom-2 right-2 text-xs text-gray-400">v2.0.0</div>`
+3. CLAUDE.md document: `**当前版本**: v2.0 模块化架构，已完成UI重构优化。`
+4. IFLOW.md document: `**Current Version**: v2.0 Modular Architecture with completed UI refactoring and optimization.`
+
 ## Key Files for Development
 
 1. `index_v2.html` - Main entry point and module loader (recommended)
