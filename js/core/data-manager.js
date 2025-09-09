@@ -15,6 +15,13 @@ class DataManager {
         daysPerYear: 365
       },
       
+      custom: {
+        var1: 0,
+        var2: 0,
+        var3: 0,
+        var4: 0
+      },
+      
       investment: {
         fitoutStandard: 7000,
         medicalInitial: 600000,

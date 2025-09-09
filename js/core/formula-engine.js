@@ -34,7 +34,13 @@ class FormulaEngine {
       // 成本参数
       rentPerSqmPerDay: data.cost?.fixed?.rentPerSqmPerDay || 0,
       propertyPerSqmPerMonth: data.cost?.fixed?.propertyPerSqmPerMonth || 0,
-      utilitiesPerYear: data.cost?.variable?.utilitiesPerYear || 0
+      utilitiesPerYear: data.cost?.variable?.utilitiesPerYear || 0,
+      
+      // 自定义变量
+      customVar1: data.custom?.var1 || 0,
+      customVar2: data.custom?.var2 || 0,
+      customVar3: data.custom?.var3 || 0,
+      customVar4: data.custom?.var4 || 0
     };
   }
 
@@ -194,7 +200,12 @@ class FormulaEngine {
       totalProfit: '年度总利润(元)',
       rentPerSqmPerDay: '租金(元/㎡/天)',
       propertyPerSqmPerMonth: '物业费(元/㎡/月)',
-      utilitiesPerYear: '年度水电费'
+      utilitiesPerYear: '年度水电费',
+      // 自定义变量
+      customVar1: '自定义变量1',
+      customVar2: '自定义变量2',
+      customVar3: '自定义变量3',
+      customVar4: '自定义变量4'
     };
     return descriptions[variableName] || variableName;
   }
