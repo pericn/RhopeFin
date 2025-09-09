@@ -87,6 +87,17 @@ window.MainCalculator = (function() {
         const scenarios = this.scenarioCalculator.calculate(data, cleanRevenue, cleanCost, cleanInvestment);
         const breakeven = this.breakevenCalculator.calculate(cleanRevenue, cleanCost, cleanInvestment);
 
+        // 第二次更新公式引擎上下文，包含计算结果
+        if (this.formulaEngine) {
+          const calculationResults = {
+            revenue: cleanRevenue,
+            cost: cleanCost,
+            investment: cleanInvestment,
+            profitability: profitability
+          };
+          this.formulaEngine.updateSystemContext(data, calculationResults);
+        }
+
         // 使用分析助手进行综合分析
         const comprehensiveAnalysis = window.AnalysisHelper ? 
           window.AnalysisHelper.performComprehensiveAnalysis({

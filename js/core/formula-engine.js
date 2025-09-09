@@ -5,7 +5,7 @@ class FormulaEngine {
   }
 
   // 更新系统变量上下文
-  updateSystemContext(data) {
+  updateSystemContext(data, calculations = null) {
     this.systemVariables = {
       // 基础参数
       memberCount: data.revenue?.member?.count || 0,
@@ -26,11 +26,43 @@ class FormulaEngine {
       retailMonthlyRevenue: data.revenue?.retail?.monthlyRevenue || 0,
       cafeMonthlyRevenue: data.revenue?.cafe?.monthlyRevenue || 0,
       
+      // 计算结果参数 - 优先使用计算结果，备用原始数据
+      totalRevenue: calculations?.revenue?.total || this.estimateTotalRevenue(data),
+      totalCost: calculations?.cost?.total || this.estimateTotalCost(data),
+      totalProfit: calculations?.profitability?.profit || 0,
+      
       // 成本参数
       rentPerSqmPerDay: data.cost?.fixed?.rentPerSqmPerDay || 0,
       propertyPerSqmPerMonth: data.cost?.fixed?.propertyPerSqmPerMonth || 0,
       utilitiesPerYear: data.cost?.variable?.utilitiesPerYear || 0
     };
+  }
+
+  // 估算总营收（当计算结果不可用时）
+  estimateTotalRevenue(data) {
+    const memberRevenue = (data.revenue?.member?.count || 300) * 
+                         (data.revenue?.member?.basePrice || 2499) * 
+                         ((data.revenue?.member?.basePct || 70) / 100);
+    const boardingRevenue = (data.revenue?.boarding?.rooms || 20) * 
+                           (data.revenue?.boarding?.adr || 400) * 365 * 
+                           ((data.revenue?.boarding?.occ || 70) / 100);
+    const medicalRevenue = (data.revenue?.medical?.monthlyRevenue || 50000) * 12;
+    const retailRevenue = (data.revenue?.retail?.monthlyRevenue || 30000) * 12;
+    const cafeRevenue = (data.revenue?.cafe?.monthlyRevenue || 25000) * 12;
+    
+    return memberRevenue + boardingRevenue + medicalRevenue + retailRevenue + cafeRevenue;
+  }
+
+  // 估算总成本（当计算结果不可用时）
+  estimateTotalCost(data) {
+    const rentCost = (data.basic?.areaSqm || 600) * 
+                    (data.cost?.fixed?.rentPerSqmPerDay || 8) * 365;
+    const staffCost = (data.cost?.fixed?.staffCount || 12) * 
+                     (data.cost?.fixed?.staffSalaryPerMonth || 12000) * 12;
+    const utilitiesCost = data.cost?.variable?.utilitiesPerYear || 240000;
+    const otherCosts = 200000; // 其他固定成本估算
+    
+    return rentCost + staffCost + utilitiesCost + otherCosts;
   }
 
   // 计算自定义公式
@@ -157,6 +189,9 @@ class FormulaEngine {
       medicalMonthlyRevenue: '月度医疗营收',
       retailMonthlyRevenue: '月度零售营收',
       cafeMonthlyRevenue: '月度餐饮/社交营收',
+      totalRevenue: '年度总营收(元)',
+      totalCost: '年度总成本(元)', 
+      totalProfit: '年度总利润(元)',
       rentPerSqmPerDay: '租金(元/㎡/天)',
       propertyPerSqmPerMonth: '物业费(元/㎡/月)',
       utilitiesPerYear: '年度水电费'
