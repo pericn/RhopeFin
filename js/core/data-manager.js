@@ -83,6 +83,14 @@ class DataManager {
         custom: [] // 自定义成本模块
       },
 
+      // Cross-module business assumptions (used for marketing efficiency / unit economics)
+      assumptions: {
+        // Customer Acquisition Cost: cost to acquire one paying customer (or one new member)
+        cac: 300,
+        // Lifetime Value: expected gross contribution (or revenue) per customer over the lifetime
+        ltv: 6000
+      },
+
       scenario: {
         optimisticRevenueFactor: 120,
         conservativeRevenueFactor: 80,

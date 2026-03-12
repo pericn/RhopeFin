@@ -40,14 +40,56 @@ window.OverviewPage = (function() {
       }, '导入数据')
     ]);
   
-  // 主概览页面组件
-  const OverviewPage = ({ data, calculations, updateData, currency = "¥" }) =>
-    h('div', { className: 'space-y-6' }, [
-      h(KeyMetrics, { key: 'key-metrics', calculations, currency }),
+  // 主概览页面组件（统一两栏：左主内容 + 右侧 InspectorPanel）
+  const OverviewPage = ({ data, calculations, updateData, currency = "¥" }) => {
+    const Term = window.RiloUI?.Term;
+
+    const glossaryTerms = {
+      cogs: { title: 'COGS / 业务成本', body: 'Cost of Goods Sold。直接随收入发生的成本（原材料、耗材、外包等），不含租金/人工等固定成本。' },
+      grossMargin: { title: '综合毛利率', body: '毛利润 ÷ 总收入。反映“卖出去的东西”本身赚不赚钱。' },
+      netMargin: { title: '净利润率', body: '净利润 ÷ 总收入。反映整体经营效率（扣除所有成本）。' },
+      payback: { title: '回本周期', body: '初始投资 ÷ 年净利润。若净利润≤0，则视为无法回本（Infinity）。' }
+    };
+
+    const left = h('div', { className: 'space-y-6' }, [
+      h(KeyMetrics, { key: 'key-metrics', data, calculations, currency, showDetails: false }),
       h(BusinessOverview, { key: 'business-overview', data, calculations, currency }),
       h(ScenarioQuickView, { key: 'scenario-view', calculations, currency }),
       h(AlertsAndInsights, { key: 'alerts', calculations, data, currency })
     ]);
+
+    const profit = calculations?.profitability?.profit || 0;
+    const margin = calculations?.profitability?.margin || 0;
+    const paybackYears = calculations?.profitability?.paybackYears ?? Infinity;
+
+    const conclusion = h('div', { className: 'space-y-3 text-sm text-gray-700' }, [
+      h('div', { key: 's1', className: 'rounded-xl border border-gray-200 bg-white p-3' }, [
+        h('div', { key: 't', className: 'font-semibold text-gray-900' }, '当前状态'),
+        h('div', { key: 'b' }, profit > 0 ? `✅ 年净利润为正（约 ${currency}${Math.round(profit/10000)} 万）` : `❌ 年净利润为负（约 ${currency}${Math.round(profit/10000)} 万）`)
+      ]),
+      h('div', { key: 's2', className: 'rounded-xl border border-gray-200 bg-white p-3' }, [
+        h('div', { key: 't', className: 'font-semibold text-gray-900' }, '关键结论'),
+        h('div', { key: 'b' }, [
+          h('div', { key: 'm' }, ['净利润率：', Term ? h(Term, { termKey: 'netMargin' }, `${margin.toFixed(1)}%`) : `${margin.toFixed(1)}%`]),
+          h('div', { key: 'p' }, ['回本周期：', Term ? h(Term, { termKey: 'payback' }, paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)} 年`) : (paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)} 年`)])
+        ])
+      ])
+    ]);
+
+    const process = h('div', { className: 'space-y-4' }, [
+      h('div', { key: 'hint', className: 'text-xs text-gray-500' }, '默认收起：需要时再展开细节。'),
+      h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency })
+    ]);
+
+    return window.RiloUI?.TwoPaneLayout ?
+      h(window.RiloUI.TwoPaneLayout, {
+        left,
+        inspectorTitle: '财务分析 Inspector',
+        conclusion,
+        process,
+        glossaryTerms
+      }) : left;
+  };
 
   // 数据操作区
   const DataActions = ({ data, updateData }) => {
@@ -181,17 +223,22 @@ window.OverviewPage = (function() {
   };
   
   // 关键指标展示
-  const KeyMetrics = ({ calculations, currency }) => {
+  const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
     if (!calculations) return null;
     const { revenue, cost, profitability, investment } = calculations;
     const profit = profitability?.profit || 0;
     const margin = profitability?.margin || 0;
-    const paybackYears = profitability?.paybackYears || Infinity;
+    const paybackYears = profitability?.paybackYears ?? Infinity;
     
     // 计算毛利润相关指标
     const cogs = cost?.cogs?.total || 0;
     const grossProfit = (revenue?.total || 0) - cogs;
     const grossMargin = revenue?.total > 0 ? (grossProfit / revenue.total) * 100 : 0;
+
+    // Unit economics (simple): LTV:CAC from settings assumptions
+    const cac = data?.assumptions?.cac ?? 0;
+    const ltv = data?.assumptions?.ltv ?? 0;
+    const ltvCac = cac > 0 ? (ltv / cac) : null;
     
     const metrics = [
       [// 主要指标
@@ -209,7 +256,8 @@ window.OverviewPage = (function() {
         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
-        { key: 'monthly-cashflow', title: '月度现金流', value: profit ? (profit / 12 / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'green' : 'red' }
+        { key: 'monthly-cashflow', title: '月度现金流', value: profit ? (profit / 12 / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'green' : 'red' },
+        { key: 'ltv-cac', title: 'LTV:CAC', value: ltvCac === null ? '—' : ltvCac.toFixed(1), suffix: 'x', color: ltvCac !== null && ltvCac >= 3 ? 'success' : ltvCac !== null && ltvCac >= 1 ? 'warning' : 'danger' }
       ]
     ];
 
@@ -219,9 +267,9 @@ window.OverviewPage = (function() {
         metrics[0].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
       h('div', { key: 'secondary', className: 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-4' },
         metrics[1].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h('div', { key: 'tertiary', className: 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-4' },
+      h('div', { key: 'tertiary', className: 'grid grid-cols-1 md:grid-cols-4 gap-4 mb-4' },
         metrics[2].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency }),
+      showDetails && h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency }),
       h(StatusIndicator, { key: 'status', profit })
     ]);
   };

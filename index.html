@@ -24,6 +24,20 @@
   
   <!-- 自定义样式 -->
   <style>
+    :root {
+      /* Design tokens (minimal, can be expanded later) */
+      --rilo-accent: #2563EB; /* Tailwind v2 blue-600 */
+      --rilo-accent-500: #3B82F6; /* Tailwind v2 blue-500 (optional) */
+      --rilo-accent-50: #EFF6FF;
+      --rilo-muted: #6B7280;
+
+      /* Optional “poetic cool” palette B (docs/design-tokens.md) */
+      --rilo-ink: #0F172A; /* slate-900 */
+      --rilo-fog: #F8FAFC; /* slate-50 */
+      --rilo-qingdai: #2F3A4A;
+      --rilo-mist-blue: #AFC4DA;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     }
@@ -31,7 +45,7 @@
     /* 加载动画 */
     .loading-spinner {
       border: 2px solid #f3f4f6;
-      border-top: 2px solid #3b82f6;
+      border-top: 2px solid var(--rilo-accent);
       border-radius: 50%;
       width: 32px;
       height: 32px;
@@ -103,7 +117,7 @@
   <script>
     // 模块加载状态跟踪
     let loadedModules = 0;
-    const totalModules = 60; // 实际加载的script数量
+    const totalModules = 58; // 实际加载的script数量
     
     function updateLoadingProgress() {
       loadedModules++;

@@ -27,83 +27,73 @@ window.AnalysisPage = (function() {
     return '自定义收入'; // 默认名称
   };
 
-  // 敏感度分析页面组件 - 重新设计，更加直观易懂
+  // 敏感度分析页面组件（统一两栏：左主内容 + 右侧 InspectorPanel）
   const AnalysisPage = ({ data, calculations, formulaEngine, currency = "¥" }) => {
+    const Term = window.RiloUI?.Term;
     const [selectedParam, setSelectedParam] = React.useState('fitoutStandard');
     const [paramRange, setParamRange] = React.useState(20); // 参数变化范围百分比
     const [impactMetric, setImpactMetric] = React.useState('paybackYears'); // 影响指标
-    
-    return React.createElement('div', {
-      className: 'max-w-7xl mx-auto px-4 py-6 space-y-8'
-    }, [
-      // 页面标题和说明
-      React.createElement(PageHeader, {
-        key: 'header'
-      }),
-      
-      // 参数选择控制面板
+
+    const glossaryTerms = {
+      sensitivity: { title: '敏感度分析', body: '在其它条件不变的情况下，只改变一个参数，观察结果指标的变化，用于识别最“要命”的杠杆。' },
+      payback: { title: '回本周期', body: '初始投资 ÷ 年净利润。净利润≤0 时为 Infinity（无法回本）。' },
+      margin: { title: '利润率/毛利率', body: '利润率看整体经营效率；毛利率看“卖出去的东西”本身赚不赚钱。' }
+    };
+
+    const left = React.createElement('div', { className: 'space-y-8' }, [
+      React.createElement(PageHeader, { key: 'header' }),
       React.createElement(ControlPanel, {
         key: 'control-panel',
-        selectedParam: selectedParam,
-        paramRange: paramRange,
-        impactMetric: impactMetric,
+        selectedParam,
+        paramRange,
+        impactMetric,
         onParamChange: setSelectedParam,
         onRangeChange: setParamRange,
         onMetricChange: setImpactMetric,
-        data: data
+        data
       }),
-
-      // 三栏布局：图表 + 核心指标 + 情景分析
-      React.createElement('div', {
-        key: 'main-content',
-        className: 'grid grid-cols-1 lg:grid-cols-3 gap-8'
-      }, [
-        // 左栏：影响图表
-        React.createElement('div', {
-          key: 'chart-column',
-          className: 'lg:col-span-2'
-        }, [
-          React.createElement(SensitivityChart, {
-            key: 'sensitivity-chart',
-            data: data,
-            calculations: calculations,
-            selectedParam: selectedParam,
-            paramRange: paramRange,
-            impactMetric: impactMetric,
-            currency: currency
-          })
-        ]),
-        
-        // 右栏：关键指标卡片
-        React.createElement('div', {
-          key: 'metrics-column',
-          className: 'space-y-6'
-        }, [
-          React.createElement(KeyMetrics, {
-            key: 'key-metrics',
-            data: data,
-            calculations: calculations,
-            selectedParam: selectedParam,
-            currency: currency
-          }),
-          React.createElement(QuickInsights, {
-            key: 'quick-insights',
-            selectedParam: selectedParam,
-            paramRange: paramRange
-          })
-        ])
-      ]),
-      
-      // 底部：详细情景对比表
+      React.createElement(SensitivityChart, {
+        key: 'sensitivity-chart',
+        data,
+        calculations,
+        selectedParam,
+        paramRange,
+        impactMetric,
+        currency
+      }),
       React.createElement(ScenarioTable, {
         key: 'scenario-table',
-        data: data,
-        calculations: calculations,
-        selectedParam: selectedParam,
-        paramRange: paramRange,
-        currency: currency
+        data,
+        calculations,
+        selectedParam,
+        paramRange,
+        currency
       })
     ]);
+
+    const conclusion = React.createElement('div', { className: 'space-y-3 text-sm text-gray-700' }, [
+      React.createElement('div', { key: 'c0', className: 'rounded-xl border border-gray-200 bg-white p-3' }, [
+        React.createElement('div', { key: 't', className: 'font-semibold text-gray-900' }, '你在看什么'),
+        React.createElement('div', { key: 'b', className: 'mt-1' }, [
+          Term ? React.createElement(Term, { termKey: 'sensitivity' }, '敏感度分析') : '敏感度分析',
+          '：把一个参数在±范围内滑动，看回本/利润率/毛利率怎么变。'
+        ])
+      ]),
+      React.createElement(QuickInsights, { key: 'quick-insights', selectedParam, paramRange })
+    ]);
+
+    const process = React.createElement('div', { className: 'space-y-4' }, [
+      React.createElement(KeyMetrics, { key: 'key-metrics', data, calculations, selectedParam, currency }),
+      React.createElement('div', { key: 'p-tip', className: 'text-xs text-gray-500' }, '提示：把 impactMetric 切到“利润率/综合毛利率”，更容易看出“赚钱能力”对参数的响应。')
+    ]);
+
+    return window.RiloUI?.TwoPaneLayout ? React.createElement(window.RiloUI.TwoPaneLayout, {
+      left,
+      inspectorTitle: '敏感度分析 Inspector',
+      conclusion,
+      process,
+      glossaryTerms
+    }) : left;
   };
 
   // 页面标题组件

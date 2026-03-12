@@ -349,7 +349,9 @@ window.UIComponents = (function() {
         // locale: antd.locale.zhCN, // 暂时禁用，需要正确的 v5 locale 导入方式
         theme: {
           token: {
-            colorPrimary: '#1890ff',
+            // Use a single global accent token (defined in index.html :root)
+            colorPrimary: 'var(--rilo-accent)',
+            colorInfo: 'var(--rilo-accent)',
             borderRadius: 8,
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
           }

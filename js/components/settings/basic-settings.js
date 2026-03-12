@@ -63,6 +63,30 @@ window.BasicSettings = (function() {
         })
       ]),
 
+      // 核心经营假设（轻量级：不占主屏太多空间；需要时可在 Inspector 看更多解释）
+      React.createElement('div', {
+        key: 'assumptions-row',
+        className: 'flex gap-4 w-full'
+      }, [
+        React.createElement(window.UIComponents.Input, {
+          key: 'cac-input',
+          label: 'CAC（获客成本）',
+          value: data?.assumptions?.cac ?? 0,
+          onChange: (value) => updateField('assumptions.cac', value),
+          hint: '获取 1 个付费客户/会员的平均成本',
+          width: '25%'
+        }),
+        React.createElement(window.UIComponents.Input, {
+          key: 'ltv-input',
+          label: 'LTV（客户生命周期价值）',
+          value: data?.assumptions?.ltv ?? 0,
+          onChange: (value) => updateField('assumptions.ltv', value),
+          hint: '单客户预期贡献（可先用收入或毛利近似）',
+          width: '25%'
+        }),
+        React.createElement('div', { key: 'spacer', style: { flex: 1 } })
+      ]),
+
       React.createElement(BasicDataDisplay, {
         key: 'basic-calculations',
         data: basicData

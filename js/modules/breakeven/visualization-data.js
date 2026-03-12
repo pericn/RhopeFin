@@ -2,6 +2,16 @@
 window.BreakevenVisualizationData = (function() {
   'use strict';
 
+  // Single source of truth for accent color (defined in index.html :root)
+  const getAccentColor = () => {
+    try {
+      const v = getComputedStyle(document.documentElement).getPropertyValue('--rilo-accent').trim();
+      return v || '#2563EB';
+    } catch (e) {
+      return '#2563EB';
+    }
+  };
+
   /**
    * 生成高级图表数据用于更复杂的可视化
    * @param {Object} calculations - 财务计算数据
@@ -66,7 +76,7 @@ window.BreakevenVisualizationData = (function() {
       colors: {
         profitLine: options.profitColor || '#10B981',
         breakevenLine: options.breakevenColor || '#EF4444',
-        currentPoint: options.currentColor || '#3B82F6',
+        currentPoint: options.currentColor || getAccentColor(),
         breakevenPoint: options.breakevenPointColor || '#F59E0B'
       },
       showGrid: options.showGrid !== false,
