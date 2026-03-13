@@ -108,7 +108,7 @@ window.AnalysisPage = (function() {
       React.createElement('p', {
         key: 'subtitle',
         className: 'text-lg text-gray-600 max-w-2xl mx-auto'
-      }, '分析关键参数变化对经营利润的影响程度，为决策提供数据支持')
+      }, '全局敏感度分析：在全局口径下观察单参数变化对回本/利润率/毛利率的影响')
     ]);
   };
 
@@ -243,6 +243,7 @@ window.AnalysisPage = (function() {
     ]);
   };
 
+  // TODO: 默认指标保持“回本周期”；百分比指标展示为一位小数
   // 影响指标选择组件
   const MetricSelect = ({ impactMetric, onMetricChange }) => {
     const metrics = [
@@ -770,7 +771,8 @@ window.AnalysisPage = (function() {
     const baseValue = getParamValue(data, selectedParam, calculations);
     const basePaybackYears = calculations?.profitability?.paybackYears || 8;
     const baseProfitMargin = calculations?.profitability?.margin || 0;
-    const baseGrossMargin = calculations?.profitability?.grossMargin || 0;
+    // 修正：综合毛利率来自 profitability.metrics.grossMargin，而非顶层
+    const baseGrossMargin = calculations?.profitability?.metrics?.grossMargin || 0;
     const dataPoints = [];
     
     console.log(`[基准值验证] 参数:${selectedParam}`, {
@@ -844,7 +846,8 @@ window.AnalysisPage = (function() {
         const newCalculations = window.calculator.calculate(modifiedData);
         const newPaybackYears = newCalculations?.profitability?.paybackYears || 0;
         let newProfitMargin = newCalculations?.profitability?.margin || 0;
-        let newGrossMargin = newCalculations?.profitability?.grossMargin || 0;
+        // 修正：综合毛利率读取自 metrics.grossMargin，避免错误为 0
+        let newGrossMargin = newCalculations?.profitability?.metrics?.grossMargin || 0;
         
         // 验证计算结果的逻辑合理性
         const totalRevenue = newCalculations?.revenue?.total || 0;

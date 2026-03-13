@@ -223,6 +223,7 @@ window.OverviewPage = (function() {
   };
   
   // 关键指标展示
+  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
     if (!calculations) return null;
     const { revenue, cost, profitability, investment } = calculations;
@@ -241,18 +242,18 @@ window.OverviewPage = (function() {
     const ltvCac = cac > 0 ? (ltv / cac) : null;
     
     const metrics = [
-      [// 主要指标
+      [// 主要指标（成本前置：确保总成本上主行）
         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
       ],
-      [// 运营指标
-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+      [// 运营指标（下沉 COGS，保持净利与净利率）
+        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
       ],
-      [// 投资指标  
+      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },

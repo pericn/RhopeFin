@@ -3,6 +3,27 @@ window.SettingsPage = (function() {
 
   // 主设置页面组件
   const SettingsPage = ({ data, updateData, formulaEngine }) => {
+    // TODO(交互校验)：入住率控件需要 0–100 且保留 1 位小数；越界自动夹到 [0,100]
+
+    // 基础计算结果（用于左侧“基础结果”区域）
+    let calculations = null;
+    if (window.MainCalculator && formulaEngine) {
+      try {
+        const calculator = new window.MainCalculator(formulaEngine);
+        calculations = calculator.calculate(data);
+      } catch (e) {
+        console.warn('基础结果计算失败', e);
+      }
+    }
+
+    const paybackLabel = (() => {
+      const profit = calculations?.profitability?.profit || 0;
+      const pb = calculations?.profitability?.paybackYears;
+      if (!calculations) return '—';
+      if (!isFinite(pb) || profit <= 0) return '无法回本';
+      return `${(pb || 0).toFixed(1)} 年`;
+    })();
+
     const glossaryTerms = {
       fitout: { title: '装修标准', body: '每平米装修投入标准。影响初始投资与回本周期。' },
       cogs: { title: '业务成本 (COGS)', body: '随收入发生的直接成本，不含租金/人工等固定成本。' },
@@ -40,6 +61,47 @@ window.SettingsPage = (function() {
           data,
           updateData,
           formulaEngine
+        })
+      ]),
+
+      // 基础结果（最小可行显示）—— 年总营收 / 年总成本 / 年净利润 / 净利润率 / 回本周期
+      React.createElement(window.UIComponents.Section, {
+        key: 'basic-outcomes',
+        title: '📌 基础结果'
+      }, [
+        React.createElement(window.UIComponents.KPI, {
+          key: 'kpi-revenue',
+          title: '年总营收',
+          value: calculations?.revenue?.total || 0,
+          format: 'currency',
+          color: 'blue'
+        }),
+        React.createElement(window.UIComponents.KPI, {
+          key: 'kpi-cost',
+          title: '年总成本',
+          value: calculations?.cost?.total || 0,
+          format: 'currency',
+          color: 'gray'
+        }),
+        React.createElement(window.UIComponents.KPI, {
+          key: 'kpi-profit',
+          title: '年净利润',
+          value: calculations?.profitability?.profit || 0,
+          format: 'currency',
+          color: (calculations?.profitability?.profit || 0) >= 0 ? 'green' : 'red'
+        }),
+        React.createElement(window.UIComponents.KPI, {
+          key: 'kpi-margin',
+          title: '净利润率',
+          value: calculations ? (calculations?.profitability?.margin || 0) : 0,
+          format: 'percent',
+          color: 'purple'
+        }),
+        React.createElement(window.UIComponents.KPI, {
+          key: 'kpi-payback',
+          title: '回本周期',
+          value: paybackLabel,
+          color: 'orange'
         })
       ]),
 
