@@ -132,3 +132,27 @@
 - 风险 / 阻塞：退出码 0
 - 下一步：查看 tmp/codex-rounds/round-20260313-230055.log 与 docs/round-baton.md，决定下一轮
 - 是否快照：no
+
+## 2026-03-13 23:35 GMT+8
+- 时间：2026-03-13 23:35 GMT+8
+- 当前子任务：合并 swarm 结果回主线（settings / overview / analysis / visual-plan）
+- 状态：done
+- 风险 / 阻塞：需要立刻跑 review gate，防止多线改动带来边界问题
+- 下一步：git add 后执行 scripts/review_codex.sh staged
+- 是否快照：no
+
+## 2026-03-13 23:36 GMT+8
+- 时间：2026-03-13 23:36 GMT+8
+- 当前子任务：修复 review gate 脚本与当前 codex CLI 参数兼容性
+- 状态：done
+- 风险 / 阻塞：无；已去除过时参数 -a never
+- 下一步：重跑 scripts/review_codex.sh staged
+- 是否快照：no
+
+## 2026-03-13 23:40 GMT+8
+- 时间：2026-03-13 23:40 GMT+8
+- 当前子任务：review gate 通过，进入最终固化
+- 状态：done
+- 风险 / 阻塞：review 提示仅有一个低优先级脚本建议，不阻塞交付
+- 下一步：commit 当前主线改动，并继续做最后快验
+- 是否快照：yes

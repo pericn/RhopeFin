@@ -76,7 +76,7 @@ window.AnalysisPage = (function() {
         React.createElement('div', { key: 't', className: 'font-semibold text-gray-900' }, '你在看什么'),
         React.createElement('div', { key: 'b', className: 'mt-1' }, [
           Term ? React.createElement(Term, { termKey: 'sensitivity' }, '敏感度分析') : '敏感度分析',
-          '：把一个参数在±范围内滑动，看回本/利润率/毛利率怎么变。'
+          '（全局口径，其他参数不变）：滑动一个参数，观察回本/利润率/毛利率的变化。'
         ])
       ]),
       React.createElement(QuickInsights, { key: 'quick-insights', selectedParam, paramRange })
@@ -273,7 +273,7 @@ window.AnalysisPage = (function() {
       React.createElement('p', {
         key: 'description',
         className: 'text-sm text-blue-700'
-      }, '选择要分析的影响指标')
+      }, '选择要分析的影响指标（默认回本周期，全局口径）')
     ]);
   };
 
@@ -527,7 +527,7 @@ window.AnalysisPage = (function() {
     const currentUnit = metricUnits[impactMetric] || '年';
     
     return React.createElement('div', { className: 'text-center mb-4' }, [
-      React.createElement('div', { key: 'title', className: 'text-lg font-semibold text-gray-700 mb-2' }, `参数变化对${currentMetric}的影响`),
+      React.createElement('div', { key: 'title', className: 'text-lg font-semibold text-gray-700 mb-2' }, `参数变化对${currentMetric}的全局影响`),
       React.createElement('div', { key: 'range-info', className: 'flex justify-between items-center text-sm font-medium' }, [
         ['📉 -', '📊 基准值', '📈 +'].map((icon, i) => React.createElement('span', {
           key: i, className: `px-3 py-1 rounded-full ${['text-red-600 bg-red-100', 'text-gray-600 bg-gray-100', 'text-green-600 bg-green-100'][i]}`

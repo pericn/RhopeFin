@@ -223,7 +223,7 @@ window.OverviewPage = (function() {
   };
   
   // 关键指标展示
-  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+  // 已添加 RevPAR（每间可售房晚收入）作为次级指标：ADR × 入住率（%）
   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
     if (!calculations) return null;
     const { revenue, cost, profitability, investment } = calculations;
@@ -235,6 +235,12 @@ window.OverviewPage = (function() {
     const cogs = cost?.cogs?.total || 0;
     const grossProfit = (revenue?.total || 0) - cogs;
     const grossMargin = revenue?.total > 0 ? (grossProfit / revenue.total) * 100 : 0;
+
+    // RevPAR（每间可售房晚收入）= ADR × 入住率
+    const adr = Number(data?.revenue?.boarding?.adr) || 0;
+    const occPctRaw = Number(data?.revenue?.boarding?.occ);
+    const occPct = isNaN(occPctRaw) ? 0 : Math.min(Math.max(occPctRaw, 0), 100);
+    const revpar = adr * (occPct / 100);
 
     // Unit economics (simple): LTV:CAC from settings assumptions
     const cac = data?.assumptions?.cac ?? 0;
@@ -248,8 +254,9 @@ window.OverviewPage = (function() {
         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
       ],
-      [// 运营指标（下沉 COGS，保持净利与净利率）
+      [// 运营指标（下沉 COGS，保持净利与净利率，并加入 RevPAR 次级位）
         { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+        { key: 'revpar', title: '每间可售房晚收入', value: revpar.toFixed(0), suffix: '元/间夜', color: 'teal' },
         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
       ],

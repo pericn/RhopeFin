@@ -78,7 +78,7 @@ EOF
   echo
 } > "$OUT_FILE"
 
-cat "$DIFF_FILE" | codex exec -m "$MODEL" -s read-only -a never -C . "$PROMPT" \
+cat "$DIFF_FILE" | codex exec -m "$MODEL" -s read-only -C . "$PROMPT" \
   | tee -a "$OUT_FILE"
 
 if grep -q "^VERDICT: patch is incorrect" "$OUT_FILE"; then

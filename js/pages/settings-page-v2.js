@@ -27,7 +27,8 @@ window.SettingsPage = (function() {
     const glossaryTerms = {
       fitout: { title: '装修标准', body: '每平米装修投入标准。影响初始投资与回本周期。' },
       cogs: { title: '业务成本 (COGS)', body: '随收入发生的直接成本，不含租金/人工等固定成本。' },
-      margin: { title: '利润率', body: '净利润 ÷ 总收入。用于衡量整体经营效率。' }
+      margin: { title: '利润率', body: '净利润 ÷ 总收入。用于衡量整体经营效率。' },
+      payback: { title: '回本周期', body: '回本周期 = 初始投资 ÷ 年净利润；当净利润≤0 时视为无法回本。' }
     };
 
     const left = React.createElement('div', { className: 'space-y-6' }, [
@@ -67,7 +68,23 @@ window.SettingsPage = (function() {
       // 基础结果（最小可行显示）—— 年总营收 / 年总成本 / 年净利润 / 净利润率 / 回本周期
       React.createElement(window.UIComponents.Section, {
         key: 'basic-outcomes',
-        title: '📌 基础结果'
+        title: '📌 基础结果',
+        right: React.createElement(window.UIComponents.Tooltip, {
+          key: 'basic-outcomes-hint',
+          content: React.createElement('div', { className: 'space-y-1' }, [
+            React.createElement('div', { key: 'h1', className: 'text-xs' }, '轻提示：核心术语'),
+            React.createElement('div', { key: 'h2', className: 'text-xs text-gray-200' }, ''),
+            React.createElement('div', { key: 'b1', className: 'text-xs text-white' }, [
+              '净利润率：',
+              React.createElement(window.RiloUI?.Term || 'span', { key: 't1', termKey: 'margin' }, '净利润 ÷ 总收入')
+            ]),
+            React.createElement('div', { key: 'b2', className: 'text-xs text-white' }, [
+              '回本周期：',
+              React.createElement(window.RiloUI?.Term || 'span', { key: 't2', termKey: 'payback' }, '初始投资 ÷ 年净利润')
+            ]),
+            React.createElement('div', { key: 'h3', className: 'text-xs opacity-80' }, '在右侧“术语”可查看详情')
+          ])
+        }, React.createElement('span', { className: 'text-xs text-gray-500 underline decoration-dotted cursor-help' }, '术语提示'))
       }, [
         React.createElement(window.UIComponents.KPI, {
           key: 'kpi-revenue',
@@ -95,13 +112,13 @@ window.SettingsPage = (function() {
           title: '净利润率',
           value: calculations ? (calculations?.profitability?.margin || 0) : 0,
           format: 'percent',
-          color: 'purple'
+          color: (calculations?.profitability?.margin || 0) >= 0 ? 'green' : 'red'
         }),
         React.createElement(window.UIComponents.KPI, {
           key: 'kpi-payback',
           title: '回本周期',
           value: paybackLabel,
-          color: 'orange'
+          color: (!calculations || (calculations?.profitability?.profit || 0) <= 0 || !isFinite(calculations?.profitability?.paybackYears)) ? 'red' : 'orange'
         })
       ]),
 
