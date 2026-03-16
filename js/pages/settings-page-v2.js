@@ -3,6 +3,7 @@ window.SettingsPage = (function() {
 
   // 主设置页面组件
   const SettingsPage = ({ data, updateData, formulaEngine }) => {
+    const [showDrawer, setShowDrawer] = React.useState(false);
     // TODO(交互校验)：入住率控件需要 0-100 且保留 1 位小数；越界自动夹到 [0,100]
 
     // 基础计算结果（用于左侧"基础结果"区域）
@@ -32,6 +33,16 @@ window.SettingsPage = (function() {
     };
 
     const left = React.createElement('div', { className: 'space-y-6' }, [
+      // 顶部工具栏：术语按钮
+      React.createElement('div', { key: 'top-bar', className: 'flex justify-end mb-2' }, [
+        React.createElement(window.UIComponents.Button, {
+          key: 'terms-btn',
+          onClick: () => setShowDrawer(true),
+          variant: 'outline',
+          size: 'small'
+        }, '📖 术语说明')
+      ]),
+
       // 基础设置
       React.createElement(window.BasicSettings.BasicSettings, {
         key: 'basic-settings',
@@ -192,13 +203,24 @@ window.SettingsPage = (function() {
       ])
     ]);
 
-    return window.RiloUI?.TwoPaneLayout ? React.createElement(window.RiloUI.TwoPaneLayout, {
+    const mainContent = window.RiloUI?.TwoPaneLayout ? React.createElement(window.RiloUI.TwoPaneLayout, {
+      leftTitle: null,
       left,
       inspectorTitle: '参数配置 Inspector',
       conclusion,
       process,
       glossaryTerms
     }) : left;
+
+    // 根渲染：主内容 + 抽屉
+    return React.createElement(React.Fragment, null,
+      mainContent,
+      window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
+        isOpen: showDrawer,
+        onClose: () => setShowDrawer(false),
+        glossaryTerms: Object.assign({}, glossaryTerms, window.RiloUI.termRegistry || {})
+      }) : null
+    );
   };
 
   return { SettingsPage };

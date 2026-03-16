@@ -8,7 +8,7 @@
 
   // ChartCard: Simple container for a chart with title
   const ChartCard = ({ title, children }) =>
-    React.createElement('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] p-6 shadow-sm' }, [
+    React.createElement('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] p-6' }, [
       React.createElement('h3', { key: 'title', className: 'text-lg font-semibold mb-4 text-[var(--rilo-text-1)]' }, title),
       children
     ]);
