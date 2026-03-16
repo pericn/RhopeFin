@@ -145,7 +145,7 @@ window.SettingsPage = (function() {
                     const presetData = window.dataManager.applyPreset();
                     // 保留用户的项目名称
                     const preservedProjectName = data?.basic?.projectName;
-                    if (preservedProjectName && preservedProjectName !== "Hopeful 宠物综合体（示例）") {
+                    if (preservedProjectName && preservedProjectName !== "Rilo Analysis 示例") {
                       presetData.basic.projectName = preservedProjectName;
                     }
                     updateData(presetData);

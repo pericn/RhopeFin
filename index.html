@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>宠物综合体经营测算 v2.0</title>
+  <title>Rilo Analysis - 宠物综合体经营测算 v2.0</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <meta name="description" content="专业的宠物综合体财务建模工具，支持收入预测、成本分析、投资回报计算和情景分析">
-  <meta name="keywords" content="宠物综合体,经营测算,财务建模,投资回报,盈亏平衡">
+  <meta name="description" content="Rilo Analysis: 专业的宠物综合体财务建模工具，支持收入预测、成本分析、投资回报计算和情景分析">
+  <meta name="keywords" content="Rilo Analysis,宠物综合体,经营测算,财务建模,投资回报,盈亏平衡">
   
   <!-- 外部依赖 -->
   <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
@@ -228,7 +228,10 @@
   <!-- 5. 共享壳层组件 (TwoPaneLayout, Inspector, Term) -->
   <script src="js/shared/rilo-ui.js" onerror="handleModuleError('RiloUI', event)" onload="updateLoadingProgress()"></script>
   
-  <!-- 5a. 定义说明抽屉 -->
+  <!-- 5a. 术语注册表 -->
+  <script src="js/shared/term-registry.js" onerror="handleModuleError('TermRegistry', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 5b. 定义说明抽屉 -->
   <script src="js/components/rilo-ui/drawer.js" onerror="handleModuleError('DefinitionsDrawer', event)" onload="updateLoadingProgress()"></script>
   
   <!-- 6. 图表组件 (拆分后) -->

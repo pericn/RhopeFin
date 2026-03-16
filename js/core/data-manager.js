@@ -10,7 +10,7 @@ class DataManager {
     return {
       basic: {
         currency: "¥",
-        projectName: "Hopeful 宠物综合体（示例）",
+        projectName: "Rilo Analysis 示例",
         areaSqm: 300,
         daysPerYear: 365
       },
@@ -272,7 +272,7 @@ class DataManager {
       ...this.getInitialData(),
       basic: {
         ...this.getInitialData().basic,
-        projectName: "Hopeful 宠物综合体（预设示例）"
+        projectName: "Rilo Analysis 预设示例"
       }
     };
     

@@ -12,11 +12,14 @@
   const Term = ({ termKey, children }) => {
     const api = useInspector();
     if (!api) return children;
+    const term = window.RiloUI?.getTermDefinition ? window.RiloUI.getTermDefinition(termKey) : null;
     return React.createElement('span', {
       className: 'underline decoration-dotted cursor-help text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)]',
       onMouseEnter: () => {
-        api.setActiveSection('glossary');
-        api.setSelectedTerm(termKey);
+        if (term) {
+          api.setActiveSection('glossary');
+          api.setSelectedTerm(termKey);
+        }
       }
     }, children);
   };

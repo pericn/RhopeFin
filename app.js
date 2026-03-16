@@ -191,8 +191,16 @@
     return window.UIComponents.createAntdApp(
       React.createElement('div', {
         key: 'app-wrapper',
-        className: 'min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50'
+        className: 'min-h-screen bg-[var(--rilo-bg-deep)]'
       }, [
+        // 术语抽屉
+        window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
+          key: 'definitions-drawer',
+          isOpen: isDrawerOpen,
+          onClose: () => setIsDrawerOpen(false),
+          glossaryTerms: window.RiloUI.termRegistry || {}
+        }) : null,
+
         React.createElement('div', {
           key: 'container',
           className: 'container mx-auto px-4 py-8'
@@ -200,7 +208,7 @@
           // 顶部标题栏
           React.createElement('div', {
             key: 'header',
-            className: 'bg-white rounded-2xl shadow mb-6'
+            className: 'bg-[var(--rilo-surface-1)] rounded-2xl shadow mb-6 border border-[var(--rilo-border-deep)]'
           }, [
             React.createElement('div', {
               key: 'header-content',
@@ -211,15 +219,21 @@
                 className: 'flex items-center justify-between mb-4'
               }, [
                 React.createElement('div', {
-                  key: 'title-section'
+                  key: 'title-section',
+                  className: 'flex items-center gap-4'
                 }, [
                   React.createElement('h1', {
                     key: 'title',
-                    className: 'text-2xl font-bold text-gray-800'
-                  }, data?.basic?.projectName || '宠物综合体经营测算'),
+                    className: 'text-2xl font-bold text-[var(--rilo-text-1)]'
+                  }, data?.basic?.projectName || 'Rilo Analysis - 宠物综合体经营测算'),
+                  React.createElement('button', {
+                    key: 'glossary-btn',
+                    className: 'px-3 py-1 text-sm rounded-full border border-[var(--rilo-border-deep)] text-[var(--rilo-text-2)] bg-[var(--rilo-surface-2)] hover:bg-[var(--rilo-border-deep)] hover:text-[var(--rilo-text-1)] transition-colors',
+                    onClick: () => setIsDrawerOpen(true)
+                  }, '📖 术语'),
                   React.createElement('p', {
                     key: 'subtitle',
-                    className: 'text-sm text-gray-600'
+                    className: 'text-sm text-[var(--rilo-text-2)]'
                   }, 'v2.0 模块化版本 · 专业财务建模工具')
                 ]),
                 React.createElement('div', {
@@ -229,12 +243,12 @@
                   React.createElement('div', {
                     key: 'profit-status',
                     className: `text-sm font-medium ${
-                      calculations?.profitability?.profit > 0 ? 'text-green-600' : 'text-red-600'
+                      calculations?.profitability?.profit > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'
                     }`
                   }, calculations?.profitability?.profit > 0 ? '✅ 盈利中' : '❌ 亏损中'),
                   React.createElement('div', {
                     key: 'amount',
-                    className: 'text-xs text-gray-500'
+                    className: 'text-xs text-[var(--rilo-text-3)]'
                   }, `${data?.basic?.currency || '¥'}${(calculations?.profitability?.profit || 0).toLocaleString()}/年`)
                 ])
               ]),
@@ -256,7 +270,7 @@
                       const presetData = dataManager.getPresetData();
                       // 保留用户的项目名称
                       const preservedProjectName = data?.basic?.projectName;
-                      if (preservedProjectName && preservedProjectName !== "Hopeful 宠物综合体（示例）") {
+                      if (preservedProjectName && preservedProjectName !== "Rilo Analysis 示例") {
                         presetData.basic.projectName = preservedProjectName;
                       }
                       setData(presetData);
@@ -429,7 +443,7 @@
             React.createElement(SafeButton, {
               key: 'report',
               onClick: () => {
-                const subject = encodeURIComponent('宠物综合体经营测算应用错误报告');
+                const subject = encodeURIComponent('Rilo Analysis 应用错误报告');
                 const body = encodeURIComponent(`错误详情：\n${error?.toString() || '未知错误'}\n\n浏览器：${navigator.userAgent}\n时间：${new Date().toISOString()}`);
                 window.open(`mailto:support@example.com?subject=${subject}&body=${body}`);
               },
@@ -548,7 +562,7 @@
       document.getElementById('root')
     );
 
-    console.log('🐾 宠物综合体经营测算应用已启动 v2.0');
+    console.log('🐾 Rilo Analysis 应用已启动 v2.0');
     console.log('📊 模块化架构 · 所有功能已加载');
   };
 
