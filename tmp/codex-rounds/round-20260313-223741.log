@@ -1,0 +1,1095 @@
+[2026-03-13T14:37:41] OpenAI Codex v0.39.0 (research preview)
+--------
+workdir: /Users/peric/Documents/Projects/Hopeful Finance
+model: gpt-5
+provider: OpenAI
+approval: never
+sandbox: workspace-write [workdir, /tmp, $TMPDIR]
+reasoning effort: high
+reasoning summaries: auto
+--------
+[2026-03-13T14:37:41] User instructions:
+Round 03 - 概览页骨架与结果区重排
+
+Repo: /Users/peric/Documents/Projects/Hopeful Finance
+Branch: feat/hf-ui-s2-swarm
+
+Read first:
+- docs/decision-log.md
+- docs/refactor-task-breakdown.md
+- docs/round-baton.md
+- docs/worklog.md
+- js/pages/overview-page.js
+- index.html
+
+Task:
+1) 做一个最小、可审阅的概览页 patch。
+2) 不做大视觉重写，只先完成结果区层级整理的第一步。
+3) 成本必须明确可见。
+4) 不强调投资回报率。
+5) 允许先通过 TODO / 结构重排 / 结果位占位的方式落第一步。
+6) 改完后更新 docs/worklog.md 的一条节拍记录。
+7) 输出 git diff summary。
+
+Do NOT:
+- 改目录
+- 动敏感度分析页
+- 大规模改共享组件
+- 删现有能力
+
+Output exactly:
+- Goal
+- Plan
+- Progress
+- Diff summary
+- Next command
+
+[2026-03-13T14:37:46] thinking
+
+**Planning tool call preambles**
+
+I need to ensure I produce preambles before tool calls to adhere to the "Responsiveness" guidelines. These will be brief one-liners indicating the next actions. I want to keep them concise and clear. Next, I’ll start by listing the files and then read the requested ones. This will help streamline the process and keep the user informed about what I'm doing, ensuring clarity throughout.
+[2026-03-13T14:37:49] codex
+
+I’ll scan the requested docs and the overview page files to understand context, then draft a minimal patch touching only the overview page and worklog.
+[2026-03-13T14:37:49] exec bash -lc 'ls -la' in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:37:49] bash -lc 'ls -la' succeeded in 29ms:
+total 552
+drwxr-xr-x@ 23 peric  staff    736 Mar 13 22:37 .
+drwxr-xr-x@ 11 peric  staff    352 Mar 13 22:37 ..
+-rw-r--r--@  1 peric  staff  12292 Mar 13 22:11 .DS_Store
+drwxr-xr-x@  4 peric  staff    128 Sep  7  2025 .claude
+drwxr-xr-x@ 15 peric  staff    480 Mar 13 22:37 .git
+drwxr-xr-x@  3 peric  staff     96 Sep  2  2025 .vscode
+-rw-r--r--@  1 peric  staff  15372 Mar 12 08:22 CLAUDE.md
+-rw-r--r--@  1 peric  staff   9791 Sep  3  2025 DOCUMENTATION.md
+-rw-r--r--@  1 peric  staff  12821 Mar 12 08:22 IFLOW.md
+-rw-r--r--@  1 peric  staff   2313 Mar 12 08:22 README.md
+-rw-r--r--@  1 peric  staff   9417 Sep  2  2025 README_v2.md
+-rw-r--r--@  1 peric  staff  26762 Mar 12 16:30 app.js
+-rw-r--r--@  1 peric  staff  25066 Aug 29  2025 app.jsx
+drwxr-xr-x@ 18 peric  staff    576 Mar 13 22:37 docs
+-rw-r--r--@  1 peric  staff  99678 Sep  7  2025 favicon.ico
+-rw-r--r--@  1 peric  staff  15456 Mar 12 18:04 index.html
+-rw-r--r--@  1 peric  staff  19622 Aug 29  2025 initial.jsx
+drwxr-xr-x@  7 peric  staff    224 Mar 13 22:18 js
+drwxr-xr-x@ 10 peric  staff    320 Mar 11 17:28 node_modules
+[2026-03-13T14:37:49] tokens used: 781
+
+[2026-03-13T14:37:51] thinking
+
+**Checking documentation files**
+
+I need to review several documents to gather necessary information. I'll start by opening the decision log, the task breakdown, the round baton, and the work log. Then I'll dive into the JavaScript overview page and the index HTML. I also want to check for the AGENTS.md file and possibly run a search if needed. It's crucial that I ensure I gather all relevant information from these resources.
+[2026-03-13T14:37:52] exec bash -lc 'rg -n --hidden -S "AGENTS.md|agents.md" || true' in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:37:52] bash -lc 'rg -n --hidden -S "AGENTS.md|agents.md" || true' succeeded in 67ms:
+tmp/codex-rounds/round-20260313-223741.log:83:I need to review several documents to gather necessary information. I'll start by opening the decision log, the task breakdown, the round baton, and the work log. Then I'll dive into the JavaScript overview page and the index HTML. I also want to check for the AGENTS.md file and possibly run a search if needed. It's crucial that I ensure I gather all relevant information from these resources.
+tmp/codex-rounds/round-20260313-223741.log:84:[2026-03-13T14:37:52] exec bash -lc 'rg -n --hidden -S "AGENTS.md|agents.md" || true' in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:37:52] tokens used: 1,690
+[2026-03-13T14:37:54] exec bash -lc "sed -n '1,200p' docs/decision-log.md" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:37:54] bash -lc "sed -n '1,200p' docs/decision-log.md" succeeded in 20ms:
+# Decision Log — Rilo Analysis Rebuild
+
+> 目的：把 Bos 已拍板的产品 / UI / 交互 / 工程原则固化，避免执行中反复漂移。
+
+## 2026-03-13 — Round 0 / 方向冻结
+
+### 产品方向
+- 本轮主线不是“寄养模块专项优化”，而是**全局测算工作台重构**。
+- 目标是：在不破坏现有测算能力的前提下，完成**视觉重构 + 信息架构重构 + 耦合度下降**。
+- 当前所有可调参数都重要，**不允许因“主线聚焦”而默认折叠**。
+- 敏感度分析页面继续保持“全局敏感度分析”定位，不改成局部功能页。
+
+### 交互与输入规则
+- 营业天数：**可调**。
+- 入住率：**0–100%**，保留 **1 位小数**。
+- 入住率控件：**滑杆 + 数字输入**。
+- 入住率超界处理：自动夹到 **0** 或 **100**。
+- UI 层面默认使用**中文术语**；缩写只在**公式 / 计算表达 / 代码层**出现。
+
+### 页面与信息架构
+[2026-03-13T14:37:54] tokens used: 3,485
+[2026-03-13T14:37:59] exec bash -lc "sed -n '1,240p' docs/refactor-task-breakdown.md" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:37:59] bash -lc "sed -n '1,240p' docs/refactor-task-breakdown.md" succeeded in 22ms:
+# 重构任务拆解 — Rilo Analysis（细粒度）
+
+> 目标：在不破坏现有测算能力的前提下，落实视觉/交互/信息架构重构，并降低耦合度。遵循 docs/decision-log.md 已拍板决策。
+
+## 全局前置（依赖与约束）
+- 不移除任何现有计算能力；仅做视觉与结构层重构。
+- UI 文案统一中文；缩写仅在公式/代码层使用。
+- 定义说明采用右侧抽屉（轻量按钮触发），不常驻。
+- HQ 费用口径按“总收入”计提，吻合决策日志。
+- 三页面统一骨架，但保留各自侧重：参数配置/概览/敏感度。
+
+---
+
+## 参数配置页（js/pages/settings-page-v2.js）
+- 布局
+  - 保持 TwoPaneLayout 兼容：`window.RiloUI?.TwoPaneLayout ?: left` 回退逻辑保留。
+  - 左列按分组堆叠：BasicSettings → InvestmentSettings → CostSettings → RevenueSettings。
+  - 右侧 Inspector：使用 conclusion（引导/建议）+ process（公式/中间值）+ glossaryTerms（术语）。
+- 控件规范（交互规则落地）
+  - 入住率输入：同时支持滑杆+数字输入；范围 0–100，保留 1 位小数；越界自动夹到 [0,100]。
+[2026-03-13T14:37:59] tokens used: 6,227
+[2026-03-13T14:38:02] exec bash -lc "sed -n '1,240p' docs/round-baton.md" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:02] bash -lc "sed -n '1,240p' docs/round-baton.md" succeeded in 18ms:
+# Round Baton — Rilo Analysis
+
+- 当前轮次：round-20260313-223741
+- 当前状态：running
+- 当前目标：Round 03 - 概览页骨架与结果区重排
+- Prompt 文件：tmp/codex-rounds/round-20260313-223741.prompt.md
+- 日志文件：tmp/codex-rounds/round-20260313-223741.log
+- 开始时间：2026-03-13 22:37 GMT+8
+- 下一步命令：等待本轮完成后由协调者填写
+[2026-03-13T14:38:02] tokens used: 11,094
+[2026-03-13T14:38:04] exec bash -lc "sed -n '1,300p' docs/worklog.md" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:04] bash -lc "sed -n '1,300p' docs/worklog.md" succeeded in 20ms:
+# Worklog — Rilo Analysis Rebuild
+
+## 2026-03-13 22:08 GMT+8
+### 收到问题
+- 用户要求进入正式执行阶段。
+- 要求：由 Cody 负责协调，核心开发工具使用 codex-cli。
+- 要求：全过程记录、任务拆细、每 5 分钟观察一次、API 变慢及时快照。
+
+### 开始解决
+- 已完成 docs 全量阅读与多角色分析收敛。
+- 已把用户拍板内容固化到：
+  - `docs/decision-log.md`
+  - `docs/execution-plan.md`
+
+### 当前状态
+- doing：执行前收敛
+- next：启动 codex-cli 主执行线，做第一轮结构重构前的仓库梳理与改造计划
+
+### 风险
+- 仓库中 docs/ 与 scripts/ 当前仍是未提交状态，说明上下文仍有丢失风险。
+[2026-03-13T14:38:04] tokens used: 16,149
+[2026-03-13T14:38:11] exec bash -lc "sed -n '1,300p' js/pages/overview-page.js" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:11] bash -lc "sed -n '1,300p' js/pages/overview-page.js" succeeded in 19ms:
+// 经营概览页面 - 展示关键指标和财务状况概览
+window.OverviewPage = (function() {
+  
+  // 简化的创建元素辅助函数
+  const h = React.createElement;
+  
+  // 页面头部组件
+  const PageHeader = ({ projectName }) => null;
+  
+  // 货币选择器组件
+  const CurrencySelector = ({ currency, onChange }) =>
+    h('div', { className: 'flex items-center gap-2' }, [
+      h('label', { key: 'label', className: 'text-sm text-gray-600' }, '货币:'),
+      h('select', {
+        key: 'select',
+        className: 'px-2 py-1 rounded border text-sm',
+        value: currency || '¥',
+        onChange: e => onChange(e.target.value)
+      }, [
+        h('option', { key: 'cny', value: '¥' }, '¥ 人民币'),
+[2026-03-13T14:38:11] tokens used: 17,018
+[2026-03-13T14:38:14] exec bash -lc "sed -n '300,999p' js/pages/overview-page.js" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:14] bash -lc "sed -n '300,999p' js/pages/overview-page.js" succeeded in 12ms:
+    if (!calculations?.scenarios) return null;
+    
+    return h(ChartCard, { title: '🎯 情景分析预览' },
+      h(window.ChartComponents.ScenarioComparisonChart, { calculations, currency })
+    );
+  };
+
+  // 提醒卡片组件  
+  const AlertCard = ({ alert, colorClasses }) => h('div', { className: `border rounded-lg p-4 ${colorClasses[alert.type]}` }, [
+    h('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
+      h('span', { key: 'icon', className: 'text-lg' }, alert.icon),
+      h('h5', { key: 'title', className: 'font-medium' }, alert.title)
+    ]),
+    h('p', { key: 'message', className: 'text-sm' }, alert.message)
+  ]);
+  
+  // 洞察卡片组件
+  const InsightCard = ({ insight }) => h('div', { className: 'bg-green-50 border border-green-200 text-green-800 rounded-lg p-4' }, [
+    h('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
+      h('span', { key: 'icon', className: 'text-lg' }, insight.icon),
+[2026-03-13T14:38:14] tokens used: 24,826
+[2026-03-13T14:38:17] exec bash -lc "sed -n '1,240p' index.html" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:17] bash -lc "sed -n '1,240p' index.html" succeeded in 20ms:
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宠物综合体经营测算 v2.0</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="description" content="专业的宠物综合体财务建模工具，支持收入预测、成本分析、投资回报计算和情景分析">
+  <meta name="keywords" content="宠物综合体,经营测算,财务建模,投资回报,盈亏平衡">
+  
+  <!-- 外部依赖 -->
+  <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.9/dayjs.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.9/locale/zh-cn.js"></script>
+  
+  <!-- Ant Design CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/antd@5.12.8/dist/reset.css" />
+  <script src="https://unpkg.com/antd@5.12.8/dist/antd.min.js"></script>
+[2026-03-13T14:38:17] tokens used: 33,639
+[2026-03-13T14:38:20] exec bash -lc "sed -n '240,720p' index.html" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:20] bash -lc "sed -n '240,720p' index.html" succeeded in 20ms:
+  
+  <!-- 11. 概览页面 -->
+  <script src="js/pages/overview-page.js" onerror="handleModuleError('OverviewPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 12. 设置页面 (v2.0 双栏布局) -->
+  <script src="js/pages/settings-page-v2.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 13. 分析页面 -->
+  <script src="js/pages/analysis-page.js" onerror="handleModuleError('AnalysisPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 主应用启动 -->
+  <script src="app.js" onerror="handleModuleError('App', event)"></script>
+
+  <!-- Google Analytics (可选) -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+[2026-03-13T14:38:20] tokens used: 45,027
+
+[2026-03-13T14:38:24] thinking
+
+**Exploring metric calculation**
+
+I'm thinking about adding a new metric for "每间可售房晚收入," which is calculated from revenue.boarding.adr multiplied by revenue.boarding.occ. I see that occupancy is stored as a percentage from 0 to 100 with one decimal point. The documentation mentions a "calculations" structure, but I'm unsure if it includes revenue.boarding. I'll need to look at other code to see how the calculations are structured, so I’ll start searching.
+[2026-03-13T14:38:27] exec bash -lc "rg -n \"calculations\\.?revenue|revenue\\.boarding|adr|RevPAR|KeyMetrics|每间可售房晚收入|RevPAR\" js | sed -n '1,200p'" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:27] bash -lc "rg -n \"calculations\\.?revenue|revenue\\.boarding|adr|RevPAR|KeyMetrics|每间可售房晚收入|RevPAR\" js | sed -n '1,200p'" succeeded in 63ms:
+js/pages/analysis-page.js:86:      React.createElement(KeyMetrics, { key: 'key-metrics', data, calculations, selectedParam, currency }),
+js/pages/analysis-page.js:280:  const KeyMetrics = ({ data = {}, calculations, selectedParam, currency }) => {
+js/pages/analysis-page.js:991:        ensurePath(modifiedData, 'revenue.boarding').adr = newValue;
+js/pages/analysis-page.js:995:        ensurePath(modifiedData, 'revenue.boarding').occ = newValue;
+js/pages/analysis-page.js:1170:        // 寄养单价: revenue.boarding.adr
+js/pages/analysis-page.js:1171:        return data.revenue?.boarding?.adr || 400;
+js/pages/analysis-page.js:1174:        // 入住率: revenue.boarding.occ
+js/pages/analysis-page.js:1192:          return calculations.revenue.custom;
+js/pages/analysis-page.js:1221:          return calculations.revenue.total;
+js/pages/analysis-page.js:1225:        const boardingRevenue = (data.revenue?.boarding?.rooms || 20) * (data.revenue?.boarding?.adr || 400) * 365 * ((data.revenue?.boarding?.occ || 70) / 100);
+js/pages/overview-page.js:55:      h(KeyMetrics, { key: 'key-metrics', data, calculations, currency, showDetails: false }),
+js/pages/overview-page.js:140:          revenue?.boarding && h('div', { key: 'boarding' }, `寄养收入: ¥${(revenue.boarding / 10000).toFixed(2)}万`),
+js/pages/overview-page.js:226:  const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+js/pages/overview-page.js:356:  return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+js/modules/breakeven/analysis-core.js:11:    const currentRevenue = calculations.revenue?.total || 0;
+js/modules/breakeven/index.js:20:    const currentRevenue = calculations.revenue?.total || 0;
+js/modules/breakeven/visualization.js:16:    const revenue = calculations.revenue?.total || 0;
+js/modules/breakeven/visualization-data.js:22:    const revenue = calculations.revenue?.total || 0;
+js/modules/breakeven/visualization-data.js:53:    const revenue = calculations.revenue?.total || 0;
+js/core/calculators/revenue-calculator.js:28:      const boarding = this.calculateBoardingRevenue(data.revenue.boarding, data.basic.daysPerYear);
+[2026-03-13T14:38:27] tokens used: 53,986
+[2026-03-13T14:38:30] exec bash -lc "sed -n '100,180p' js/pages/overview-page.js" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:30] bash -lc "sed -n '100,180p' js/pages/overview-page.js" succeeded in 23ms:
+          alert(error ? '导入失败: ' + error.message : '数据导入成功！');
+          if (!error) updateData(importedData);
+          event.target.value = '';
+        });
+      }
+    };
+    
+    const actions = {
+      exportData: () => window.dataManager && window.dataManager.exportData(data),
+      clearData: () => confirm('确认清除所有保存的数据？') && window.dataManager && updateData(window.dataManager.clearStorage())
+    };
+    
+    return h('div', { className: 'bg-white rounded-2xl shadow p-4' }, [
+      h('div', { key: 'actions', className: 'flex justify-center gap-3' }, [
+        h(window.UIComponents.Button, { key: 'export', onClick: actions.exportData, variant: 'outline', size: 'small' }, '📤 导出数据'),
+        h(ImportButton, { key: 'import', onImport: handleImport }),
+        h(window.UIComponents.Button, { key: 'clear', onClick: actions.clearData, variant: 'danger', size: 'small' }, '🗑️ 清除数据')
+      ])
+    ]);
+  };
+[2026-03-13T14:38:30] tokens used: 56,242
+[2026-03-13T14:38:36] exec bash -lc "sed -n '180,300p' js/pages/overview-page.js" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:38:36] bash -lc "sed -n '180,300p' js/pages/overview-page.js" succeeded in 25ms:
+          h('div', { key: 'variable' }, `变动成本: ¥${(variable / 10000).toFixed(2)}万 (水电、其他)`),
+          h('div', { key: 'total', className: 'font-medium border-t border-gray-300 pt-1 mt-2' }, 
+            `运营成本总计 = ¥${((fixed + variable) / 10000).toFixed(2)}万`)
+        ])
+      ]),
+      
+      // 净利润计算
+      h('div', { key: 'net-profit-calc', className: 'mb-4' }, [
+        h('h4', { key: 'title', className: 'text-sm font-medium text-blue-700 mb-2' }, '📈 净利润计算'),
+        h('div', { key: 'formula', className: 'text-xs text-gray-600' }, [
+          h('div', { key: 'calc' }, `净利润 = 毛利润 - 运营成本`),
+          h('div', { key: 'numbers' }, `= ¥${(grossProfit / 10000).toFixed(2)}万 - ¥${((fixed + variable) / 10000).toFixed(2)}万`),
+          h('div', { key: 'result', className: `font-medium ${netProfit > 0 ? 'text-blue-700' : 'text-red-700'}` }, 
+            `= ¥${(netProfit / 10000).toFixed(2)}万`),
+          h('div', { key: 'margin', className: 'mt-1' }, 
+            `净利润率 = ${revenue.total > 0 ? ((netProfit / revenue.total) * 100).toFixed(1) : 0}%`)
+        ])
+      ]),
+      
+      // 投资回报计算
+[2026-03-13T14:38:36] tokens used: 61,483
+
+[2026-03-13T14:38:42] thinking
+
+**Restructuring cost visibility**
+
+I’m considering how to reorganize the cost metrics to be more prominent. The document indicates that KeyMetrics should include the total cost, and right now, it’s in the second group along with "运营指标." It might be beneficial to move it to the primary group, so it’s clear and visible right away. By adjusting this, I can ensure that the cost is highlighted effectively, which meets the requirement that “成本必须明确可见.” Let's go ahead and make that change!
+**Considering metric reordering**
+
+I’m thinking about moving some metrics around for better clarity. The primary grid has four columns, and since we’d be adding cost, we'd need to keep it to four items. I could reposition "gross-margin" or "cogs," but I want to ensure that both '业务成本' and '年总成本' remain visible since “成本必须明确可见.” Renaming "年总成本" to "总成本" might help. Also, I could leave a TODO note near KeyMetrics for future iterations while focusing on reordering as per the task.
+**Implementing metric changes**
+
+I'm thinking about how to adjust the KeyMetrics metrics arrays. I want to move "年总成本" (total-cost) into the primary group while considering the importance of showing both "业务成本" (COGS) and total cost. 
+
+For adjustments, I have two options: I could replace "gross-margin" with "total-cost" in the primary, or substitute "cogs," which feels more general. I think I’ll keep "gross-margin" to maintain a focus on profit ratio and move "cogs" to the second group since "total-cost" is more essential for visibility.
+**Proceeding with metric definitions**
+
+I'm planning to reorganize the metrics: In the first group, I'll keep 'revenue', 'total-cost' (which I moved from group two), 'gross-profit', and 'gross-margin'. In the second group, I’ll include 'cogs', 'profit', and 'margin' to ensure that cost is front and center.
+
+I also want to add a TODO comment regarding RevPAR as a secondary metric, using ADR times occupancy rate. I’ll create a placeholder KPI for 'revpar' with a value of '—' so it's clear that it's a work-in-progress. I need to calculate it with accessible data from 'data.revenue?.boarding?.adr' and occupancy rate.
+**Implementing minimal changes**
+
+I’m set to compute RevPAR by using the formula `((data.revenue?.boarding?.adr || 0) * ((data.revenue?.boarding?.occ || 0) / 100)).toFixed(0)` and append '元/间夜.' However, I’ll first add a TODO comment about this and include a placeholder where the value is currently '—'. According to the guidelines, the primary task is to comment rather than to implement the metric yet.
+
+Next, I’m looking into restructuring the OverviewPage layout, moving components like KeyMetrics, BusinessOverview, and DataActions around. I’ll aim to clarify the positions since DataActions isn't currently included, but maybe that’s okay for now.
+
+I need to ensure the ROI is shown properly without overemphasizing it. Plus, I’ll update the documentation accordingly and generate the required git diff summary. Alright, let's prepare the sections for output, noting that the next command will suggest adding and committing changes safely without actually doing it.
+[2026-03-13T14:39:01] codex
+**Considering metric reordering**
+
+I’m thinking about moving some metrics around for better clarity. The primary grid has four columns, and since we’d be adding cost, we'd need to keep it to four items. I could reposition "gross-margin" or "cogs," but I want to ensure that both '业务成本' and '年总成本' remain visible since “成本必须明确可见.” Renaming "年总成本" to "总成本" might help. Also, I could leave a TODO note near KeyMetrics for future iterations while focusing on reordering as per the task.
+[2026-03-13T14:39:01] codex
+**Implementing metric changes**
+
+I'm thinking about how to adjust the KeyMetrics metrics arrays. I want to move "年总成本" (total-cost) into the primary group while considering the importance of showing both "业务成本" (COGS) and total cost. 
+
+For adjustments, I have two options: I could replace "gross-margin" with "total-cost" in the primary, or substitute "cogs," which feels more general. I think I’ll keep "gross-margin" to maintain a focus on profit ratio and move "cogs" to the second group since "total-cost" is more essential for visibility.
+[2026-03-13T14:39:01] codex
+**Proceeding with metric definitions**
+
+I'm planning to reorganize the metrics: In the first group, I'll keep 'revenue', 'total-cost' (which I moved from group two), 'gross-profit', and 'gross-margin'. In the second group, I’ll include 'cogs', 'profit', and 'margin' to ensure that cost is front and center.
+
+I also want to add a TODO comment regarding RevPAR as a secondary metric, using ADR times occupancy rate. I’ll create a placeholder KPI for 'revpar' with a value of '—' so it's clear that it's a work-in-progress. I need to calculate it with accessible data from 'data.revenue?.boarding?.adr' and occupancy rate.
+[2026-03-13T14:39:01] codex
+**Implementing minimal changes**
+
+I’m set to compute RevPAR by using the formula `((data.revenue?.boarding?.adr || 0) * ((data.revenue?.boarding?.occ || 0) / 100)).toFixed(0)` and append '元/间夜.' However, I’ll first add a TODO comment about this and include a placeholder where the value is currently '—'. According to the guidelines, the primary task is to comment rather than to implement the metric yet.
+
+Next, I’m looking into restructuring the OverviewPage layout, moving components like KeyMetrics, BusinessOverview, and DataActions around. I’ll aim to clarify the positions since DataActions isn't currently included, but maybe that’s okay for now.
+
+I need to ensure the ROI is shown properly without overemphasizing it. Plus, I’ll update the documentation accordingly and generate the required git diff summary. Alright, let's prepare the sections for output, noting that the next command will suggest adding and committing changes safely without actually doing it.
+[2026-03-13T14:39:01] exec bash -lc "ls -la scripts && rg -n \"codex_round\" scripts | sed -n '1,200p'" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:01] bash -lc "ls -la scripts && rg -n \"codex_round\" scripts | sed -n '1,200p'" succeeded in 77ms:
+total 32
+drwxr-xr-x@  6 peric  staff   192 Mar 13 22:37 .
+drwxr-xr-x@ 23 peric  staff   736 Mar 13 22:37 ..
+-rwx------   1 peric  staff  2140 Mar 13 22:37 codex_round.sh
+-rwx------   1 peric  staff   637 Mar 13 22:37 quick_snapshot.sh
+-rwxr-xr-x@  1 peric  staff  1847 Mar 13 00:17 review_codex.sh
+-rwxr-xr-x@  1 peric  staff   559 Mar 13 00:17 smoke.sh
+scripts/codex_round.sh:9:  echo "Usage: scripts/codex_round.sh <prompt-file> [goal]" >&2
+[2026-03-13T14:39:01] tokens used: 75,634
+[2026-03-13T14:39:04] exec bash -lc "sed -n '1,200p' scripts/codex_round.sh" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:04] bash -lc "sed -n '1,200p' scripts/codex_round.sh" succeeded in 19ms:
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+PROMPT_FILE="${1:-}"
+GOAL="${2:-}"
+
+if [[ -z "$PROMPT_FILE" || ! -f "$PROMPT_FILE" ]]; then
+  echo "Usage: scripts/codex_round.sh <prompt-file> [goal]" >&2
+  exit 1
+fi
+
+if [[ -z "$GOAL" ]]; then
+  GOAL="$(head -n 1 "$PROMPT_FILE" | sed 's/^#\+ *//')"
+fi
+
+TS_HUMAN="$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M GMT+8')"
+TS_ID="$(TZ=Asia/Shanghai date '+%Y%m%d-%H%M%S')"
+ROUND_ID="round-${TS_ID}"
+LOG_DIR="$ROOT_DIR/tmp/codex-rounds"
+[2026-03-13T14:39:04] tokens used: 75,961
+[2026-03-13T14:39:07] exec bash -lc "sed -n '1,180p' scripts/review_codex.sh" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:07] bash -lc "sed -n '1,180p' scripts/review_codex.sh" succeeded in 26ms:
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Codex review gate (local)
+# Usage:
+#   scripts/review_codex.sh staged
+#   scripts/review_codex.sh worktree
+#   scripts/review_codex.sh range <base> <head>
+#
+# Exit codes:
+#   0 = pass
+#   1 = fail (VERDICT incorrect)
+#   2 = usage / missing diff
+
+MODE="${1:-staged}" # staged|worktree|range
+MODEL="${CODEX_MODEL:-gpt-5.2-codex}"
+OUT_DIR="${CODEX_REVIEW_OUT_DIR:-tmp}"
+OUT_FILE="$OUT_DIR/codex_review.md"
+
+mkdir -p "$OUT_DIR"
+[2026-03-13T14:39:07] tokens used: 76,953
+[2026-03-13T14:39:15] exec bash -lc "date '+%Y-%m-%d %H:%M GMT%z'" in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:15] bash -lc "date '+%Y-%m-%d %H:%M GMT%z'" succeeded in 39ms:
+2026-03-13 22:39 GMT+0800
+[2026-03-13T14:39:15] tokens used: 92,372
+
+[2026-03-13T14:39:19] thinking
+
+**Adjusting timezone formatting**
+
+I'm focusing on ensuring the date format matches the desired style. I see that I need to convert the timezone format to 'GMT+8’ as used previously. The output is showing as GMT+0800, so I'll make that adjustment. Also, I want to ensure consistency with the other script that uses ‘TZ=Asia/Shanghai date’, aiming for the same format of ‘2026-03-13 22:39 GMT+8’. Now, it’s time to craft the patch accordingly!
+[2026-03-13T14:39:21] codex
+
+I’ll make a minimal patch to the overview page: move total cost to the primary KPI row, add a TODO for RevPAR, keep ROI in the inspector only. Then I’ll append a worklog beat entry.
+[2026-03-13T14:39:28] apply_patch auto_approved=true:
+M /Users/peric/Documents/Projects/Hopeful Finance/js/pages/overview-page.js
+@@ -225,2 +225,3 @@
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+@@ -243,5 +244,5 @@
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+@@ -249,4 +250,4 @@
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+@@ -254,3 +255,3 @@
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+@@ -357,2 +358,2 @@
+ 
+-})();
+\ No newline at end of file
++})();
+[2026-03-13T14:39:28] apply_patch(auto_approved=true) exited 0 in 39ms:
+Success. Updated the following files:
+M js/pages/overview-page.js
+[2026-03-13T14:39:28] turn diff:
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+[2026-03-13T14:39:28] tokens used: 119,961
+[2026-03-13T14:39:28] turn diff:
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+
+[2026-03-13T14:39:31] thinking
+
+I’m getting ready to update the documentation, specifically the docs/worklog.md file. My plan is to append a new entry, which should help keep things organized. It’s all about ensuring that updates are recorded clearly! I want to make sure I include relevant details in the new entry, so it contributes effectively to the overall document. Keeping everything well-documented is important for reference later. Let’s get that done!
+[2026-03-13T14:39:32] apply_patch auto_approved=true:
+M /Users/peric/Documents/Projects/Hopeful Finance/docs/worklog.md
+@@ -60 +60,9 @@
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+[2026-03-13T14:39:32] apply_patch(auto_approved=true) exited 0 in 46ms:
+Success. Updated the following files:
+M docs/worklog.md
+[2026-03-13T14:39:32] turn diff:
+diff --git a/docs/worklog.md b/docs/worklog.md
+index 86ea60a2e9bf051000d8f1bdbb7937034bf65c2e..62553654720a20592e4fc496c68f0593f11a67e9
+--- a/docs/worklog.md
++++ b/docs/worklog.md
+@@ -58,3 +58,11 @@
+ - 风险 / 阻塞：待观察
+ - 下一步：执行本轮 Codex patch
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+[2026-03-13T14:39:32] tokens used: 122,134
+[2026-03-13T14:39:32] turn diff:
+diff --git a/docs/worklog.md b/docs/worklog.md
+index 86ea60a2e9bf051000d8f1bdbb7937034bf65c2e..62553654720a20592e4fc496c68f0593f11a67e9
+--- a/docs/worklog.md
++++ b/docs/worklog.md
+@@ -58,3 +58,11 @@
+ - 风险 / 阻塞：待观察
+ - 下一步：执行本轮 Codex patch
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+
+[2026-03-13T14:39:34] thinking
+
+**Producing Git Diff Summary**
+
+I need to get a summary of the changes in the project using the 'git diff --stat' command. This command helps show the differences and how many lines have been added or removed in the files since the last commit. I’ll run it and check the output to summarize those changes clearly. It’s important to present the information in a way that’s easy to understand and useful for anyone reviewing the code updates!
+[2026-03-13T14:39:36] exec bash -lc 'git diff --stat' in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:36] bash -lc 'git diff --stat' succeeded in 36ms:
+ js/core/calculators/cost-calculator.js | 16 +++++++++++-----
+ js/pages/overview-page.js              | 13 +++++++------
+ 2 files changed, 18 insertions(+), 11 deletions(-)
+[2026-03-13T14:39:37] tokens used: 122,481
+[2026-03-13T14:39:37] turn diff:
+diff --git a/docs/worklog.md b/docs/worklog.md
+index 86ea60a2e9bf051000d8f1bdbb7937034bf65c2e..62553654720a20592e4fc496c68f0593f11a67e9
+--- a/docs/worklog.md
++++ b/docs/worklog.md
+@@ -58,3 +58,11 @@
+ - 风险 / 阻塞：待观察
+ - 下一步：执行本轮 Codex patch
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+
+[2026-03-13T14:39:42] thinking
+
+**Analyzing repository changes**
+
+I noticed that changes have been made to js/core/calculators/cost-calculator.js, but we didn't actually edit this file. That makes me think there are unstaged changes in the worktree. The branch is 'feat/hf-ui-s2-swarm', so perhaps someone else modified that file. 
+
+We only need the diff summary, but it's crucial we focus on our intended changes. The instruction says to output all worktree changes, even if unrelated ones appear. I wonder if we should stage only our changes to maintain focus, even though we’re asked for a complete summary.
+**Determining diff summary approach**
+
+I think the safest way to proceed is to generate a per-file diff summary just for our changes. However, I can't easily use 'git diff --stat' for our two modified files, since the other file has been altered by someone else. The user's request for a 'git diff summary' is a bit ambiguous, though. 
+
+To be precise, I can run 'git diff --stat' specifically for js/pages/overview-page.js and docs/worklog.md, which should avoid including any unrelated changes. That sounds like a clear approach while still following the instruction.
+[2026-03-13T14:39:46] codex
+**Determining diff summary approach**
+
+I think the safest way to proceed is to generate a per-file diff summary just for our changes. However, I can't easily use 'git diff --stat' for our two modified files, since the other file has been altered by someone else. The user's request for a 'git diff summary' is a bit ambiguous, though. 
+
+To be precise, I can run 'git diff --stat' specifically for js/pages/overview-page.js and docs/worklog.md, which should avoid including any unrelated changes. That sounds like a clear approach while still following the instruction.
+[2026-03-13T14:39:46] exec bash -lc 'git diff --stat -- js/pages/overview-page.js docs/worklog.md' in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:46] bash -lc 'git diff --stat -- js/pages/overview-page.js docs/worklog.md' succeeded in 57ms:
+ js/pages/overview-page.js | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+[2026-03-13T14:39:47] tokens used: 146,224
+[2026-03-13T14:39:47] turn diff:
+diff --git a/docs/worklog.md b/docs/worklog.md
+index 86ea60a2e9bf051000d8f1bdbb7937034bf65c2e..62553654720a20592e4fc496c68f0593f11a67e9
+--- a/docs/worklog.md
++++ b/docs/worklog.md
+@@ -58,3 +58,11 @@
+ - 风险 / 阻塞：待观察
+ - 下一步：执行本轮 Codex patch
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+[2026-03-13T14:39:51] exec bash -lc 'git status --porcelain' in /Users/peric/Documents/Projects/Hopeful Finance
+[2026-03-13T14:39:51] bash -lc 'git status --porcelain' succeeded in 57ms:
+ M js/core/calculators/cost-calculator.js
+ M js/pages/overview-page.js
+?? docs/acceptance.md
+?? docs/agent.md
+?? docs/continuity-mechanism.md
+?? docs/decision-log.md
+?? docs/execution-plan.md
+?? docs/implementation-map.md
+?? docs/prd.md
+?? docs/refactor-task-breakdown.md
+?? docs/review.md
+?? docs/round-baton.md
+?? docs/spec.md
+?? docs/ui-guidelines.md
+?? docs/ux.md
+?? docs/worklog.md
+?? scripts/
+?? tmp/
+[2026-03-13T14:39:51] tokens used: 174,931
+[2026-03-13T14:39:51] turn diff:
+diff --git a/docs/worklog.md b/docs/worklog.md
+index 86ea60a2e9bf051000d8f1bdbb7937034bf65c2e..62553654720a20592e4fc496c68f0593f11a67e9
+--- a/docs/worklog.md
++++ b/docs/worklog.md
+@@ -58,3 +58,11 @@
+ - 风险 / 阻塞：待观察
+ - 下一步：执行本轮 Codex patch
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+
+
+[2026-03-13T14:39:56] thinking
+
+**Analyzing git diff summary**
+
+I'm noticing there are many untracked documents and scripts, which means the repo isn't fully committed. Since these files are untracked, 'git diff' won't show differences with docs/worklog.md because it only works for tracked files. Therefore, I can't include it in the summary. The summary of our patch only applies to js/pages/overview-page.js. I'll output that with a note, but also mention that cost-calculator has changes too, even though the instructions specify to output the exact sections.
+**Structuring git diff summary**
+
+I’m planning to include diff summary lines for 'git diff --stat', but I'll focus on the path-limited version for clarity regarding our patch. The user may want the full diff summary for auditing since they mentioned, "成本必须明确可见... 输出 git diff summary." I’ll provide both options, but it’s wise to limit the diff summary to just the touched files, especially considering potential concerns with cost-calculator changes. In "Progress," I’ll clarify that we only modified overview-page.js and worklog, ensuring that we kept changes minimal and intact, particularly with variable references to 'cost'.
+**Crafting the final message**
+
+I’m working on the final message that needs to include five sections. First, I’ll rephrase the goal for clarity. Then, I’ll make a concise plan that lists tasks like reading docs, adjusting KeyMetrics, adding TODOs, and updating worklogs, while ensuring ROI stays visible.
+
+In the progress section, I'll summarize what we've changed, verifying constraints like cost visibility and no alterations to shared components. For the diff summary, I'll provide the 'git diff --stat' output for js/pages/overview-page.js, noting that docs/worklog.md is untracked but won't include that in the summary.
+**Summarizing tracked changes**
+
+I need to create summary text that includes changes for both tracked files and mention "docs/worklog.md | +7 lines," but that's a bit uncertain. I indeed added a block of 7 lines. Let me verify: our patch added 7 lines, counting the header. So, that's 8 total lines, but since 'apply_patch' doesn’t show counts, I should carefully represent this. I’ll rely on 'git diff --stat' for tracked files only and mention that worklog is new/untracked. Additionally, I’ll format the diff summary as a code-like block.
+**Preparing the final output**
+
+They didn't specify formatting, but I’ll present the summary lines as plain text. For the "Next command," I’m suggesting we stage the changed files and run `scripts/review_codex.sh worktree` to review the patch. Since the patch has many untracked docs, that could confuse the review process. A better command would be 'git add js/pages/overview-page.js docs/worklog.md && scripts/review_codex.sh staged'. This way, we’ll only review what we’ve staged. 
+
+Next, I'll structure the final output according to the guidelines, ensuring we use section headers in Title Case and include five sections: Goal, Plan, Progress, Diff summary, and Next command, with appropriate formatting for commands and file paths. Finally, I’ll double-check that our patch didn't introduce any lint errors.
+[2026-03-13T14:40:10] codex
+**Structuring git diff summary**
+
+I’m planning to include diff summary lines for 'git diff --stat', but I'll focus on the path-limited version for clarity regarding our patch. The user may want the full diff summary for auditing since they mentioned, "成本必须明确可见... 输出 git diff summary." I’ll provide both options, but it’s wise to limit the diff summary to just the touched files, especially considering potential concerns with cost-calculator changes. In "Progress," I’ll clarify that we only modified overview-page.js and worklog, ensuring that we kept changes minimal and intact, particularly with variable references to 'cost'.
+[2026-03-13T14:40:10] codex
+**Crafting the final message**
+
+I’m working on the final message that needs to include five sections. First, I’ll rephrase the goal for clarity. Then, I’ll make a concise plan that lists tasks like reading docs, adjusting KeyMetrics, adding TODOs, and updating worklogs, while ensuring ROI stays visible.
+
+In the progress section, I'll summarize what we've changed, verifying constraints like cost visibility and no alterations to shared components. For the diff summary, I'll provide the 'git diff --stat' output for js/pages/overview-page.js, noting that docs/worklog.md is untracked but won't include that in the summary.
+[2026-03-13T14:40:10] codex
+**Summarizing tracked changes**
+
+I need to create summary text that includes changes for both tracked files and mention "docs/worklog.md | +7 lines," but that's a bit uncertain. I indeed added a block of 7 lines. Let me verify: our patch added 7 lines, counting the header. So, that's 8 total lines, but since 'apply_patch' doesn’t show counts, I should carefully represent this. I’ll rely on 'git diff --stat' for tracked files only and mention that worklog is new/untracked. Additionally, I’ll format the diff summary as a code-like block.
+[2026-03-13T14:40:10] codex
+**Preparing the final output**
+
+They didn't specify formatting, but I’ll present the summary lines as plain text. For the "Next command," I’m suggesting we stage the changed files and run `scripts/review_codex.sh worktree` to review the patch. Since the patch has many untracked docs, that could confuse the review process. A better command would be 'git add js/pages/overview-page.js docs/worklog.md && scripts/review_codex.sh staged'. This way, we’ll only review what we’ve staged. 
+
+Next, I'll structure the final output according to the guidelines, ensuring we use section headers in Title Case and include five sections: Goal, Plan, Progress, Diff summary, and Next command, with appropriate formatting for commands and file paths. Finally, I’ll double-check that our patch didn't introduce any lint errors.
+[2026-03-13T14:40:10] codex
+
+**Goal**
+- 概览页最小可审阅补丁：完成结果区层级整理第一步，保证成本清晰可见，弱化投资回报率；通过 TODO 占位标注 RevPAR 次级指标；同步 worklog。
+
+**Plan**
+- 阅读并对齐 docs 与页面现状
+- 重排 KeyMetrics 使总成本上主行
+- 添加 RevPAR 次级指标 TODO 占位
+- 维持 ROI 仅在 Inspector 的 process 区
+- 更新 docs/worklog.md 一条节拍记录
+- 输出 git diff summary（仅本次改动）
+
+**Progress**
+- 已在 `js/pages/overview-page.js:229` 附近调序：将“年总成本”从次级组提升到主行；将“业务成本（COGS）”下沉至运营指标组，确保“成本必须明确可见”且不删现有能力。
+- 已在 `js/pages/overview-page.js:226` 上方添加 RevPAR TODO 占位，标明 ADR×入住率的来源与位置，先不实现计算，符合“第一步先占位”的要求。
+- ROI 依旧仅存在于右侧 Inspector 的 process 区（DetailedCalculationDisplay），未进入主 KPI，符合“不要强调投资回报率”。
+- 未改目录、未动敏感度分析页、未改共享组件、未移除任何能力。
+- 已在 `docs/worklog.md` 追加一条五分钟节拍记录，记录本轮最小补丁完成。
+
+**Diff summary**
+- js/pages/overview-page.js | 13 +++++++------
+- 1 file changed, 7 insertions(+), 6 deletions(-)
+
+（说明：`docs/worklog.md` 当前为未跟踪文件，已追加节拍记录，待一起纳入暂存后可通过 staged diff 查看。）
+
+**Next command**
+- `git add js/pages/overview-page.js docs/worklog.md && scripts/review_codex.sh staged`
+[2026-03-13T14:40:11] tokens used: 188,732
+[2026-03-13T14:40:11] turn diff:
+diff --git a/docs/worklog.md b/docs/worklog.md
+index 86ea60a2e9bf051000d8f1bdbb7937034bf65c2e..62553654720a20592e4fc496c68f0593f11a67e9
+--- a/docs/worklog.md
++++ b/docs/worklog.md
+@@ -58,3 +58,11 @@
+ - 风险 / 阻塞：待观察
+ - 下一步：执行本轮 Codex patch
+ - 是否快照：no
++
++## 2026-03-13 22:39 GMT+8
++- 时间：2026-03-13 22:39 GMT+8
++- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
++- 状态：done
++- 风险 / 阻塞：无（未触及敏感度页与共享组件）
++- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
++- 是否快照：no
+diff --git a/js/pages/overview-page.js b/js/pages/overview-page.js
+index e933ba982b3a0adf6c44a8c5153a4a6a67448808..2a6ca5e577b58d1d32b3e8a7baafdfcc76cf7130
+--- a/js/pages/overview-page.js
++++ b/js/pages/overview-page.js
+@@ -223,6 +223,7 @@
+   };
+   
+   // 关键指标展示
++  // TODO: 添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率（data.revenue.boarding.adr × data.revenue.boarding.occ%）
+   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
+     if (!calculations) return null;
+     const { revenue, cost, profitability, investment } = calculations;
+@@ -241,18 +242,18 @@
+     const ltvCac = cac > 0 ? (ltv / cac) : null;
+     
+     const metrics = [
+-      [// 主要指标
++      [// 主要指标（成本前置：确保总成本上主行）
+         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
+-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
++        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
+         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
+         { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+       ],
+-      [// 运营指标
+-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
++      [// 运营指标（下沉 COGS，保持净利与净利率）
++        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
+         { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
+         { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+       ],
+-      [// 投资指标  
++      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
+         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+           color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
+@@ -355,4 +356,4 @@
+ 
+   return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+ 
+-})();
+\ No newline at end of file
++})();
+

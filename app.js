@@ -2,134 +2,6 @@
 (function() {
   'use strict';
 
-  // Rilo Analysis UI: 通用两栏布局 + InspectorPanel（结论/过程/术语）
-  // 说明：放在 app.js 中，避免修改 index.html 的 totalModules 统计。
-  window.RiloUI = (function() {
-    const InspectorContext = React.createContext(null);
-
-    const useInspector = () => React.useContext(InspectorContext);
-
-    const Term = ({ termKey, children }) => {
-      const api = useInspector();
-      if (!api) return children;
-      return React.createElement('span', {
-        className: 'underline decoration-dotted cursor-help text-gray-700 hover:text-gray-900',
-        onMouseEnter: () => {
-          api.setActiveSection('glossary');
-          api.setSelectedTerm(termKey);
-        }
-      }, children);
-    };
-
-    const SectionButton = ({ active, onClick, children }) =>
-      React.createElement('button', {
-        onClick,
-        className: `px-3 py-1 rounded-full text-sm font-medium transition-colors ${active ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`
-      }, children);
-
-    const InspectorPanel = ({ title = 'Inspector', conclusion, process, glossary, glossaryTerms = {} }) => {
-      const { activeSection, setActiveSection, selectedTerm } = useInspector();
-      const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
-
-      // 切换 section 时自动展开对应 section
-      React.useEffect(() => {
-        setCollapsed(prev => ({ ...prev, [activeSection]: false }));
-      }, [activeSection]);
-
-      // glossary 选中术语时自动切换至 glossary
-      React.useEffect(() => {
-        if (selectedTerm) setActiveSection('glossary');
-      }, [selectedTerm]);
-
-      const renderGlossary = () => {
-        const entries = Object.entries(glossaryTerms);
-        if (entries.length === 0) return glossary || null;
-
-        return React.createElement('div', { className: 'space-y-3' }, entries.map(([key, def]) =>
-          React.createElement('div', {
-            key,
-            id: `glossary-${key}`,
-            className: `rounded-xl border p-3 ${selectedTerm === key ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-white'}`
-          }, [
-            React.createElement('div', { key: 't', className: 'font-semibold text-gray-900' }, def.title || key),
-            React.createElement('div', { key: 'b', className: 'text-sm text-gray-700 mt-1 leading-relaxed' }, def.body || '')
-          ])
-        ));
-      };
-
-      // 选中术语时滚动到对应卡片
-      React.useEffect(() => {
-        if (!selectedTerm) return;
-        const el = document.getElementById(`glossary-${selectedTerm}`);
-        if (el && typeof el.scrollIntoView === 'function') {
-          el.scrollIntoView({ block: 'nearest' });
-        }
-      }, [selectedTerm, activeSection]);
-
-      const Section = ({ id, label, children }) =>
-        React.createElement('div', { className: 'rounded-2xl bg-white shadow border border-gray-100 overflow-hidden' }, [
-          React.createElement('div', {
-            key: 'h',
-            className: 'px-4 py-3 flex items-center justify-between'
-          }, [
-            React.createElement('div', { key: 'l', className: 'font-semibold text-gray-900' }, label),
-            React.createElement('button', {
-              key: 'c',
-              className: 'text-xs text-gray-500 hover:text-gray-800',
-              onClick: () => setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
-            }, collapsed[id] ? '展开' : '收起')
-          ]),
-          !collapsed[id] && React.createElement('div', { key: 'b', className: 'px-4 pb-4' }, children)
-        ]);
-
-      return React.createElement('div', { className: 'sticky top-4 space-y-3' }, [
-        React.createElement('div', { key: 'title', className: 'px-1' }, [
-          React.createElement('div', { key: 't', className: 'text-sm font-semibold text-gray-700' }, title),
-          React.createElement('div', { key: 'tabs', className: 'mt-2 flex gap-2 flex-wrap' }, [
-            React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
-            React.createElement(SectionButton, { key: 'p', active: activeSection === 'process', onClick: () => setActiveSection('process') }, '过程'),
-            React.createElement(SectionButton, { key: 'g', active: activeSection === 'glossary', onClick: () => setActiveSection('glossary') }, '术语')
-          ])
-        ]),
-
-        React.createElement(Section, { key: 'sec-c', id: 'conclusion', label: '结论' }, conclusion),
-        React.createElement(Section, { key: 'sec-p', id: 'process', label: '过程' }, process),
-        React.createElement(Section, { key: 'sec-g', id: 'glossary', label: '术语' }, renderGlossary())
-      ]);
-    };
-
-    const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
-      const [activeSection, setActiveSection] = React.useState('conclusion');
-      const [selectedTerm, setSelectedTerm] = React.useState(null);
-
-      const api = React.useMemo(() => ({
-        activeSection,
-        setActiveSection,
-        selectedTerm,
-        setSelectedTerm
-      }), [activeSection, selectedTerm]);
-
-      return React.createElement(InspectorContext.Provider, { value: api },
-        React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-12 gap-6' }, [
-          React.createElement('div', { key: 'left', className: 'lg:col-span-8 space-y-6' }, [
-            leftTitle && React.createElement('div', { key: 'lt', className: 'px-1' }, leftTitle),
-            left
-          ]),
-          React.createElement('div', { key: 'right', className: 'lg:col-span-4' },
-            React.createElement(InspectorPanel, {
-              title: inspectorTitle,
-              conclusion,
-              process,
-              glossary,
-              glossaryTerms
-            })
-          )
-        ])
-      );
-    };
-
-    return { TwoPaneLayout, InspectorPanel, Term, useInspector };
-  })();
 
   // 主应用组件
   const App = () => {
@@ -138,6 +10,7 @@
     const [activeTab, setActiveTab] = React.useState('settings'); // 恢复页签模式
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = React.useState(false); // 抽屉状态
 
     // 初始化数据管理器和计算引擎
     const [dataManager] = React.useState(() => new window.DataManager());

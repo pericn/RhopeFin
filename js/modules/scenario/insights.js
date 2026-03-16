@@ -19,38 +19,11 @@ window.ScenarioInsights = (function() {
         key: 'insights',
         className: 'space-y-4'
       }, insights.map((insight, index) => 
-        React.createElement(InsightCard, {
+        React.createElement(window.RiloUI.InsightCard, {
           key: index,
           insight: insight
         })
       ))
-    ]);
-  };
-
-  // 洞察卡片组件
-  const InsightCard = ({ insight }) => {
-    const colorClasses = getInsightColorClasses();
-
-    return React.createElement('div', {
-      className: `border rounded-lg p-4 ${colorClasses[insight.type]}`
-    }, [
-      React.createElement('div', {
-        key: 'header',
-        className: 'flex items-center gap-2 mb-2'
-      }, [
-        React.createElement('span', {
-          key: 'icon',
-          className: 'text-lg'
-        }, insight.icon),
-        React.createElement('h5', {
-          key: 'title',
-          className: 'font-medium'
-        }, insight.title)
-      ]),
-      React.createElement('p', {
-        key: 'content',
-        className: 'text-sm'
-      }, insight.content)
     ]);
   };
 
@@ -197,14 +170,6 @@ window.ScenarioInsights = (function() {
     return insights;
   };
 
-  // 获取洞察颜色类
-  const getInsightColorClasses = () => ({
-    positive: 'bg-green-50 border-green-200 text-green-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    negative: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800'
-  });
-
   // 计算关键指标
   const calculateKeyMetrics = (calculations) => {
     const data = extractAnalysisData(calculations);
@@ -243,7 +208,6 @@ window.ScenarioInsights = (function() {
 
   return {
     ScenarioInsights,
-    InsightCard,
     generateInsights,
     extractAnalysisData,
     calculateKeyMetrics,

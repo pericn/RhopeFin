@@ -71,10 +71,10 @@ window.AnalysisPage = (function() {
       })
     ]);
 
-    const conclusion = React.createElement('div', { className: 'space-y-3 text-sm text-gray-700' }, [
-      React.createElement('div', { key: 'c0', className: 'rounded-xl border border-gray-200 bg-white p-3' }, [
-        React.createElement('div', { key: 't', className: 'font-semibold text-gray-900' }, '你在看什么'),
-        React.createElement('div', { key: 'b', className: 'mt-1' }, [
+    const conclusion = React.createElement('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)]' }, [
+      React.createElement('div', { key: 'c0', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
+        React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '你在看什么'),
+        React.createElement('div', { key: 'b', className: 'mt-1 text-[var(--rilo-text-2)]' }, [
           Term ? React.createElement(Term, { termKey: 'sensitivity' }, '敏感度分析') : '敏感度分析',
           '（全局口径，其他参数不变）：滑动一个参数，观察回本/利润率/毛利率的变化。'
         ])
@@ -84,7 +84,7 @@ window.AnalysisPage = (function() {
 
     const process = React.createElement('div', { className: 'space-y-4' }, [
       React.createElement(KeyMetrics, { key: 'key-metrics', data, calculations, selectedParam, currency }),
-      React.createElement('div', { key: 'p-tip', className: 'text-xs text-gray-500' }, '提示：把 impactMetric 切到“利润率/综合毛利率”，更容易看出“赚钱能力”对参数的响应。')
+      React.createElement('div', { key: 'p-tip', className: 'text-xs text-[var(--rilo-text-3)]' }, '提示：把 impactMetric 切到“利润率/综合毛利率”，更容易看出“赚钱能力”对参数的响应。')
     ]);
 
     return window.RiloUI?.TwoPaneLayout ? React.createElement(window.RiloUI.TwoPaneLayout, {
@@ -103,11 +103,11 @@ window.AnalysisPage = (function() {
     }, [
       React.createElement('h1', {
         key: 'title',
-        className: 'text-3xl font-bold text-gray-900 mb-4'
+        className: 'text-3xl font-bold text-[var(--rilo-text-1)] mb-4'
       }, '📊 敏感度分析'),
       React.createElement('p', {
         key: 'subtitle',
-        className: 'text-lg text-gray-600 max-w-2xl mx-auto'
+        className: 'text-lg text-[var(--rilo-text-2)] max-w-2xl mx-auto'
       }, '全局敏感度分析：在全局口径下观察单参数变化对回本/利润率/毛利率的影响')
     ]);
   };
@@ -115,11 +115,11 @@ window.AnalysisPage = (function() {
   // 控制面板组件
   const ControlPanel = ({ selectedParam, paramRange, impactMetric, onParamChange, onRangeChange, onMetricChange, data }) => {
     return React.createElement('div', {
-      className: 'bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 shadow-sm border border-blue-200'
+      className: 'bg-[var(--rilo-surface-1)] rounded-xl p-6 shadow-sm border border-[var(--rilo-border-deep)]'
     }, [
       React.createElement('h3', {
         key: 'title',
-        className: 'text-xl font-semibold text-blue-900 mb-6 flex items-center'
+        className: 'text-xl font-semibold text-[var(--rilo-text-1)] mb-6 flex items-center'
       }, [
         React.createElement('span', {
           key: 'icon',
@@ -196,7 +196,7 @@ window.AnalysisPage = (function() {
       )),
       React.createElement('p', {
         key: 'description',
-        className: 'text-sm text-blue-700 mt-2'
+        className: 'text-sm text-[var(--rilo-accent)] mt-2'
       }, currentParam?.desc || '')
     ]);
   };
@@ -238,7 +238,7 @@ window.AnalysisPage = (function() {
       ]),
       React.createElement('p', {
         key: 'explanation',
-        className: 'text-sm text-blue-700'
+        className: 'text-sm text-[var(--rilo-accent)]'
       }, `参数将在当前值的 ${paramRange}% 范围内变动`)
     ]);
   };
@@ -272,7 +272,7 @@ window.AnalysisPage = (function() {
       )),
       React.createElement('p', {
         key: 'description',
-        className: 'text-sm text-blue-700'
+        className: 'text-sm text-[var(--rilo-accent)]'
       }, '选择要分析的影响指标（默认回本周期，全局口径）')
     ]);
   };
@@ -310,7 +310,7 @@ window.AnalysisPage = (function() {
     }, [
       React.createElement('h3', {
         key: 'title',
-        className: 'text-lg font-bold text-gray-800 mb-4 flex items-center'
+        className: 'text-lg font-bold text-[var(--rilo-text-1)] mb-4 flex items-center'
       }, [
         React.createElement('span', { key: 'icon', className: 'mr-2' }, currentParam?.icon),
         '核心指标'
@@ -323,7 +323,7 @@ window.AnalysisPage = (function() {
         // 当前参数值
         React.createElement('div', {
           key: 'param-value',
-          className: 'bg-blue-50 rounded-lg p-4'
+          className: 'bg-[var(--rilo-sem-info)]/10 rounded-lg p-4'
         }, [
           React.createElement('div', {
             key: 'param-label',
@@ -338,7 +338,7 @@ window.AnalysisPage = (function() {
         // 当前营收
         React.createElement('div', {
           key: 'revenue-value',
-          className: 'bg-cyan-50 rounded-lg p-4'
+          className: 'bg-[var(--rilo-sem-info)]/10 rounded-lg p-4'
         }, [
           React.createElement('div', {
             key: 'revenue-label',
@@ -353,7 +353,7 @@ window.AnalysisPage = (function() {
         // 当前成本
         React.createElement('div', {
           key: 'cost-value',
-          className: 'bg-red-50 rounded-lg p-4'
+          className: 'bg-[var(--rilo-sem-danger)]/10 rounded-lg p-4'
         }, [
           React.createElement('div', {
             key: 'cost-label',
@@ -368,7 +368,7 @@ window.AnalysisPage = (function() {
         // 当前利润
         React.createElement('div', {
           key: 'profit-value',
-          className: 'bg-green-50 rounded-lg p-4'
+          className: 'bg-[var(--rilo-sem-success)]/10 rounded-lg p-4'
         }, [
           React.createElement('div', {
             key: 'profit-label',
@@ -383,7 +383,7 @@ window.AnalysisPage = (function() {
         // 利润率
         React.createElement('div', {
           key: 'margin-value',
-          className: 'bg-purple-50 rounded-lg p-4'
+          className: 'bg-[var(--rilo-accent)]/10 rounded-lg p-4'
         }, [
           React.createElement('div', {
             key: 'margin-label',
@@ -410,7 +410,7 @@ window.AnalysisPage = (function() {
     };
 
     return React.createElement('div', {
-      className: 'bg-amber-50 rounded-xl p-6 shadow-lg border border-amber-200'
+      className: 'bg-[var(--rilo-sem-warning)]/10 rounded-xl p-6 shadow-lg border border-amber-200'
     }, [
       React.createElement('h4', {
         key: 'title',
@@ -421,7 +421,7 @@ window.AnalysisPage = (function() {
       ]),
       React.createElement('p', {
         key: 'insight',
-        className: 'text-amber-700 text-sm leading-relaxed'
+        className: 'text-[var(--rilo-sem-warning)] text-sm leading-relaxed'
       }, insights[selectedParam] || '选择参数进行敏感度分析')
     ]);
   };
@@ -458,7 +458,7 @@ window.AnalysisPage = (function() {
     }, [
       React.createElement('h3', {
         key: 'title',
-        className: 'text-xl font-bold text-gray-800 mb-6 flex items-center'
+        className: 'text-xl font-bold text-[var(--rilo-text-1)] mb-6 flex items-center'
       }, [
         React.createElement('span', { key: 'icon', className: 'mr-2' }, '📈'),
         '参数敏感度图表'
@@ -496,7 +496,7 @@ window.AnalysisPage = (function() {
       
       React.createElement('div', {
         key: 'bars',
-        className: 'space-y-3 bg-gray-50 rounded-lg p-4'
+        className: 'space-y-3 bg-[var(--rilo-surface-2)] rounded-lg p-4'
       }, dataWithChanges.map((point, index) => 
         React.createElement(ChartBar, {
           key: index,
@@ -527,13 +527,13 @@ window.AnalysisPage = (function() {
     const currentUnit = metricUnits[impactMetric] || '年';
     
     return React.createElement('div', { className: 'text-center mb-4' }, [
-      React.createElement('div', { key: 'title', className: 'text-lg font-semibold text-gray-700 mb-2' }, `参数变化对${currentMetric}的全局影响`),
+      React.createElement('div', { key: 'title', className: 'text-lg font-semibold text-[var(--rilo-text-1)] mb-2' }, `参数变化对${currentMetric}的全局影响`),
       React.createElement('div', { key: 'range-info', className: 'flex justify-between items-center text-sm font-medium' }, [
         ['📉 -', '📊 基准值', '📈 +'].map((icon, i) => React.createElement('span', {
-          key: i, className: `px-3 py-1 rounded-full ${['text-red-600 bg-red-100', 'text-gray-600 bg-gray-100', 'text-green-600 bg-green-100'][i]}`
+          key: i, className: `px-3 py-1 rounded-full ${['text-red-600 bg-red-100', 'text-[var(--rilo-text-2)] bg-[var(--rilo-surface-2)]', 'text-green-600 bg-green-100'][i]}`
         }, i === 1 ? icon : `${icon}${paramRange}%`))
       ]),
-      React.createElement('div', { key: 'legend', className: 'flex justify-between text-xs text-gray-500 mt-2' }, [
+      React.createElement('div', { key: 'legend', className: 'flex justify-between text-xs text-[var(--rilo-text-3)] mt-2' }, [
         React.createElement('span', { key: 'param-legend' }, '参数值 (变动%)'),
         React.createElement('span', { key: 'result-legend' }, `${currentMetric} (变化${currentUnit})`)
       ])
@@ -573,49 +573,49 @@ window.AnalysisPage = (function() {
     }
     
     // 颜色逻辑：对于回本周期，数值越小越好；对于利润率和毛利率，数值越大越好
-    let colors = ['bg-gray-400', 'text-gray-600']; // 默认中心点颜色
+    let colors = ['bg-gray-400', 'text-[var(--rilo-text-2)]']; // 默认中心点颜色
     if (!isCenter) {
       if (impactMetric === 'paybackYears') {
         // 回本周期：数值越小越好
         if (valueChange < -Math.abs(baseValue) * 0.05) {
-          colors = ['bg-green-700', 'text-green-700']; // 显著改善
+          colors = ['bg-[var(--rilo-sem-success)]', 'text-[var(--rilo-sem-success)]']; // 显著改善
         } else if (valueChange < 0) {
-          colors = ['bg-green-500', 'text-green-500']; // 轻微改善
+          colors = ['bg-[var(--rilo-sem-success)]/100', 'text-green-500']; // 轻微改善
         } else if (valueChange > Math.abs(baseValue) * 0.05) {
-          colors = ['bg-red-700', 'text-red-700']; // 显著恶化
+          colors = ['bg-[var(--rilo-sem-danger)]', 'text-[var(--rilo-sem-danger)]']; // 显著恶化
         } else if (valueChange > 0) {
-          colors = ['bg-red-500', 'text-red-500']; // 轻微恶化
+          colors = ['bg-[var(--rilo-sem-danger)]/100', 'text-red-500']; // 轻微恶化
         }
       } else {
         // 利润率和毛利率：数值越大越好
         if (valueChange > Math.abs(baseValue) * 0.05) {
-          colors = ['bg-green-700', 'text-green-700']; // 显著改善
+          colors = ['bg-[var(--rilo-sem-success)]', 'text-[var(--rilo-sem-success)]']; // 显著改善
         } else if (valueChange > 0) {
-          colors = ['bg-green-500', 'text-green-500']; // 轻微改善
+          colors = ['bg-[var(--rilo-sem-success)]/100', 'text-green-500']; // 轻微改善
         } else if (valueChange < -Math.abs(baseValue) * 0.05) {
-          colors = ['bg-red-700', 'text-red-700']; // 显著恶化
+          colors = ['bg-[var(--rilo-sem-danger)]', 'text-[var(--rilo-sem-danger)]']; // 显著恶化
         } else if (valueChange < 0) {
-          colors = ['bg-red-500', 'text-red-500']; // 轻微恶化
+          colors = ['bg-[var(--rilo-sem-danger)]/100', 'text-red-500']; // 轻微恶化
         }
       }
     }
     
-    return React.createElement('div', { className: `flex items-center space-x-6 p-3 rounded-lg ${isCenter ? 'bg-gray-100 border-2 border-gray-300' : 'bg-white'}` }, [
-      React.createElement('div', { key: 'label', className: `w-32 text-center font-semibold ${isCenter ? 'text-gray-800' : point.paramChange > 0 ? 'text-green-700' : 'text-red-700'}` }, [
+    return React.createElement('div', { className: `flex items-center space-x-6 p-3 rounded-lg ${isCenter ? 'bg-[var(--rilo-surface-2)] border-2 border-[var(--rilo-border-deep)]' : 'bg-white'}` }, [
+      React.createElement('div', { key: 'label', className: `w-32 text-center font-semibold ${isCenter ? 'text-[var(--rilo-text-1)]' : point.paramChange > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}` }, [
         React.createElement('div', { key: 'param-value', className: 'text-sm' }, `${Math.round(paramInfo.currentValue * (1 + point.paramChange / 100)).toLocaleString()} ${paramInfo.unit}`),
         React.createElement('div', { key: 'param-change', className: 'text-xs' }, `${point.paramChange >= 0 ? '+' : ''}${point.paramChange}%`)
       ]),
-      React.createElement('div', { key: 'bar-container', className: 'flex-1 flex items-center h-8 bg-gray-200 rounded-lg overflow-hidden' }, [
+      React.createElement('div', { key: 'bar-container', className: 'flex-1 flex items-center h-8 bg-[var(--rilo-border-deep)] rounded-lg overflow-hidden' }, [
         React.createElement('div', { key: 'bar', className: `h-full transition-all duration-500 ease-out ${colors[0]} flex items-center justify-end pr-2`, style: { width: `${Math.max(barWidth, 5)}%` }}, 
           barWidth > 10 ? React.createElement('span', { key: 'inner-text', className: 'text-xs font-semibold text-white' }, displayValue) : null)
       ]),
       React.createElement('div', { key: 'value', className: 'w-32 text-center' }, [
-        React.createElement('div', { key: 'impact-value', className: `text-lg font-bold ${isCenter ? 'text-gray-700' : colors[1]}` }, displayValue),
+        React.createElement('div', { key: 'impact-value', className: `text-lg font-bold ${isCenter ? 'text-[var(--rilo-text-1)]' : colors[1]}` }, displayValue),
         React.createElement('div', { key: 'impact-change', className: 'text-xs flex items-center justify-center' }, [
-          React.createElement('span', { key: 'change-text', className: `font-bold ${valueChange > 0 ? 'text-green-700' : valueChange < 0 ? 'text-red-700' : 'text-gray-600'}` }, displayChange),
+          React.createElement('span', { key: 'change-text', className: `font-bold ${valueChange > 0 ? 'text-[var(--rilo-sem-success)]' : valueChange < 0 ? 'text-[var(--rilo-sem-danger)]' : 'text-[var(--rilo-text-2)]'}` }, displayChange),
           valueChange !== 0 && React.createElement('span', { 
             key: 'arrow', 
-            className: `ml-1 text-xl font-bold ${valueChange > 0 ? 'text-green-700' : 'text-red-700'}` 
+            className: `ml-1 text-xl font-bold ${valueChange > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}` 
           }, valueChange > 0 ? '↗' : '↘')
         ])
       ])
@@ -631,7 +631,7 @@ window.AnalysisPage = (function() {
     }, [
       React.createElement('h3', {
         key: 'title',
-        className: 'text-2xl font-bold text-gray-800 mb-6 flex items-center'
+        className: 'text-2xl font-bold text-[var(--rilo-text-1)] mb-6 flex items-center'
       }, [
         React.createElement('span', { key: 'icon', className: 'mr-3' }, '📋'),
         '详细情景对比分析'
@@ -671,7 +671,7 @@ window.AnalysisPage = (function() {
     }, [
       React.createElement('tr', {
         key: 'header-row',
-        className: 'border-b-2 border-blue-200'
+        className: 'border-b-2 border-[var(--rilo-sem-info)]'
       }, headers.map(header =>
         React.createElement('th', {
           key: header.key,
@@ -701,8 +701,8 @@ window.AnalysisPage = (function() {
     return React.createElement('tbody', null, scenarios.map((scenario, index) =>
       React.createElement('tr', {
         key: scenario.name,
-        className: `border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-          scenario.name === '当前情况' ? 'bg-yellow-50 border-yellow-200' : ''
+        className: `border-b border-[var(--rilo-border-deep)] hover:bg-[var(--rilo-surface-2)] transition-colors ${
+          scenario.name === '当前情况' ? 'bg-[var(--rilo-sem-warning)]/10 border-[var(--rilo-sem-warning)]' : ''
         }`
       }, [
         React.createElement('td', {
@@ -729,11 +729,11 @@ window.AnalysisPage = (function() {
         }, [
           React.createElement('div', {
             key: 'param-value',
-            className: 'text-lg font-semibold text-gray-800'
+            className: 'text-lg font-semibold text-[var(--rilo-text-1)]'
           }, scenario.paramValue.toLocaleString()),
           React.createElement('div', {
             key: 'param-unit',
-            className: 'text-sm text-gray-500'
+            className: 'text-sm text-[var(--rilo-text-3)]'
           }, `${paramInfo[selectedParam]?.icon} ${paramInfo[selectedParam]?.unit}`)
         ]),
         React.createElement('td', {
@@ -746,7 +746,7 @@ window.AnalysisPage = (function() {
           }, `${scenario.paybackYears?.toFixed(1) || '0.0'}年`),
           React.createElement('div', {
             key: 'payback-label',
-            className: 'text-xs text-gray-500'
+            className: 'text-xs text-[var(--rilo-text-3)]'
           }, '投资回本周期')
         ]),
         React.createElement('td', {
@@ -759,7 +759,7 @@ window.AnalysisPage = (function() {
           }, scenario.changeText),
           React.createElement('div', {
             key: 'change-label',
-            className: 'text-xs text-gray-500'
+            className: 'text-xs text-[var(--rilo-text-3)]'
           }, '相比基准周期')
         ])
       ])

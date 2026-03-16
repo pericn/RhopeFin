@@ -53,12 +53,12 @@ window.UIComponents = (function() {
     }, [
       React.createElement('label', {
         key: 'label',
-        className: `text-sm text-gray-600 ${required ? 'font-medium' : ''}`
+        className: `text-sm text-[var(--rilo-text-2)] ${required ? 'font-medium' : ''}`
       }, [
         label,
         required && React.createElement('span', {
           key: 'required',
-          className: 'text-red-500 ml-1'
+          className: 'text-[var(--rilo-sem-danger)] ml-1'
         }, '*')
       ]),
       React.createElement('div', {
@@ -68,7 +68,7 @@ window.UIComponents = (function() {
         React.createElement('input', {
           key: 'input',
           type: type,
-          className: `px-3 py-2 rounded-xl border w-full ${required && !value ? 'border-red-300' : 'border-gray-300'} focus:border-blue-500 focus:outline-none`,
+          className: `px-3 py-2 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] placeholder-[var(--rilo-text-3)] ${required && !value ? 'border-[var(--rilo-sem-danger)]' : 'border-[var(--rilo-border-deep)]'} focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20`,
           value: inputValue,
           step: step,
           onChange: (e) => {
@@ -125,11 +125,11 @@ window.UIComponents = (function() {
     }, [
       React.createElement('label', {
         key: 'label',
-        className: 'text-sm text-gray-600'
+        className: 'text-sm text-[var(--rilo-text-2)]'
       }, label),
       React.createElement('select', {
         key: 'select',
-        className: 'px-3 py-2 rounded-xl border w-full focus:border-blue-500 focus:outline-none',
+        className: 'px-3 py-2 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] border-[var(--rilo-border-deep)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20',
         value: value,
         onChange: (e) => onChange(e.target.value)
       }, options.map(option => 
@@ -140,7 +140,7 @@ window.UIComponents = (function() {
       )),
       hint && React.createElement('div', {
         key: 'hint',
-        className: 'text-xs text-gray-400'
+        className: 'text-xs text-[var(--rilo-text-3)]'
       }, hint)
     ]);
   };
@@ -150,7 +150,7 @@ window.UIComponents = (function() {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
     return React.createElement('div', {
-      className: `bg-white rounded-2xl shadow p-4 lg:p-6 ${className}`
+      className: `bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] p-4 lg:p-6 ${className}`
     }, [
       React.createElement('div', {
         key: 'header',
@@ -162,11 +162,11 @@ window.UIComponents = (function() {
         }, [
           React.createElement('h2', {
             key: 'title',
-            className: 'text-lg font-semibold'
+            className: 'text-lg font-semibold text-[var(--rilo-text-1)]'
           }, title),
           collapsible && React.createElement('button', {
             key: 'toggle',
-            className: 'text-gray-400 hover:text-gray-600 transition-colors',
+            className: 'text-[var(--rilo-text-3)] hover:text-[var(--rilo-accent)] transition-colors',
             onClick: () => setIsCollapsed(!isCollapsed)
           }, isCollapsed ? '▶' : '▼')
         ]),
@@ -180,17 +180,15 @@ window.UIComponents = (function() {
   };
 
   // KPI指标显示组件
-  const KPI = ({ title, value, color = "blue", size = "normal", change = null, format = null }) => {
+  const KPI = ({ title, value, color = "info", size = "normal", change = null, format = null }) => {
     const getColorClasses = (color) => {
       const colors = {
-        blue: 'bg-blue-50 text-blue-600 border-blue-200',
-        green: 'bg-green-50 text-green-600 border-green-200',
-        red: 'bg-red-50 text-red-600 border-red-200',
-        orange: 'bg-orange-50 text-orange-600 border-orange-200',
-        purple: 'bg-purple-50 text-purple-600 border-purple-200',
-        gray: 'bg-gray-50 text-gray-600 border-gray-200'
+        success: 'bg-[var(--rilo-sem-success)]/10 text-[var(--rilo-sem-success)] border-[var(--rilo-sem-success)]/30',
+        danger: 'bg-[var(--rilo-sem-danger)]/10 text-[var(--rilo-sem-danger)] border-[var(--rilo-sem-danger)]/30',
+        warning: 'bg-[var(--rilo-sem-warning)]/10 text-[var(--rilo-sem-warning)] border-[var(--rilo-sem-warning)]/30',
+        info: 'bg-[var(--rilo-sem-info)]/10 text-[var(--rilo-sem-info)] border-[var(--rilo-sem-info)]/30'
       };
-      return colors[color] || colors.blue;
+      return colors[color] || colors.info;
     };
 
     const formatValue = (val) => {
@@ -209,15 +207,15 @@ window.UIComponents = (function() {
     }, [
       React.createElement('div', {
         key: 'title',
-        className: 'text-xs text-gray-600 mb-1'
+        className: 'text-xs text-[var(--rilo-text-3)] mb-1'
       }, title),
       React.createElement('div', {
         key: 'value',
-        className: `font-bold ${size === 'large' ? 'text-2xl' : 'text-lg'}`
+        className: `font-bold ${size === 'large' ? 'text-2xl' : 'text-lg'} text-[var(--rilo-text-1)]`
       }, formatValue(value)),
       change && React.createElement('div', {
         key: 'change',
-        className: `text-xs mt-1 ${change > 0 ? 'text-green-600' : 'text-red-600'}`
+        className: `text-xs mt-1 ${change > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}`
       }, `${change > 0 ? '+' : ''}${change.toFixed(1)}%`)
     ]);
   };
@@ -226,11 +224,11 @@ window.UIComponents = (function() {
   const Button = ({ children, onClick, variant = 'primary', size = 'normal', disabled = false, className = "" }) => {
     const getVariantClasses = (variant) => {
       const variants = {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-        secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
-        success: 'bg-green-600 hover:bg-green-700 text-white',
-        danger: 'bg-red-600 hover:bg-red-700 text-white',
-        outline: 'border border-blue-600 text-blue-600 hover:bg-blue-50'
+        primary: 'bg-[var(--rilo-accent)] hover:bg-[var(--rilo-accent-500)] text-white',
+        secondary: 'bg-[var(--rilo-text-2)] hover:bg-[var(--rilo-text-1)] text-[var(--rilo-text-1)]',
+        success: 'bg-[var(--rilo-sem-success)] hover:bg-[var(--rilo-sem-success)]/90 text-white',
+        danger: 'bg-[var(--rilo-sem-danger)] hover:bg-[var(--rilo-sem-danger)]/90 text-white',
+        outline: `border border-[var(--rilo-accent)] text-[var(--rilo-accent)] hover:bg-[var(--rilo-accent)]/10`
       };
       return variants[variant] || variants.primary;
     };
@@ -254,7 +252,7 @@ window.UIComponents = (function() {
   // 页签组件
   const Tabs = ({ tabs, activeTab, onTabChange, className = "" }) => {
     return React.createElement('div', {
-      className: `border-b border-gray-200 ${className}`
+      className: `border-b border-[var(--rilo-border-deep)] ${className}`
     }, 
       React.createElement('nav', {
         className: 'flex space-x-8'
@@ -263,8 +261,8 @@ window.UIComponents = (function() {
           key: tab.id,
           className: `py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
             activeTab === tab.id
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'border-[var(--rilo-accent)] text-[var(--rilo-accent)]'
+              : `border-transparent text-[var(--rilo-text-3)] hover:text-[var(--rilo-text-1)] hover:border-[var(--rilo-border-deep)]`
           }`,
           onClick: () => onTabChange(tab.id)
         }, [

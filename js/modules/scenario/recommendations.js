@@ -19,42 +19,11 @@ window.ScenarioRecommendations = (function() {
         key: 'recommendations',
         className: 'space-y-4'
       }, recommendations.map((rec, index) => 
-        React.createElement(RecommendationCard, {
+        React.createElement(window.RiloUI.RecommendationCard, {
           key: index,
           recommendation: rec
         })
       ))
-    ]);
-  };
-
-  // 建议卡片组件
-  const RecommendationCard = ({ recommendation }) => {
-    const priorityColors = getPriorityColorClasses();
-
-    return React.createElement('div', {
-      className: `border rounded-lg p-4 ${priorityColors[recommendation.priority]}`
-    }, [
-      React.createElement('div', {
-        key: 'header',
-        className: 'flex items-center gap-2 mb-2'
-      }, [
-        React.createElement('span', {
-          key: 'icon',
-          className: 'text-lg'
-        }, recommendation.icon),
-        React.createElement('h5', {
-          key: 'title',
-          className: 'font-medium'
-        }, recommendation.title),
-        React.createElement('span', {
-          key: 'priority',
-          className: `text-xs px-2 py-1 rounded-full font-medium ${getPriorityBadgeClass(recommendation.priority)}`
-        }, getPriorityLabel(recommendation.priority))
-      ]),
-      React.createElement('div', {
-        key: 'content',
-        className: 'text-sm whitespace-pre-line'
-      }, recommendation.content)
     ]);
   };
 
@@ -177,27 +146,6 @@ window.ScenarioRecommendations = (function() {
     return recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
   };
 
-  // 获取优先级颜色类
-  const getPriorityColorClasses = () => ({
-    high: 'bg-red-50 border-red-200 text-red-800',
-    medium: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    low: 'bg-blue-50 border-blue-200 text-blue-800'
-  });
-
-  // 获取优先级徽章类
-  const getPriorityBadgeClass = (priority) => ({
-    high: 'bg-red-100',
-    medium: 'bg-yellow-100',
-    low: 'bg-blue-100'
-  }[priority]);
-
-  // 获取优先级标签
-  const getPriorityLabel = (priority) => ({
-    high: '高优先级',
-    medium: '中优先级',
-    low: '低优先级'
-  }[priority]);
-
   // 生成行动计划
   const generateActionPlan = (calculations, currency) => {
     const recommendations = generateRecommendations(calculations, currency);
@@ -232,7 +180,6 @@ window.ScenarioRecommendations = (function() {
 
   return {
     ScenarioRecommendations,
-    RecommendationCard,
     generateRecommendations,
     generateActionPlan,
     assessImplementationImpact,

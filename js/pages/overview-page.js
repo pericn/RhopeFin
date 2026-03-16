@@ -10,7 +10,7 @@ window.OverviewPage = (function() {
   // 货币选择器组件
   const CurrencySelector = ({ currency, onChange }) =>
     h('div', { className: 'flex items-center gap-2' }, [
-      h('label', { key: 'label', className: 'text-sm text-gray-600' }, '货币:'),
+      h('label', { key: 'label', className: 'text-sm text-[var(--rilo-text-2)]' }, '货币:'),
       h('select', {
         key: 'select',
         className: 'px-2 py-1 rounded border text-sm',
@@ -62,14 +62,14 @@ window.OverviewPage = (function() {
     const margin = calculations?.profitability?.margin || 0;
     const paybackYears = calculations?.profitability?.paybackYears ?? Infinity;
 
-    const conclusion = h('div', { className: 'space-y-3 text-sm text-gray-700' }, [
-      h('div', { key: 's1', className: 'rounded-xl border border-gray-200 bg-white p-3' }, [
-        h('div', { key: 't', className: 'font-semibold text-gray-900' }, '当前状态'),
-        h('div', { key: 'b' }, profit > 0 ? `✅ 年净利润为正（约 ${currency}${Math.round(profit/10000)} 万）` : `❌ 年净利润为负（约 ${currency}${Math.round(profit/10000)} 万）`)
+    const conclusion = h('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)]' }, [
+      h('div', { key: 's1', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
+        h('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '当前状态'),
+        h('div', { key: 'b', className: 'text-[var(--rilo-text-2)]' }, profit > 0 ? `✅ 年净利润为正（约 ${currency}${Math.round(profit/10000)} 万）` : `❌ 年净利润为负（约 ${currency}${Math.round(profit/10000)} 万）`)
       ]),
-      h('div', { key: 's2', className: 'rounded-xl border border-gray-200 bg-white p-3' }, [
-        h('div', { key: 't', className: 'font-semibold text-gray-900' }, '关键结论'),
-        h('div', { key: 'b' }, [
+      h('div', { key: 's2', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
+        h('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '关键结论'),
+        h('div', { key: 'b', className: 'text-[var(--rilo-text-2)]' }, [
           h('div', { key: 'm' }, ['净利润率：', Term ? h(Term, { termKey: 'netMargin' }, `${margin.toFixed(1)}%`) : `${margin.toFixed(1)}%`]),
           h('div', { key: 'p' }, ['回本周期：', Term ? h(Term, { termKey: 'payback' }, paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)} 年`) : (paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)} 年`)])
         ])
@@ -77,7 +77,7 @@ window.OverviewPage = (function() {
     ]);
 
     const process = h('div', { className: 'space-y-4' }, [
-      h('div', { key: 'hint', className: 'text-xs text-gray-500' }, '默认收起：需要时再展开细节。'),
+      h('div', { key: 'hint', className: 'text-xs text-[var(--rilo-text-3)]' }, '默认收起：需要时再展开细节。'),
       h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency })
     ]);
 
@@ -109,7 +109,7 @@ window.OverviewPage = (function() {
       clearData: () => confirm('确认清除所有保存的数据？') && window.dataManager && updateData(window.dataManager.clearStorage())
     };
     
-    return h('div', { className: 'bg-white rounded-2xl shadow p-4' }, [
+    return h('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] shadow-sm p-4' }, [
       h('div', { key: 'actions', className: 'flex justify-center gap-3' }, [
         h(window.UIComponents.Button, { key: 'export', onClick: actions.exportData, variant: 'outline', size: 'small' }, '📤 导出数据'),
         h(ImportButton, { key: 'import', onImport: handleImport }),
@@ -129,19 +129,19 @@ window.OverviewPage = (function() {
     const grossProfit = (revenue?.total || 0) - cogs;
     const netProfit = profitability?.profit || 0;
     
-    return h('div', { className: 'mt-6 bg-gray-50 rounded-lg p-4' }, [
-      h('h3', { key: 'title', className: 'text-md font-semibold text-gray-800 mb-4' }, '🧮 详细计算过程'),
+    return h('div', { className: 'mt-6 bg-[var(--rilo-surface-2)] rounded-lg p-4' }, [
+      h('h3', { key: 'title', className: 'text-md font-semibold text-[var(--rilo-text-1)] mb-4' }, '🧮 详细计算过程'),
       
       // 收入计算展示
       h('div', { key: 'revenue-calc', className: 'mb-4' }, [
         h('h4', { key: 'title', className: 'text-sm font-medium text-blue-700 mb-2' }, '💰 收入计算'),
-        h('div', { key: 'breakdown', className: 'text-xs text-gray-600 space-y-1' }, [
+        h('div', { key: 'breakdown', className: 'text-xs text-[var(--rilo-text-2)] space-y-1' }, [
           revenue?.member && h('div', { key: 'member' }, `会员收入: ¥${(revenue.member / 10000).toFixed(2)}万`),
           revenue?.boarding && h('div', { key: 'boarding' }, `寄养收入: ¥${(revenue.boarding / 10000).toFixed(2)}万`),
           revenue?.medical && h('div', { key: 'medical' }, `医疗收入: ¥${(revenue.medical / 10000).toFixed(2)}万`),
           revenue?.retail && h('div', { key: 'retail' }, `零售收入: ¥${(revenue.retail / 10000).toFixed(2)}万`),
           revenue?.cafe && h('div', { key: 'cafe' }, `餐饮收入: ¥${(revenue.cafe / 10000).toFixed(2)}万`),
-          h('div', { key: 'total', className: 'font-medium border-t border-gray-300 pt-1 mt-2' }, 
+          h('div', { key: 'total', className: 'font-medium border-t border-[var(--rilo-border-deep)] pt-1 mt-2' }, 
             `总收入 = ¥${(revenue.total / 10000).toFixed(2)}万`)
         ])
       ]),
@@ -149,24 +149,24 @@ window.OverviewPage = (function() {
       // 业务成本计算展示
       h('div', { key: 'cogs-calc', className: 'mb-4' }, [
         h('h4', { key: 'title', className: 'text-sm font-medium text-orange-700 mb-2' }, '📋 业务成本 (COGS) 计算'),
-        h('div', { key: 'breakdown', className: 'text-xs text-gray-600 space-y-1' }, [
+        h('div', { key: 'breakdown', className: 'text-xs text-[var(--rilo-text-2)] space-y-1' }, [
           cost?.cogs?.member && h('div', { key: 'member' }, `会员业务成本: ¥${(cost.cogs.member / 10000).toFixed(2)}万`),
           cost?.cogs?.boarding && h('div', { key: 'boarding' }, `寄养业务成本: ¥${(cost.cogs.boarding / 10000).toFixed(2)}万`),
           cost?.cogs?.medical && h('div', { key: 'medical' }, `医疗业务成本: ¥${(cost.cogs.medical / 10000).toFixed(2)}万`),
           cost?.cogs?.retail && h('div', { key: 'retail' }, `零售业务成本: ¥${(cost.cogs.retail / 10000).toFixed(2)}万`),
           cost?.cogs?.cafe && h('div', { key: 'cafe' }, `餐饮业务成本: ¥${(cost.cogs.cafe / 10000).toFixed(2)}万`),
-          h('div', { key: 'total', className: 'font-medium border-t border-gray-300 pt-1 mt-2' }, 
+          h('div', { key: 'total', className: 'font-medium border-t border-[var(--rilo-border-deep)] pt-1 mt-2' }, 
             `业务成本总计 = ¥${(cogs / 10000).toFixed(2)}万`)
         ])
       ]),
       
       // 毛利润计算
       h('div', { key: 'gross-profit-calc', className: 'mb-4' }, [
-        h('h4', { key: 'title', className: 'text-sm font-medium text-teal-700 mb-2' }, '📊 毛利润计算'),
-        h('div', { key: 'formula', className: 'text-xs text-gray-600' }, [
+        h('h4', { key: 'title', className: 'text-sm font-medium text-[var(--rilo-accent)] mb-2' }, '📊 毛利润计算'),
+        h('div', { key: 'formula', className: 'text-xs text-[var(--rilo-text-2)]' }, [
           h('div', { key: 'calc' }, `毛利润 = 总收入 - 业务成本`),
           h('div', { key: 'numbers' }, `= ¥${(revenue.total / 10000).toFixed(2)}万 - ¥${(cogs / 10000).toFixed(2)}万`),
-          h('div', { key: 'result', className: 'font-medium text-teal-700' }, `= ¥${(grossProfit / 10000).toFixed(2)}万`),
+          h('div', { key: 'result', className: 'font-medium text-[var(--rilo-accent)]' }, `= ¥${(grossProfit / 10000).toFixed(2)}万`),
           h('div', { key: 'margin', className: 'mt-1' }, 
             `综合毛利率 = ${revenue.total > 0 ? ((grossProfit / revenue.total) * 100).toFixed(1) : 0}%`)
         ])
@@ -174,22 +174,22 @@ window.OverviewPage = (function() {
       
       // 运营成本计算
       h('div', { key: 'operating-costs', className: 'mb-4' }, [
-        h('h4', { key: 'title', className: 'text-sm font-medium text-red-700 mb-2' }, '💸 运营成本计算'),
-        h('div', { key: 'breakdown', className: 'text-xs text-gray-600 space-y-1' }, [
+        h('h4', { key: 'title', className: 'text-sm font-medium text-[var(--rilo-sem-danger)] mb-2' }, '💸 运营成本计算'),
+        h('div', { key: 'breakdown', className: 'text-xs text-[var(--rilo-text-2)] space-y-1' }, [
           h('div', { key: 'fixed' }, `固定成本: ¥${(fixed / 10000).toFixed(2)}万 (租金、人工等)`),
           h('div', { key: 'variable' }, `变动成本: ¥${(variable / 10000).toFixed(2)}万 (水电、其他)`),
-          h('div', { key: 'total', className: 'font-medium border-t border-gray-300 pt-1 mt-2' }, 
+          h('div', { key: 'total', className: 'font-medium border-t border-[var(--rilo-border-deep)] pt-1 mt-2' }, 
             `运营成本总计 = ¥${((fixed + variable) / 10000).toFixed(2)}万`)
         ])
       ]),
       
       // 净利润计算
       h('div', { key: 'net-profit-calc', className: 'mb-4' }, [
-        h('h4', { key: 'title', className: 'text-sm font-medium text-blue-700 mb-2' }, '📈 净利润计算'),
-        h('div', { key: 'formula', className: 'text-xs text-gray-600' }, [
+        h('h4', { key: 'title', className: 'text-sm font-medium text-[var(--rilo-accent)] mb-2' }, '📈 净利润计算'),
+        h('div', { key: 'formula', className: 'text-xs text-[var(--rilo-text-2)]' }, [
           h('div', { key: 'calc' }, `净利润 = 毛利润 - 运营成本`),
           h('div', { key: 'numbers' }, `= ¥${(grossProfit / 10000).toFixed(2)}万 - ¥${((fixed + variable) / 10000).toFixed(2)}万`),
-          h('div', { key: 'result', className: `font-medium ${netProfit > 0 ? 'text-blue-700' : 'text-red-700'}` }, 
+          h('div', { key: 'result', className: `font-medium ${netProfit > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}` }, 
             `= ¥${(netProfit / 10000).toFixed(2)}万`),
           h('div', { key: 'margin', className: 'mt-1' }, 
             `净利润率 = ${revenue.total > 0 ? ((netProfit / revenue.total) * 100).toFixed(1) : 0}%`)
@@ -199,7 +199,7 @@ window.OverviewPage = (function() {
       // 投资回报计算
       investment?.total > 0 && h('div', { key: 'roi-calc', className: 'mb-4' }, [
         h('h4', { key: 'title', className: 'text-sm font-medium text-purple-700 mb-2' }, '💎 投资回报计算'),
-        h('div', { key: 'formula', className: 'text-xs text-gray-600' }, [
+        h('div', { key: 'formula', className: 'text-xs text-[var(--rilo-text-2)]' }, [
           h('div', { key: 'investment' }, `初始投资: ¥${(investment.total / 10000).toFixed(2)}万`),
           h('div', { key: 'payback' }, 
             `回本周期 = 初始投资 ÷ 年净利润 = ${netProfit > 0 ? (investment.total / netProfit).toFixed(1) : '∞'}年`),
@@ -249,22 +249,22 @@ window.OverviewPage = (function() {
     
     const metrics = [
       [// 主要指标（成本前置：确保总成本上主行）
-        { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'green', size: 'large' },
-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'red' },
-        { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'teal' : 'red', size: 'large' },
-        { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'teal' : 'red' }
+        { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'success', size: 'large' },
+        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'danger' },
+        { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'info' : 'danger', size: 'large' },
+        { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'info' : 'danger' }
       ],
       [// 运营指标（下沉 COGS，保持净利与净利率，并加入 RevPAR 次级位）
-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'orange' },
-        { key: 'revpar', title: '每间可售房晚收入', value: revpar.toFixed(0), suffix: '元/间夜', color: 'teal' },
-        { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'blue' : 'red' },
-        { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'blue' : 'red' }
+        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'warning' },
+        { key: 'revpar', title: '每间可售房晚收入', value: revpar.toFixed(0), suffix: '元/间夜', color: 'info' },
+        { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
+        { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'success' : 'danger' }
       ],
       [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
-        { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'purple' },
+        { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'info' },
         { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
-          color: paybackYears < 3 ? 'green' : paybackYears < 5 ? 'orange' : 'red' },
-        { key: 'monthly-cashflow', title: '月度现金流', value: profit ? (profit / 12 / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'green' : 'red' },
+          color: paybackYears < 3 ? 'success' : paybackYears < 5 ? 'warning' : 'danger' },
+        { key: 'monthly-cashflow', title: '月度现金流', value: profit ? (profit / 12 / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
         { key: 'ltv-cac', title: 'LTV:CAC', value: ltvCac === null ? '—' : ltvCac.toFixed(1), suffix: 'x', color: ltvCac !== null && ltvCac >= 3 ? 'success' : ltvCac !== null && ltvCac >= 1 ? 'warning' : 'danger' }
       ]
     ];
@@ -282,22 +282,15 @@ window.OverviewPage = (function() {
     ]);
   };
 
-  // 图表卡片组件
-  const ChartCard = ({ title, children }) =>
-    h('div', { className: 'bg-white rounded-2xl shadow p-6' }, [
-      h('h3', { key: 'title', className: 'text-lg font-semibold mb-4' }, title),
-      children
-    ]);
-  
   // 业务概览
   const BusinessOverview = ({ data, calculations, currency }) => {
     if (!calculations) return null;
     
     return h('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-6' }, [
-      h(ChartCard, { key: 'revenue', title: '💰 收入结构分析' },
+      h(window.RiloUI.ChartCard, { key: 'revenue', title: '💰 收入结构分析' },
         h(window.ChartComponents.RevenueStructureChart, { calculations, currency })
       ),
-      h(ChartCard, { key: 'cost', title: '💸 成本结构分析' },
+      h(window.RiloUI.ChartCard, { key: 'cost', title: '💸 成本结构分析' },
         h(window.ChartComponents.CostStructureChart, { calculations, currency })
       )
     ]);
@@ -307,29 +300,11 @@ window.OverviewPage = (function() {
   const ScenarioQuickView = ({ calculations, currency }) => {
     if (!calculations?.scenarios) return null;
     
-    return h(ChartCard, { title: '🎯 情景分析预览' },
+    return h(window.RiloUI.ChartCard, { title: '🎯 情景分析预览' },
       h(window.ChartComponents.ScenarioComparisonChart, { calculations, currency })
     );
   };
 
-  // 提醒卡片组件  
-  const AlertCard = ({ alert, colorClasses }) => h('div', { className: `border rounded-lg p-4 ${colorClasses[alert.type]}` }, [
-    h('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
-      h('span', { key: 'icon', className: 'text-lg' }, alert.icon),
-      h('h5', { key: 'title', className: 'font-medium' }, alert.title)
-    ]),
-    h('p', { key: 'message', className: 'text-sm' }, alert.message)
-  ]);
-  
-  // 洞察卡片组件
-  const InsightCard = ({ insight }) => h('div', { className: 'bg-green-50 border border-green-200 text-green-800 rounded-lg p-4' }, [
-    h('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
-      h('span', { key: 'icon', className: 'text-lg' }, insight.icon),
-      h('h5', { key: 'title', className: 'font-medium' }, insight.title)
-    ]),
-    h('p', { key: 'message', className: 'text-sm' }, insight.message)
-  ]);
-  
   // 警告和洞察
   const AlertsAndInsights = ({ calculations, data, currency }) => {
     if (!calculations) return null;
@@ -355,12 +330,12 @@ window.OverviewPage = (function() {
     return h('div', { className: 'bg-white rounded-2xl shadow p-6' }, [
       h('h3', { key: 'title', className: 'text-lg font-semibold mb-4' }, '💡 系统提醒与洞察'),
       h('div', { key: 'content', className: 'space-y-4' }, [
-        alerts.length > 0 && h('div', { key: 'alerts', className: 'space-y-3' }, alerts.map((alert, i) => h(AlertCard, { key: i, alert, colorClasses }))),
-        insights.length > 0 && h('div', { key: 'insights', className: 'space-y-3' }, insights.map((insight, i) => h(InsightCard, { key: i, insight })))
+        alerts.length > 0 && h('div', { key: 'alerts', className: 'space-y-3' }, alerts.map((alert, i) => h(window.RiloUI.AlertCard, { key: i, alert, colorClasses }))),
+        insights.length > 0 && h('div', { key: 'insights', className: 'space-y-3' }, insights.map((insight, i) => h(window.RiloUI.InsightCard, { key: i, insight })))
       ])
     ]);
   };
 
-  return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, ChartCard, StatusIndicator, AlertCard, InsightCard };
+  return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, StatusIndicator };
 
 })();

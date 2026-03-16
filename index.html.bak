@@ -137,8 +137,8 @@
   <!-- 应用根节点 -->
   <div id="root">
     <!-- 初始加载状态 -->
-    <div class="min-h-screen bg-[var(--rilo-bg-deep)] flex items-center justify-center">
-      <div class="bg-[var(--rilo-surface-1)] rounded-2xl shadow-xl p-8 text-center max-w-md border border-[var(--rilo-border-deep)]">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center">
+      <div class="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md">
         <div class="text-6xl mb-4">🐾</div>
         <h1 class="text-2xl font-bold text-gray-800 mb-4">宠物综合体经营测算</h1>
         <p class="text-gray-600 mb-6">v2.0 模块化版本</p>
@@ -227,9 +227,6 @@
   
   <!-- 5. 共享壳层组件 (TwoPaneLayout, Inspector, Term) -->
   <script src="js/shared/rilo-ui.js" onerror="handleModuleError('RiloUI', event)" onload="updateLoadingProgress()"></script>
-  
-  <!-- 5a. 定义说明抽屉 -->
-  <script src="js/components/rilo-ui/drawer.js" onerror="handleModuleError('DefinitionsDrawer', event)" onload="updateLoadingProgress()"></script>
   
   <!-- 6. 图表组件 (拆分后) -->
   <script src="js/components/charts/revenue-chart.js" onerror="handleModuleError('RevenueChart', event)" onload="updateLoadingProgress()"></script>
