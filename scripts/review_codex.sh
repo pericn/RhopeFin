@@ -113,7 +113,7 @@ PROMPT_FILE="$OUT_DIR/codex_review.prompt.txt"
 } > "$OUT_FILE"
 
 set +e
-codex exec -m "$MODEL" -s read-only -a never -C . < "$PROMPT_FILE" 2>&1 \
+codex exec -m "$MODEL" -s read-only -C . < "$PROMPT_FILE" 2>&1 \
   | tee -a "$OUT_FILE"
 codex_status=${PIPESTATUS[0]}
 set -e

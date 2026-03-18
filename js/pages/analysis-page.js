@@ -123,7 +123,8 @@ window.AnalysisPage = (function() {
         calculations,
         selectedParam,
         paramRange,
-        currency
+        currency,
+        formulaEngine
       })
     ]);
 
@@ -279,11 +280,97 @@ window.AnalysisPage = (function() {
     const Term = window.RiloUI?.Term;
     const titleNode = (termKey, text) => Term ? React.createElement(Term, { termKey }, text) : text;
 
-    const scenarios = [
-      { name: '保守', change: -paramRange, profit: calculations.profitability.profit * 0.75, margin: calculations.profitability.margin * 0.85, payback: (calculations.investment.total / (calculations.profitability.profit * 0.75)) || Infinity },
-      { name: '当前', change: 0, profit: calculations.profitability.profit, margin: calculations.profitability.margin, payback: calculations.profitability.paybackYears },
-      { name: '优化', change: paramRange, profit: calculations.profitability.profit * 1.25, margin: calculations.profitability.margin * 1.15, payback: (calculations.investment.total / (calculations.profitability.profit * 1.25)) || Infinity }
-    ];
+    // Generate realistic sensitivity scenarios by varying the selected parameter
+    const generateScenarios = () => {
+      const scenarios = [];
+      const variations = [-paramRange, 0, paramRange];
+      const labels = ['保守', '当前', '优化'];
+
+      // Helper: adjust parameter in a data copy
+      const adjustParam = (baseData, pctChange) => {
+        const adjusted = JSON.parse(JSON.stringify(baseData));
+        const factor = 1 + pctChange / 100;
+
+        switch (selectedParam) {
+          case 'fitoutStandard':
+            adjusted.investment = adjusted.investment || {};
+            adjusted.investment.fitoutStandard = (adjusted.investment.fitoutStandard || 0) * factor;
+            break;
+          case 'occ':
+            adjusted.revenue = adjusted.revenue || {};
+            adjusted.revenue.boarding = adjusted.revenue.boarding || {};
+            adjusted.revenue.boarding.occ = Math.min(100, Math.max(0, (adjusted.revenue.boarding.occ || 0) * factor));
+            break;
+          case 'adr':
+            adjusted.revenue = adjusted.revenue || {};
+            adjusted.revenue.boarding = adjusted.revenue.boarding || {};
+            adjusted.revenue.boarding.adr = (adjusted.revenue.boarding.adr || 0) * factor;
+            break;
+          case 'memberRatio':
+            // Adjust base member proportion, then renormalize all to sum 100%
+            adjusted.revenue = adjusted.revenue || {};
+            adjusted.revenue.member = adjusted.revenue.member || {};
+            const base = adjusted.revenue.member.basePct || 0;
+            const pro = adjusted.revenue.member.proPct || 0;
+            const vip = adjusted.revenue.member.vipPct || 0;
+            if (base + pro + vip > 0) {
+              // Scale base by factor, clamp to non-negative, then preserve ratio between pro/vip, renormalize total to 100
+              const newBase = Math.max(0, base * factor);
+              const newPro = pro;
+              const newVip = vip;
+              const sum = newBase + newPro + newVip;
+              if (sum > 0) {
+                adjusted.revenue.member.basePct = (newBase / sum) * 100;
+                adjusted.revenue.member.proPct = (newPro / sum) * 100;
+                adjusted.revenue.member.vipPct = (newVip / sum) * 100;
+              }
+            }
+            break;
+          default:
+            break;
+        }
+
+        return adjusted;
+      };
+
+      // Recalculate using the official MainCalculator to ensure consistency
+      const recalc = (inputData) => {
+        if (window.MainCalculator && formulaEngine) {
+          try {
+            const calculator = new window.MainCalculator(formulaEngine);
+            const result = calculator.calculate(inputData);
+            const profit = result?.profitability?.profit ?? 0;
+            const margin = result?.profitability?.margin ?? 0;
+            const payback = result?.profitability?.paybackYears ?? Infinity;
+            return { profit, margin, payback };
+          } catch (e) {
+            console.warn('Sensitivity recalc failed, falling back to baseline', e);
+          }
+        }
+        // Fallback to baseline values if calculator unavailable
+        const profit = calculations?.profitability?.profit ?? 0;
+        const margin = calculations?.profitability?.margin ?? 0;
+        const payback = calculations?.profitability?.paybackYears ?? Infinity;
+        return { profit, margin, payback };
+      };
+
+      for (let i = 0; i < 3; i++) {
+        const pct = variations[i];
+        const adjustedData = adjustParam(data, pct);
+        const metrics = recalc(adjustedData);
+        scenarios.push({
+          name: labels[i],
+          change: pct,
+          profit: metrics.profit,
+          margin: metrics.margin,
+          payback: metrics.payback
+        });
+      }
+
+      return scenarios;
+    };
+
+    const scenarios = generateScenarios();
 
     return React.createElement('div', { className: 'bg-[var(--rilo-surface-1)] border border-[var(--rilo-border-deep)] rounded-2xl p-6 rilo-zh-page' }, [
       React.createElement('h3', { key: 'title', className: 'text-lg font-semibold text-[var(--rilo-text-1)] mb-4' }, '情景对比'),
