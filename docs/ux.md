@@ -72,7 +72,7 @@
 - **单一权威内容源**：「术语」Tab 与 Drawer 必须复用同一份内容组件/数据
 - “术语解释”入口尽量不弹窗打断：
   - 在 Settings：优先切到「术语」Tab
-  - 其他页：fallback Drawer
+  - 在 Overview / Analysis：优先切到右侧「术语」；只有在无右侧面板时才 fallback Drawer
 
 ---
 
@@ -118,3 +118,7 @@
 - 新手只看「结论」也能完成“调参→判断能否赚钱/回本多久”
 - 熟手能在「明细」找到原来所有计算过程，不缺项
 - 「术语」内容不重复、不冲突，且入口一致
+
+## 7. Prototype 参考
+- `prototypes/rilo-upgrade-v2-cn.html`：结构/交互参考（可用于对齐术语入口与信息密度）
+- `prototypes/rilo-editorial-premium-prototype.html`：视觉灵感参考，不作为验收标准

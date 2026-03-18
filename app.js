@@ -11,6 +11,7 @@
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false); // 抽屉状态
+    const [drawerTermKey, setDrawerTermKey] = React.useState(null);
 
     // 初始化数据管理器和计算引擎
     const [dataManager] = React.useState(() => new window.DataManager());
@@ -43,6 +44,20 @@
       window.formulaEngine = formulaEngine;
       window.calculator = calculator;
     }, [dataManager, formulaEngine, calculator]);
+
+    React.useEffect(() => {
+      window.RiloUI = window.RiloUI || {};
+      window.RiloUI.openDefinitionsDrawer = (termKey = null) => {
+        setDrawerTermKey(termKey);
+        setIsDrawerOpen(true);
+      };
+
+      return () => {
+        if (window.RiloUI?.openDefinitionsDrawer) {
+          delete window.RiloUI.openDefinitionsDrawer;
+        }
+      };
+    }, []);
 
     // 页签配置
     const tabs = [
@@ -197,8 +212,12 @@
         window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
           key: 'definitions-drawer',
           isOpen: isDrawerOpen,
-          onClose: () => setIsDrawerOpen(false),
-          glossaryTerms: window.RiloUI.termRegistry || {}
+          onClose: () => {
+            setIsDrawerOpen(false);
+            setDrawerTermKey(null);
+          },
+          glossaryTerms: window.RiloUI.termRegistry || {},
+          selectedTerm: drawerTermKey
         }) : null,
 
         React.createElement('div', {
@@ -229,7 +248,19 @@
                   React.createElement('button', {
                     key: 'glossary-btn',
                     className: 'px-3 py-1 text-sm rounded-full border border-[var(--rilo-border-deep)] text-[var(--rilo-text-2)] bg-[var(--rilo-surface-2)] hover:bg-[var(--rilo-border-deep)] hover:text-[var(--rilo-text-1)] transition-colors',
-                    onClick: () => setIsDrawerOpen(true)
+                    onClick: () => {
+                      const inspectorApi = window.RiloUI?.activeInspectorApi;
+                      if (inspectorApi?.setActiveSection && inspectorApi?.setSelectedTerm) {
+                        inspectorApi.setActiveSection('glossary');
+                        inspectorApi.setSelectedTerm(null);
+                        setDrawerTermKey(null);
+                        setIsDrawerOpen(false);
+                        return;
+                      }
+
+                      setDrawerTermKey(null);
+                      setIsDrawerOpen(true);
+                    }
                   }, '📖 术语'),
                   React.createElement('p', {
                     key: 'subtitle',
@@ -494,7 +525,6 @@
     requireFn('UIComponents.Button', () => typeof window.UIComponents?.Button === 'function');
     requireFn('UIComponents.Tabs', () => typeof window.UIComponents?.Tabs === 'function');
     requireFn('UIComponents.Loading', () => typeof window.UIComponents?.Loading === 'function');
-
     requireFn('SettingsPage.SettingsPage', () => typeof window.SettingsPage?.SettingsPage === 'function');
     requireFn('OverviewPage.OverviewPage', () => typeof window.OverviewPage?.OverviewPage === 'function');
     requireFn('AnalysisPage.AnalysisPage', () => typeof window.AnalysisPage?.AnalysisPage === 'function');

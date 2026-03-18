@@ -17,6 +17,98 @@ window.RevenueSettings = (function() {
     });
   };
 
+  const clampPercentage = (value) => Math.max(0, Math.min(100, value));
+
+  const formatPercentageInputValue = (value) => {
+    if (value === '' || value === null || value === undefined) return '';
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) return '';
+    return numericValue.toFixed(1).replace(/\.0$/, '');
+  };
+
+  const parsePercentageValue = (value) => {
+    if (value === '' || value === null || value === undefined) return null;
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) return null;
+    return Math.round(clampPercentage(numericValue) * 10) / 10;
+  };
+
+  const PercentageDualInput = ({ config, value, updateField }) => {
+    const [inputValue, setInputValue] = React.useState(formatPercentageInputValue(value));
+
+    React.useEffect(() => {
+      setInputValue(formatPercentageInputValue(value));
+    }, [value]);
+
+    const applyValue = (nextValue) => {
+      const parsedValue = parsePercentageValue(nextValue);
+      if (parsedValue === null) {
+        setInputValue(formatPercentageInputValue(value));
+        return;
+      }
+      updateField(config.path, parsedValue);
+    };
+
+    return React.createElement('div', {
+      className: 'flex flex-col gap-2',
+      style: { width: '25%' }
+    }, [
+      React.createElement('label', {
+        key: 'label',
+        className: 'text-sm text-[var(--rilo-text-2)]'
+      }, config.label),
+      React.createElement('input', {
+        key: 'slider',
+        type: 'range',
+        min: '0',
+        max: '100',
+        step: '0.1',
+        value: parsePercentageValue(value) ?? 0,
+        onChange: (e) => {
+          const nextValue = parsePercentageValue(e.target.value);
+          if (nextValue === null) return;
+          setInputValue(formatPercentageInputValue(nextValue));
+          updateField(config.path, nextValue);
+        },
+        className: 'w-full cursor-pointer accent-[var(--rilo-accent)]'
+      }),
+      React.createElement('div', {
+        key: 'number-row',
+        className: 'relative'
+      }, [
+        React.createElement('input', {
+          key: 'number',
+          type: 'number',
+          min: '0',
+          max: '100',
+          step: '0.1',
+          value: inputValue,
+          onChange: (e) => {
+            const nextValue = e.target.value;
+            setInputValue(nextValue);
+            if (nextValue === '' || nextValue.endsWith('.')) return;
+            const parsedValue = parsePercentageValue(nextValue);
+            if (parsedValue === null) return;
+            updateField(config.path, parsedValue);
+          },
+          onBlur: () => applyValue(inputValue),
+          className: 'px-3 py-2 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] border-[var(--rilo-border-deep)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20'
+        }),
+        config.suffix && React.createElement('span', {
+          key: 'suffix',
+          className: 'absolute right-3 top-2 text-gray-400 text-sm'
+        }, config.suffix)
+      ])
+    ]);
+  };
+
+  const createDualPercentageField = (config, value, updateField) => React.createElement(PercentageDualInput, {
+    key: config.key,
+    config,
+    value,
+    updateField
+  });
+
   const RevenueSettings = ({ data, updateData, formulaEngine }) => {
     const updateField = (path, value) => {
       if (window.dataManager) {
@@ -300,11 +392,14 @@ window.RevenueSettings = (function() {
 
   // 寄养收入设置组件 - 简化版本
   const BoardingRevenueSettings = ({ data, updateField, revenueData }) => {
+    const Term = window.RiloUI?.Term;
     const boardingFields = [
-      { key: 'rooms', label: '寄养房间数', suffix: '间', section: 'boarding' },
-      { key: 'adr', label: '平均房价 (ADR)', suffix: '元/天', section: 'boarding' },
-      { key: 'occ', label: '入住率', suffix: '%', section: 'boarding' },
-      { key: 'margin', label: '寄养毛利率 (%)', suffix: '%', section: 'boarding', path: 'cost.margins.boarding' }
+      { key: 'rooms', label: Term ? React.createElement(React.Fragment, null, ['寄养房间数（', React.createElement(Term, { termKey: 'rooms' }, 'Rooms'), '）']) : '寄养房间数 (Rooms)', suffix: '间', section: 'boarding' },
+      { key: 'adr', label: Term ? React.createElement(React.Fragment, null, ['平均房价（', React.createElement(Term, { termKey: 'adr' }, 'ADR'), '）']) : '平均房价 (ADR)', suffix: '元/天', section: 'boarding' }
+    ];
+    const boardingPercentageFields = [
+      { key: 'occ', label: Term ? React.createElement(React.Fragment, null, ['入住率（', React.createElement(Term, { termKey: 'occ' }, 'Occ'), '）']) : '入住率 (Occ)', suffix: '%', path: 'revenue.boarding.occ' },
+      { key: 'margin', label: '寄养毛利率 (%)', suffix: '%', path: 'cost.margins.boarding' }
     ];
 
     return React.createElement(window.UIComponents.Section, {
@@ -315,9 +410,19 @@ window.RevenueSettings = (function() {
       style: { width: '100%' }
     }, [
       React.createElement('div', {
-        key: 'inputs',
+        key: 'core-inputs',
         className: 'flex gap-4 w-full'
       }, boardingFields.map(field => createInputField(field, data, updateField))),
+
+      React.createElement('div', {
+        key: 'percentage-inputs',
+        className: 'flex gap-4 w-full'
+      }, boardingPercentageFields.map(field => {
+        const currentValue = field.path === 'cost.margins.boarding'
+          ? data?.cost?.margins?.boarding
+          : data?.revenue?.boarding?.occ;
+        return createDualPercentageField(field, currentValue || 0, updateField);
+      })),
 
       React.createElement('div', {
         key: 'boarding-calculation',

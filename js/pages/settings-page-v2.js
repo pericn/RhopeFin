@@ -27,21 +27,15 @@ window.SettingsPage = (function() {
 
     const glossaryTerms = {
       fitout: { title: '装修标准', body: '每平米装修投入标准。影响初始投资与回本周期。' },
-      cogs: { title: '业务成本 (COGS)', body: '随收入发生的直接成本，不含租金/人工等固定成本。' },
-      margin: { title: '利润率', body: '净利润 ÷ 总收入。用于衡量整体经营效率。' },
-      payback: { title: '回本周期', body: '回本周期 = 初始投资 ÷ 年净利润；当净利润≤0 时视为无法回本。' }
+      margin: { title: '净利润率', body: '净利润 ÷ 总收入。用于衡量整体经营效率。' },
+      payback: { title: '回本周期', body: '初始投资 ÷ 年净利润。若年净利润小于或等于 0，则视为暂时无法回本。' }
     };
 
-    const left = React.createElement('div', { className: 'space-y-6' }, [
-      // 顶部工具栏：术语按钮
-      React.createElement('div', { key: 'top-bar', className: 'flex justify-end mb-2' }, [
-        React.createElement(window.UIComponents.Button, {
-          key: 'terms-btn',
-          onClick: () => setShowDrawer(true),
-          variant: 'outline',
-          size: 'small'
-        }, '📖 术语说明')
-      ]),
+    const left = React.createElement('div', { className: 'space-y-5 lg:space-y-6 rilo-zh-page' }, [
+      React.createElement(SettingsGlossaryHeader, {
+        key: 'settings-glossary-header',
+        onOpenGlossaryFallback: () => setShowDrawer(true)
+      }),
 
       // 基础设置
       React.createElement(window.BasicSettings.BasicSettings, {
@@ -177,23 +171,23 @@ window.SettingsPage = (function() {
       ])
     ]);
 
-    const conclusion = React.createElement('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)]' }, [
-      React.createElement('div', { key: 'c1', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
+    const conclusion = React.createElement('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)] rilo-zh-page' }, [
+      React.createElement('div', { key: 'c1', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3.5' }, [
         React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '怎么用这个页'),
-        React.createElement('div', { key: 'b', className: 'mt-1 text-[var(--rilo-text-2)]' }, '左侧填参数；右侧 Inspector 里看公式/过程/术语解释。默认把细节收起来，避免信息噪音。')
+        React.createElement('div', { key: 'b', className: 'mt-1 text-[var(--rilo-text-2)] rilo-zh-subtle' }, '左侧填参数；右侧 Inspector 里看公式、过程与术语解释。默认把细节收起来，避免信息噪音。')
       ]),
-      React.createElement('div', { key: 'c2', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
+      React.createElement('div', { key: 'c2', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3.5' }, [
         React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '小建议'),
-        React.createElement('ul', { key: 'b', className: 'mt-1 list-disc pl-5 space-y-1 text-[var(--rilo-text-2)]' }, [
+        React.createElement('ul', { key: 'b', className: 'mt-1.5 list-disc pl-5 space-y-1.5 text-[var(--rilo-text-2)] rilo-zh-subtle' }, [
           React.createElement('li', { key: 'i1' }, '先把"基础设置/面积/人力/租金"填准，再调收入结构。'),
           React.createElement('li', { key: 'i2' }, '回本周期跑飞时，多半是净利润≤0 或 初始投资太高。')
         ])
       ])
     ]);
 
-    const process = React.createElement('div', { className: 'space-y-3' }, [
-      React.createElement('div', { key: 'p1', className: 'text-xs text-[var(--rilo-text-3)]' }, '这里展示公式与中间计算值，默认折叠；需要核对时再展开。'),
-      React.createElement('div', { key: 'p2', className: 'bg-[var(--rilo-surface-2)] rounded-2xl p-3 border border-[var(--rilo-border-deep)]' }, [
+    const process = React.createElement('div', { className: 'space-y-3 rilo-zh-page' }, [
+      React.createElement('div', { key: 'p1', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '这里展示公式与中间计算值，默认折叠；需要核对时再展开。'),
+      React.createElement('div', { key: 'p2', className: 'bg-[var(--rilo-surface-2)] rounded-2xl p-4 border border-[var(--rilo-border-deep)]' }, [
         React.createElement('h3', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)] mb-2' }, '📊 计算公式与数据'),
         React.createElement(window.FormulaDisplay.FormulaDisplay, {
           key: 'formula-display-component',
@@ -215,12 +209,57 @@ window.SettingsPage = (function() {
     // 根渲染：主内容 + 抽屉
     return React.createElement(React.Fragment, null,
       mainContent,
-      window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
+      !window.RiloUI?.TwoPaneLayout && window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
         isOpen: showDrawer,
         onClose: () => setShowDrawer(false),
         glossaryTerms: Object.assign({}, glossaryTerms, window.RiloUI.termRegistry || {})
       }) : null
     );
+  };
+
+  const SettingsGlossaryHeader = ({ onOpenGlossaryFallback }) => {
+    const useInspector = window.RiloUI?.useInspector;
+    const inspector = useInspector ? useInspector() : null;
+    const inspectorApi = inspector || window.RiloUI?.activeInspectorApi;
+
+    const openGlossary = () => {
+      if (inspectorApi?.setActiveSection && inspectorApi?.setSelectedTerm) {
+        inspectorApi.setActiveSection('glossary');
+        inspectorApi.setSelectedTerm(null);
+        return;
+      }
+
+      if (onOpenGlossaryFallback) {
+        onOpenGlossaryFallback();
+      }
+    };
+
+    return React.createElement('div', {
+      className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-5 py-4 md:px-6 md:py-5 rilo-zh-page'
+    }, [
+      React.createElement('div', {
+        key: 'top',
+        className: 'flex flex-col gap-3 md:flex-row md:items-start md:justify-between'
+      }, [
+        React.createElement('div', { key: 'copy' }, [
+          React.createElement('h1', {
+            key: 'title',
+            className: 'text-2xl font-bold text-[var(--rilo-text-1)] rilo-zh-header'
+          }, '⚙️ 参数配置'),
+          React.createElement('p', {
+            key: 'hint',
+            className: 'mt-2 max-w-2xl text-sm text-[var(--rilo-text-3)] rilo-zh-subtle'
+          }, '提示：带浅蓝下划线的术语可悬停查看解释；点「查看更多」会切到右侧「术语」并定位对应条目。')
+        ]),
+        React.createElement(window.UIComponents.Button, {
+          key: 'terms-btn',
+          onClick: openGlossary,
+          variant: 'outline',
+          size: 'small',
+          className: 'self-start'
+        }, '📖 术语解释')
+      ])
+    ]);
   };
 
   return { SettingsPage };

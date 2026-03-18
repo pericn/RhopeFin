@@ -6,22 +6,107 @@
   // 确保 RiloUI 命名空间存在
   window.RiloUI = window.RiloUI || {};
 
+  const toGlossaryDomId = (termKey) => `glossary-${encodeURIComponent(String(termKey || '').trim())}`;
+
   const InspectorContext = React.createContext(null);
   const useInspector = () => React.useContext(InspectorContext);
 
   const Term = ({ termKey, children }) => {
     const api = useInspector();
-    if (!api) return children;
-    const term = window.RiloUI?.getTermDefinition ? window.RiloUI.getTermDefinition(termKey) : null;
-    return React.createElement('span', {
-      className: 'underline decoration-dotted cursor-help text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)]',
-      onMouseEnter: () => {
-        if (term) {
-          api.setActiveSection('glossary');
-          api.setSelectedTerm(termKey);
-        }
+    const term = React.useMemo(() => {
+      if (!termKey) return null;
+
+      const mergedTerms = Object.assign({}, window.RiloUI?.termRegistry || {}, api?.glossaryTerms || {});
+      const rawTerm = mergedTerms[termKey];
+
+      if (window.RiloUI?.normalizeTermDefinition) {
+        return window.RiloUI.normalizeTermDefinition(rawTerm, termKey);
       }
-    }, children);
+
+      if (!rawTerm) return null;
+
+      return {
+        key: termKey,
+        title: rawTerm.title || termKey,
+        body: rawTerm.body || rawTerm.definition || '',
+        definition: rawTerm.definition || rawTerm.body || ''
+      };
+    }, [api?.glossaryTerms, termKey]);
+    const [open, setOpen] = React.useState(false);
+    const popoverId = React.useMemo(
+      () => `term-popover-${encodeURIComponent(String(termKey || '').trim())}`,
+      [termKey]
+    );
+
+    if (!term) return children;
+
+    const closeIfLeaving = (event) => {
+      if (!event?.currentTarget?.contains(event?.relatedTarget)) {
+        setOpen(false);
+      }
+    };
+
+    const openGlossary = () => {
+      if (api?.setActiveSection && api?.setSelectedTerm) {
+        api.setActiveSection('glossary');
+        api.setSelectedTerm(termKey);
+        setOpen(false);
+        return;
+      }
+
+      if (window.RiloUI?.openDefinitionsDrawer) {
+        window.RiloUI.openDefinitionsDrawer(termKey);
+        setOpen(false);
+      }
+    };
+
+    return React.createElement('span', {
+      className: 'relative inline-flex items-center',
+      onMouseEnter: () => setOpen(true),
+      onMouseLeave: () => setOpen(false),
+      onFocus: () => setOpen(true),
+      onBlur: closeIfLeaving
+    }, [
+      React.createElement('span', {
+        key: 'trigger',
+        role: 'button',
+        tabIndex: 0,
+        'aria-expanded': open,
+        'aria-controls': popoverId,
+        className: 'underline decoration-sky-400 underline-offset-4 cursor-help text-sky-600 hover:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400/40 rounded-sm transition-colors',
+        onClick: () => setOpen((prev) => !prev),
+        onKeyDown: (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            setOpen((prev) => !prev);
+          }
+
+          if (event.key === 'Escape') {
+            setOpen(false);
+          }
+        }
+      }, children),
+      open && React.createElement('div', {
+        key: 'popover',
+        id: popoverId,
+        className: 'absolute left-0 top-full z-30 mt-2 w-72 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3 shadow-2xl'
+      }, [
+        React.createElement('div', {
+          key: 'title',
+          className: 'text-sm font-semibold text-[var(--rilo-text-1)]'
+        }, term.title),
+        React.createElement('div', {
+          key: 'body',
+          className: 'mt-1 text-xs leading-5 text-[var(--rilo-text-2)]'
+        }, term.body),
+        React.createElement('button', {
+          key: 'more',
+          type: 'button',
+          className: 'mt-3 text-xs font-medium text-sky-600 hover:text-sky-700',
+          onClick: openGlossary
+        }, '查看更多')
+      ])
+    ]);
   };
 
   const SectionButton = ({ active, onClick, children }) =>
@@ -43,24 +128,26 @@
     }, [selectedTerm]);
 
     const renderGlossary = () => {
-      const entries = Object.entries(glossaryTerms);
+      const entries = window.RiloUI?.getGlossaryEntries
+        ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
+        : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}));
       if (entries.length === 0) return glossary || null;
 
       return React.createElement('div', { className: 'space-y-3' }, entries.map(([key, def]) =>
         React.createElement('div', {
           key,
-          id: `glossary-${key}`,
+          id: toGlossaryDomId(key),
           className: `rounded-xl border p-3 ${selectedTerm === key ? 'border-[var(--rilo-accent)] bg-[var(--rilo-surface-2)]' : 'border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)]'}`
         }, [
           React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, def.title || key),
-          React.createElement('div', { key: 'b', className: 'text-sm text-[var(--rilo-text-2)] mt-1 leading-relaxed' }, def.body || '')
+          React.createElement('div', { key: 'b', className: 'text-sm text-[var(--rilo-text-2)] mt-1 leading-relaxed' }, def.body || def.definition || '')
         ])
       ));
     };
 
     React.useEffect(() => {
       if (!selectedTerm) return;
-      const el = document.getElementById(`glossary-${selectedTerm}`);
+      const el = document.getElementById(toGlossaryDomId(selectedTerm));
       if (el && typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ block: 'nearest' });
       }
@@ -108,13 +195,23 @@
       activeSection,
       setActiveSection,
       selectedTerm,
-      setSelectedTerm
-    }), [activeSection, selectedTerm]);
+      setSelectedTerm,
+      glossaryTerms: Object.assign({}, glossaryTerms || {})
+    }), [activeSection, glossaryTerms, selectedTerm]);
 
     window.RiloUI.TwoPaneLayout = TwoPaneLayout;
     window.RiloUI.useInspector = useInspector;
     window.RiloUI.InspectorContext = InspectorContext;
     window.RiloUI.Term = Term;
+
+    React.useEffect(() => {
+      window.RiloUI.activeInspectorApi = api;
+      return () => {
+        if (window.RiloUI.activeInspectorApi === api) {
+          window.RiloUI.activeInspectorApi = null;
+        }
+      };
+    }, [api]);
 
     return React.createElement(InspectorContext.Provider, { value: api },
       React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-12 gap-6' }, [
@@ -134,6 +231,13 @@
       ])
     );
   };
+
+  // 注册共享组件到全局（避免依赖组件渲染时才挂载）
+  window.RiloUI.InspectorPanel = InspectorPanel;
+  window.RiloUI.TwoPaneLayout = TwoPaneLayout;
+  window.RiloUI.useInspector = useInspector;
+  window.RiloUI.InspectorContext = InspectorContext;
+  window.RiloUI.Term = Term;
 
   // 简单的卡片容器组件（用于统一卡片样式）
   const Card = ({ title, children, className = "", collapsible = false }) => {

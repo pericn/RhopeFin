@@ -2,6 +2,7 @@
 window.BasicSettings = (function() {
 
   const BasicSettings = ({ data, updateData }) => {
+    const Term = window.RiloUI?.Term;
     const updateField = (path, value) => {
       if (window.dataManager) {
         const newData = window.dataManager.updateDataPath(data, path, value);
@@ -55,7 +56,7 @@ window.BasicSettings = (function() {
         // 年营业天数 (数字输入 - 25% width)
         React.createElement(window.UIComponents.Input, {
           key: 'days-input',
-          label: '年营业天数',
+          label: Term ? React.createElement(React.Fragment, null, ['年营业天数（', React.createElement(Term, { termKey: 'days' }, 'Days'), '）']) : '年营业天数 (Days)',
           value: data?.basic?.daysPerYear || 365,
           onChange: (value) => updateField('basic.daysPerYear', value),
           hint: '每年实际营业的天数',

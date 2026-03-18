@@ -1,6 +1,8 @@
-# Design Tokens (Hopeful Finance)
+# Design Tokens (Rilo Analysis)
 
 目的：把颜色/间距/圆角等“全站一致的东西”抽成 token，避免蓝色到处硬编码（Tailwind class / hex / antd token 混杂）。
+
+> 当前主 UI 以 `index.html` 的深色 shell tokens 为准：`--rilo-bg-deep / --rilo-surface-1/2 / --rilo-text-1/2/3 / --rilo-border-deep`。
 
 ## 1) Accent / Primary（强调色）
 

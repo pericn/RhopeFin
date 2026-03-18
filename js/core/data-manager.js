@@ -1,5 +1,21 @@
 // 数据管理模块 - 负责数据结构定义、localStorage操作和数据状态管理
 class DataManager {
+  normalizeValueByPath(path, value) {
+    if (typeof value !== 'number' || !isFinite(value)) return value;
+
+    switch (path) {
+      case 'revenue.boarding.occ':
+        return Math.min(100, Math.max(0, Math.round(value * 10) / 10));
+      case 'basic.daysPerYear':
+      case 'revenue.boarding.rooms':
+      case 'revenue.member.count':
+      case 'cost.fixed.staffCount':
+        return Math.max(0, Math.round(value));
+      default:
+        return value;
+    }
+  }
+
   constructor() {
     this.storageKey = 'hopefulFinanceData';
     this.listeners = [];
@@ -203,7 +219,7 @@ class DataManager {
   // 更新数据路径 - 安全地更新嵌套对象属性
   updateDataPath(originalData, path, newValue) {
     // 只对数值类型进行NaN检查，保持字符串原样
-    const cleanValue = (typeof newValue === 'number' && isNaN(newValue)) ? 0 : newValue;
+    const cleanValue = (typeof newValue === 'number' && isNaN(newValue)) ? 0 : this.normalizeValueByPath(path, newValue);
     
     if (!path || typeof path !== 'string') {
       console.warn('Invalid path for data update:', path);
@@ -337,6 +353,20 @@ class DataManager {
     };
     
     cleanRecursive(cleanData);
+
+    cleanData.basic = cleanData.basic || {};
+    cleanData.revenue = cleanData.revenue || {};
+    cleanData.revenue.member = cleanData.revenue.member || {};
+    cleanData.revenue.boarding = cleanData.revenue.boarding || {};
+    cleanData.cost = cleanData.cost || {};
+    cleanData.cost.fixed = cleanData.cost.fixed || {};
+
+    cleanData.basic.daysPerYear = this.normalizeValueByPath('basic.daysPerYear', cleanData.basic.daysPerYear || 0);
+    cleanData.revenue.boarding.rooms = this.normalizeValueByPath('revenue.boarding.rooms', cleanData.revenue.boarding.rooms || 0);
+    cleanData.revenue.boarding.occ = this.normalizeValueByPath('revenue.boarding.occ', cleanData.revenue.boarding.occ || 0);
+    cleanData.revenue.member.count = this.normalizeValueByPath('revenue.member.count', cleanData.revenue.member.count || 0);
+    cleanData.cost.fixed.staffCount = this.normalizeValueByPath('cost.fixed.staffCount', cleanData.cost.fixed.staffCount || 0);
+
     return cleanData;
   }
 

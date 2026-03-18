@@ -3,8 +3,9 @@
 > 目标：保证“重构不减功能”，并让关键路径可被重复验证。
 
 ## A. 自动化测试
-- [ ] 在项目目录执行：`npm test` → 全部通过
 - [ ] 最小烟测：`./scripts/smoke.sh` → 输出 "smoke ok"
+- [ ] Review gate：`scripts/review_codex.sh worktree` → 输出单一 VERDICT/CONFIDENCE/FINDINGS，且 verdict 为 correct
+- [ ] `npm test`：若存在 package.json / 测试脚本时执行；若不存在则标记 N/A 并记录原因
 
 ## B. 启动与基础可用性
 - [ ] 浏览器直接打开 `index.html` 可以正常渲染
@@ -29,6 +30,7 @@
 - [ ] 在 Overview/Analysis 点击顶部“术语解释”按钮：优先切到右侧面板「术语」（若页面没有右侧面板则 Drawer 作为 fallback）
 
 ### C3. 寄养关键功能回归
+- [ ] 入住率输入为双通道（Slider + 数字输入），范围 0–100，保留 1 位小数，粘贴清洗可用
 - [ ] Rooms/ADR/Occ slider 调整后：Summary 的关键结果实时更新
 - [ ] Occ 超过 100 或小于 0 时：逻辑 clamp 正常（结果不异常）
 - [ ] Details 中能看到寄养收入的公式/计算过程（或等价明细）
@@ -54,6 +56,9 @@
 - [ ] 公式帮助面板仍可用
 - [ ] 不存在明显的页面缺失、按钮失效、数据不更新
 
+## H. 视觉一致性（主题收口）
+- [ ] 颜色/背景/文字遵循 index.html token（rilo-bg-deep / surface / text），无明显 bg-white/text-gray 残留
+
 ## G. 自测脚本（看不懂 → 看懂）
 > 目标：用 3 分钟自测，确认信息架构清晰、术语可解释、默认信息密度可接受。
 
@@ -71,5 +76,4 @@
 
 4) **术语入口一致性（30 秒）**
    - Settings 页点击顶部「术语解释」：右侧面板切到「术语」tab（不弹抽屉）
-   - Overview/Analysis 页点击顶部「术语解释」：抽屉可打开（fallback）
-
+   - Overview/Analysis 页点击顶部「术语解释」：优先切到右侧面板「术语」；仅在没有右侧面板时才打开抽屉（fallback）

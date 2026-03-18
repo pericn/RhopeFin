@@ -73,10 +73,40 @@
       --rilo-motion-fast: 120ms;
       --rilo-motion-mid: 180ms;
       --rilo-motion-slow: 240ms;
+
+      /* Chinese typography */
+      --rilo-font-cn: "SF Pro SC", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      --rilo-leading-copy: 1.72;
+      --rilo-leading-ui: 1.58;
+      --rilo-tracking-cn: 0.01em;
+      --rilo-tracking-tight-cn: -0.012em;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-family: var(--rilo-font-cn);
+      line-height: var(--rilo-leading-copy);
+      letter-spacing: var(--rilo-tracking-cn);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .rilo-zh-page {
+      line-height: var(--rilo-leading-copy);
+      letter-spacing: var(--rilo-tracking-cn);
+    }
+
+    .rilo-zh-header {
+      line-height: 1.24;
+      letter-spacing: var(--rilo-tracking-tight-cn);
+    }
+
+    .rilo-zh-subtle {
+      line-height: var(--rilo-leading-ui);
+    }
+
+    .rilo-kpi-grid-tight {
+      gap: 0.875rem;
     }
     
     /* 加载动画 */
@@ -130,6 +160,110 @@
       .shadow {
         box-shadow: none !important;
       }
+    }
+
+    /* Settings v3.0 布局样式 */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+      min-height: calc(100vh - 240px);
+    }
+
+    .settings-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .settings-cat-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cat-item {
+      display: block;
+      padding: 12px 14px;
+      border-radius: var(--rilo-radius-card, 16px);
+      border: 1px solid var(--rilo-border-deep, #2A2622);
+      background: rgba(255,255,255,0.34);
+      color: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+      cursor: pointer;
+    }
+
+    .cat-item.active {
+      border-color: rgba(37,99,235,0.24);
+      background: linear-gradient(90deg, rgba(37,99,235,0.10), rgba(255,255,255,0.42));
+      box-shadow: inset 3px 0 0 var(--rilo-accent, #2563EB);
+    }
+
+    .settings-form {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .feedback-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feedback-card {
+      padding: 16px 18px;
+      border: 1px solid var(--rilo-border-deep, #2A2622);
+      border-radius: var(--rilo-radius-card, 16px);
+      background: rgba(255,255,255,0.30);
+    }
+
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--rilo-text-3, #8A847D);
+      margin-bottom: 8px;
+    }
+
+    .small-note {
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--rilo-text-2, #B6B0A8);
+      margin-top: 6px;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .settings-layout {
+        grid-template-columns: 1fr;
+      }
+      .settings-sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+      .settings-cat-nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+      }
+      .cat-item {
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+    }
+
+    /* 中文排版增强 - 防止溢出与提升可读性 */
+    .rilo-zh-page * {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .field-label strong {
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -290,8 +424,8 @@
   <!-- 11. 概览页面 -->
   <script src="js/pages/overview-page.js" onerror="handleModuleError('OverviewPage', event)" onload="updateLoadingProgress()"></script>
   
-  <!-- 12. 设置页面 (v2.0 双栏布局) -->
-  <script src="js/pages/settings-page-v2.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
+  <!-- 12. 设置页面 (v3.0 分类导航 + 无右侧 Inspector) -->
+  <script src="js/pages/settings-page-v3.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
   
   <!-- 分析页面 -->
   <script src="js/pages/analysis-page.js" onerror="handleModuleError('AnalysisPage', event)" onload="updateLoadingProgress()"></script>

@@ -1,6 +1,8 @@
-# Interaction Principles (Hopeful Finance)
+# Interaction Principles (Rilo Analysis)
 
 目标：主屏“干净、可直觉操作”，把解释和证明收进 Inspector/tooltip；让高频参数调整是低摩擦的。
+
+> 当前状态：术语 hover 链路已落地；入住率双通道输入规范仍待收口（详见 docs/acceptance.md）。
 
 ## 信息层级（L0 / L1 / L2）
 

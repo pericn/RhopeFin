@@ -11,17 +11,17 @@
 > 这不是“视觉参考”，是代码可直接用的 **统一 token**。AntD 走 `ConfigProvider theme.token`；非 AntD 区域走 CSS 变量（见 `index.html :root`）。
 
 ### 0.1 颜色（Color）
-- **背景（Layout Background）**：`--rilo-bg` = `#F7F2EC`（暖白 / 米白）
-- **表面（Surface / Card）**：`--rilo-surface` = `#FFFFFF`；`--rilo-surface-2` = `#FFFCF8`
-- **边框（Border）**：`--rilo-border` = `#E7E0D8`
+- **背景（Layout Background）**：`--rilo-bg-deep` = `#11100E`
+- **表面（Surface / Card）**：`--rilo-surface-1` = `#171513`；`--rilo-surface-2` = `#1E1B18`
+- **边框（Border）**：`--rilo-border-deep` = `#2A2622`
+- **文本（Text）**：`--rilo-text-1` = `#ECE7E1`；`--rilo-text-2` = `#B6B0A8`；`--rilo-text-3` = `#8A847D`
 - **品牌主色（Rilo Brand / Primary）**：`--rilo-brand` = `#221C86`
-- **科技感辅色（Accent，用于轻量强调，不抢主色）**：
-  - Cyan：`--rilo-accent-cyan` = `#0EA5E9`
-  - Teal：`--rilo-accent-teal` = `#14B8A6`
+- **强调色（Accent）**：`--rilo-accent` = `#2563EB`
 - **语义色（Semantic）**：
-  - Success：`--rilo-success` = `#22C55E`
-  - Warning：`--rilo-warn` = `#F59E0B`
-  - Danger：`--rilo-danger` = `#EF4444`
+  - Success：`--rilo-sem-success` = `#10B981`
+  - Warning：`--rilo-sem-warning` = `#F59E0B`
+  - Danger：`--rilo-sem-danger` = `#EF4444`
+  - Info：`--rilo-sem-info` = `--rilo-accent`
 
 ### 0.2 字体（Typography）
 - Font family：`Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial`
@@ -93,15 +93,15 @@
 **一句话**：组件要像“积木”，同类信息同一种卡片。
 
 **落地规则（Tailwind / antd 混用也能执行）**
-- 场景卡片（Card）统一：`bg-white rounded-2xl shadow p-6`（或 antd Card，但外观保持一致）
+- 场景卡片（Card）统一：`bg-[var(--rilo-surface-1)] border border-[var(--rilo-border-deep)] rounded-2xl shadow p-6`（或 antd Card，但外观保持一致）
 - 页面纵向节奏：
   - 区块间距：`space-y-6`
   - 卡片内标题与内容：`mb-4`
 - 标题层级（不要跳级）：
   - Page Title：`text-2xl font-bold`（全局顶部已有，页面内一般用 Section Title）
   - Section Title：`text-lg font-semibold`
-  - SubTitle/Hint：`text-sm text-gray-600`
-  - Help Text：`text-xs text-gray-500`
+  - SubTitle/Hint：`text-sm text-[var(--rilo-text-2)]`
+  - Help Text：`text-xs text-[var(--rilo-text-3)]`
 
 ---
 

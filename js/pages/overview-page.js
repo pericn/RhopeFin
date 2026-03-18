@@ -4,9 +4,6 @@ window.OverviewPage = (function() {
   // 简化的创建元素辅助函数
   const h = React.createElement;
   
-  // 页面头部组件
-  const PageHeader = ({ projectName }) => null;
-  
   // 货币选择器组件
   const CurrencySelector = ({ currency, onChange }) =>
     h('div', { className: 'flex items-center gap-2' }, [
@@ -43,6 +40,8 @@ window.OverviewPage = (function() {
   // 主概览页面组件（统一两栏：左主内容 + 右侧 InspectorPanel）
   const OverviewPage = ({ data, calculations, updateData, currency = "¥" }) => {
     const Term = window.RiloUI?.Term;
+    const [showDrawer, setShowDrawer] = React.useState(false);
+    const resolvedCurrency = data?.basic?.currency || currency;
 
     const glossaryTerms = {
       cogs: { title: 'COGS / 业务成本', body: 'Cost of Goods Sold。直接随收入发生的成本（原材料、耗材、外包等），不含租金/人工等固定成本。' },
@@ -51,48 +50,92 @@ window.OverviewPage = (function() {
       payback: { title: '回本周期', body: '初始投资 ÷ 年净利润。若净利润≤0，则视为无法回本（Infinity）。' }
     };
 
-    const left = h('div', { className: 'space-y-6' }, [
-      h(KeyMetrics, { key: 'key-metrics', data, calculations, currency, showDetails: false }),
-      h(BusinessOverview, { key: 'business-overview', data, calculations, currency }),
-      h(ScenarioQuickView, { key: 'scenario-view', calculations, currency }),
-      h(AlertsAndInsights, { key: 'alerts', calculations, data, currency })
+    // Build conclusion summary (for Inspector)
+    const conclusion = h('div', { className: 'space-y-2 text-sm' }, [
+      h('div', { key: 'profit' }, `净利润: ¥${calculations?.profitability?.profit ? (calculations.profitability.profit/10000).toFixed(2) : 0} 万元`),
+      h('div', { key: 'margin' }, `净利润率: ${calculations?.profitability?.margin?.toFixed(1) || 0}%`),
+      h('div', { key: 'payback' }, `回本周期: ${calculations?.profitability?.paybackYears === Infinity ? '无法回本' : (calculations.profitability.paybackYears || 0).toFixed(1)} 年`)
     ]);
 
-    const profit = calculations?.profitability?.profit || 0;
-    const margin = calculations?.profitability?.margin || 0;
-    const paybackYears = calculations?.profitability?.paybackYears ?? Infinity;
+    // Process section: detailed calculations
+    const process = h(DetailedCalculationDisplay, { calculations, currency: resolvedCurrency });
 
-    const conclusion = h('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)]' }, [
-      h('div', { key: 's1', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
-        h('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '当前状态'),
-        h('div', { key: 'b', className: 'text-[var(--rilo-text-2)]' }, profit > 0 ? `✅ 年净利润为正（约 ${currency}${Math.round(profit/10000)} 万）` : `❌ 年净利润为负（约 ${currency}${Math.round(profit/10000)} 万）`)
-      ]),
-      h('div', { key: 's2', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3' }, [
-        h('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '关键结论'),
-        h('div', { key: 'b', className: 'text-[var(--rilo-text-2)]' }, [
-          h('div', { key: 'm' }, ['净利润率：', Term ? h(Term, { termKey: 'netMargin' }, `${margin.toFixed(1)}%`) : `${margin.toFixed(1)}%`]),
-          h('div', { key: 'p' }, ['回本周期：', Term ? h(Term, { termKey: 'payback' }, paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)} 年`) : (paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)} 年`)])
+    const left = h('div', { className: 'space-y-5 lg:space-y-6 rilo-zh-page' }, [
+      h(PageHeader, { key: 'page-header', onOpenGlossaryFallback: () => setShowDrawer(true) }),
+      h(DataActions, { key: 'data-actions', data, updateData, currency: resolvedCurrency }),
+      h(KeyMetrics, { key: 'key-metrics', data, calculations, currency: resolvedCurrency, showDetails: false }),
+      h(BusinessOverview, { key: 'business-overview', data, calculations, currency: resolvedCurrency }),
+      h(ScenarioQuickView, { key: 'scenario-view', calculations, currency: resolvedCurrency }),
+      h(AlertsAndInsights, { key: 'alerts', calculations, data, currency: resolvedCurrency }),
+      h(ComprehensiveRecommendations, { key: 'comprehensive-recommendations', calculations, currency: resolvedCurrency })
+    ]);
+
+    const mainContent = window.RiloUI?.TwoPaneLayout
+      ? h(window.RiloUI.TwoPaneLayout, {
+          leftTitle: null,
+          left,
+          inspectorTitle: '财务分析 Inspector',
+          conclusion,
+          process,
+          glossaryTerms
+        })
+      : left; // 保持回退逻辑
+
+    return h(React.Fragment, null, [
+      mainContent,
+      !window.RiloUI?.TwoPaneLayout && window.RiloUI?.DefinitionsDrawer ? h(window.RiloUI.DefinitionsDrawer, {
+        key: 'overview-drawer',
+        isOpen: showDrawer,
+        onClose: () => setShowDrawer(false),
+        glossaryTerms: Object.assign({}, window.RiloUI.termRegistry || {}, glossaryTerms)
+      }) : null
+    ]);
+  };
+
+  const PageHeader = ({ onOpenGlossaryFallback }) => {
+    const Button = window.UIComponents?.Button || 'button';
+    const buttonProps = Button === 'button'
+      ? {
+          className: 'rounded-full border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-2 text-sm font-medium text-[var(--rilo-text-1)] hover:border-[var(--rilo-accent)] hover:text-[var(--rilo-accent)] whitespace-nowrap'
+        }
+      : {
+          variant: 'outline',
+          size: 'small',
+          className: 'whitespace-nowrap'
+        };
+
+    // Prefer Inspector glossary, fallback to drawer
+    const useInspector = window.RiloUI?.useInspector;
+    const inspector = useInspector ? useInspector() : null;
+    const openGlossary = () => {
+      if (inspector?.setActiveSection && inspector?.setSelectedTerm) {
+        inspector.setActiveSection('glossary');
+        inspector.setSelectedTerm(null);
+      } else if (onOpenGlossaryFallback) {
+        onOpenGlossaryFallback();
+      }
+    };
+
+    return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-5 py-4 md:px-6 md:py-5 rilo-zh-page' }, [
+      h('div', { key: 'row', className: 'flex flex-col gap-3 md:flex-row md:items-start md:justify-between' }, [
+        h('div', { key: 'copy' }, [
+          h('h1', { key: 'title', className: 'text-3xl font-bold text-[var(--rilo-text-1)] rilo-zh-header' }, '📊 财务分析'),
+          h('p', { key: 'subtitle', className: 'mt-2 max-w-2xl text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, '先看关键结果，再通过参数设置调整变量。')
+        ]),
+        h('div', { key: 'actions', className: 'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3' }, [
+          h('span', { key: 'glossary-entry', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '术语解释可在参数设置页打开'),
+          onOpenGlossaryFallback && h(Button, {
+            key: 'glossary-btn',
+            onClick: openGlossary,
+            ...buttonProps
+          }, '📖 术语解释')
         ])
       ])
     ]);
-
-    const process = h('div', { className: 'space-y-4' }, [
-      h('div', { key: 'hint', className: 'text-xs text-[var(--rilo-text-3)]' }, '默认收起：需要时再展开细节。'),
-      h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency })
-    ]);
-
-    return window.RiloUI?.TwoPaneLayout ?
-      h(window.RiloUI.TwoPaneLayout, {
-        left,
-        inspectorTitle: '财务分析 Inspector',
-        conclusion,
-        process,
-        glossaryTerms
-      }) : left;
   };
 
   // 数据操作区
-  const DataActions = ({ data, updateData }) => {
+  const DataActions = ({ data, updateData, currency = '¥' }) => {
     const handleImport = (event) => {
       const file = event.target.files[0];
       if (file && window.dataManager) {
@@ -108,12 +151,28 @@ window.OverviewPage = (function() {
       exportData: () => window.dataManager && window.dataManager.exportData(data),
       clearData: () => confirm('确认清除所有保存的数据？') && window.dataManager && updateData(window.dataManager.clearStorage())
     };
+
+    const handleCurrencyChange = (nextCurrency) => {
+      updateData({
+        ...data,
+        basic: {
+          ...(data?.basic || {}),
+          currency: nextCurrency
+        }
+      });
+    };
     
-    return h('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] shadow-sm p-4' }, [
-      h('div', { key: 'actions', className: 'flex justify-center gap-3' }, [
-        h(window.UIComponents.Button, { key: 'export', onClick: actions.exportData, variant: 'outline', size: 'small' }, '📤 导出数据'),
-        h(ImportButton, { key: 'import', onImport: handleImport }),
-        h(window.UIComponents.Button, { key: 'clear', onClick: actions.clearData, variant: 'danger', size: 'small' }, '🗑️ 清除数据')
+    return h('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] shadow-sm p-4 lg:p-5 rilo-zh-page' }, [
+      h('div', { key: 'actions', className: 'flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between' }, [
+        h('div', { key: 'currency', className: 'flex items-center gap-3' }, [
+          h('span', { key: 'label', className: 'text-sm text-[var(--rilo-text-3)] rilo-zh-subtle' }, '工具区'),
+          h(CurrencySelector, { key: 'currency-selector', currency, onChange: handleCurrencyChange })
+        ]),
+        h('div', { key: 'buttons', className: 'flex flex-wrap justify-start gap-3 lg:justify-end' }, [
+          h(window.UIComponents.Button, { key: 'export', onClick: actions.exportData, variant: 'outline', size: 'small' }, '📤 导出数据'),
+          h(ImportButton, { key: 'import', onImport: handleImport }),
+          h(window.UIComponents.Button, { key: 'clear', onClick: actions.clearData, variant: 'danger', size: 'small' }, '🗑️ 清除数据')
+        ])
       ])
     ]);
   };
@@ -129,8 +188,8 @@ window.OverviewPage = (function() {
     const grossProfit = (revenue?.total || 0) - cogs;
     const netProfit = profitability?.profit || 0;
     
-    return h('div', { className: 'mt-6 bg-[var(--rilo-surface-2)] rounded-lg p-4' }, [
-      h('h3', { key: 'title', className: 'text-md font-semibold text-[var(--rilo-text-1)] mb-4' }, '🧮 详细计算过程'),
+    return h('div', { className: 'bg-[var(--rilo-surface-2)] rounded-2xl border border-[var(--rilo-border-deep)] p-4 rilo-zh-page' }, [
+      h('h3', { key: 'title', className: 'mb-3 text-md font-semibold text-[var(--rilo-text-1)]' }, '🧮 详细计算过程'),
       
       // 收入计算展示
       h('div', { key: 'revenue-calc', className: 'mb-4' }, [
@@ -226,6 +285,7 @@ window.OverviewPage = (function() {
   // 已添加 RevPAR（每间可售房晚收入）作为次级指标：ADR × 入住率（%）
   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
     if (!calculations) return null;
+    const Term = window.RiloUI?.Term;
     const { revenue, cost, profitability, investment } = calculations;
     const profit = profitability?.profit || 0;
     const margin = profitability?.margin || 0;
@@ -246,39 +306,159 @@ window.OverviewPage = (function() {
     const cac = data?.assumptions?.cac ?? 0;
     const ltv = data?.assumptions?.ltv ?? 0;
     const ltvCac = cac > 0 ? (ltv / cac) : null;
+    const rooms = Number(data?.revenue?.boarding?.rooms) || 0;
+    const days = Number(data?.basic?.daysPerYear) || 0;
+    const boardingMarginPct = Number(data?.cost?.margins?.boarding) || 0;
+    const otherCogs = Math.max(0, (cost?.cogs?.total || 0) - (cost?.cogs?.boarding || 0));
+    const breakevenOccDenominator = rooms * days * adr * (boardingMarginPct / 100);
+    const breakevenOcc = breakevenOccDenominator > 0
+      ? ((cost?.fixed?.total || 0) + (cost?.variable?.total || 0) + otherCogs) / breakevenOccDenominator * 100
+      : null;
+    const soldRoomNights = rooms * days * (occPct / 100);
+    const cmPerRoomNight = soldRoomNights > 0
+      ? (((revenue?.boarding || 0) - (cost?.cogs?.boarding || 0)) / soldRoomNights)
+      : 0;
+    const rentToSales = revenue?.total > 0 ? ((cost?.fixed?.rent || 0) / revenue.total) * 100 : 0;
+    const titleNode = (termKey, text) => Term ? h(Term, { termKey }, text) : text;
     
     const metrics = [
       [// 主要指标（成本前置：确保总成本上主行）
         { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'success', size: 'large' },
         { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'danger' },
         { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'info' : 'danger', size: 'large' },
-        { key: 'gross-margin', title: '综合毛利率', value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'info' : 'danger' }
+        { key: 'gross-margin', title: titleNode('grossMargin', '综合毛利率'), value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'info' : 'danger' }
       ],
       [// 运营指标（下沉 COGS，保持净利与净利率，并加入 RevPAR 次级位）
         { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'warning' },
-        { key: 'revpar', title: '每间可售房晚收入', value: revpar.toFixed(0), suffix: '元/间夜', color: 'info' },
-        { key: 'profit', title: '年净利润', value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
-        { key: 'margin', title: '净利润率', value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'success' : 'danger' }
+        { key: 'revpar', title: titleNode('revpar', '每间可售房晚收入'), value: revpar.toFixed(0), suffix: '元/间夜', color: 'info' },
+        { key: 'profit', title: titleNode('profit', '年净利润'), value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
+        { key: 'margin', title: titleNode('netMargin', '净利润率'), value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'success' : 'danger' }
       ],
       [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
         { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'info' },
-        { key: 'payback', title: '投资回本周期', value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
+        { key: 'payback', title: titleNode('payback', '投资回本周期'), value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
           color: paybackYears < 3 ? 'success' : paybackYears < 5 ? 'warning' : 'danger' },
         { key: 'monthly-cashflow', title: '月度现金流', value: profit ? (profit / 12 / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
         { key: 'ltv-cac', title: 'LTV:CAC', value: ltvCac === null ? '—' : ltvCac.toFixed(1), suffix: 'x', color: ltvCac !== null && ltvCac >= 3 ? 'success' : ltvCac !== null && ltvCac >= 1 ? 'warning' : 'danger' }
       ]
     ];
 
-    return h('div', { className: 'bg-white rounded-2xl shadow p-6' }, [
-      h('h2', { key: 'title', className: 'text-lg font-semibold mb-6' }, '📊 关键财务指标'),
-      h('div', { key: 'primary', className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4' },
+    const phaseOneMetrics = [
+      { key: 'rent-to-sales', title: titleNode('rentToSales', '租金占收比'), value: rentToSales.toFixed(1), suffix: '%', color: rentToSales <= 15 ? 'success' : rentToSales <= 25 ? 'warning' : 'danger' },
+      { key: 'breakeven-occ', title: titleNode('breakevenOcc', '盈亏平衡入住率'), value: breakevenOcc === null ? '—' : breakevenOcc.toFixed(1), suffix: breakevenOcc === null ? '' : '%', color: breakevenOcc !== null && breakevenOcc <= 70 ? 'success' : breakevenOcc !== null && breakevenOcc <= 100 ? 'warning' : 'danger' },
+      { key: 'cm-per-room-night', title: titleNode('cmPerRoomNight', '每间夜贡献利润'), value: cmPerRoomNight.toFixed(0), suffix: '元/间夜', color: cmPerRoomNight >= 0 ? 'info' : 'danger' },
+      { key: 'acquisition-efficiency', title: titleNode('acquisitionEfficiency', '获客效率'), value: ltvCac === null ? '—' : ltvCac.toFixed(1), suffix: ltvCac === null ? '' : 'x', color: ltvCac !== null && ltvCac >= 3 ? 'success' : ltvCac !== null && ltvCac >= 1 ? 'warning' : 'danger' }
+    ];
+
+    return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
+      h('h2', { key: 'title', className: 'mb-5 text-lg font-semibold text-[var(--rilo-text-1)] rilo-zh-header' }, '📊 关键财务指标'),
+      h('div', { key: 'primary', className: 'rilo-kpi-grid-tight mb-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4' },
         metrics[0].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h('div', { key: 'secondary', className: 'grid grid-cols-1 md:grid-cols-3 gap-4 mb-4' },
+      h('div', { key: 'secondary', className: 'rilo-kpi-grid-tight mb-3 grid grid-cols-1 gap-3 md:grid-cols-3' },
         metrics[1].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h('div', { key: 'tertiary', className: 'grid grid-cols-1 md:grid-cols-4 gap-4 mb-4' },
+      h('div', { key: 'tertiary', className: 'rilo-kpi-grid-tight mb-3 grid grid-cols-1 gap-3 md:grid-cols-4' },
         metrics[2].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
+      h('div', { key: 'phase-one-header', className: 'mb-3 mt-5 flex items-center justify-between gap-3' }, [
+        h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, 'Phase 1 扩展 KPI'),
+        h('span', { key: 'hint', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '补齐 Phase 1：租金效率、盈亏平衡、单间夜贡献、获客效率')
+      ]),
+      h('div', { key: 'phase-one-grid', className: 'rilo-kpi-grid-tight mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4' },
+        phaseOneMetrics.map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
       showDetails && h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency }),
       h(StatusIndicator, { key: 'status', profit })
+    ]);
+  };
+
+  const ComprehensiveRecommendations = ({ calculations, currency }) => {
+    if (!calculations?.comprehensive) return null;
+
+    const comprehensive = calculations.comprehensive;
+    const InsightCard = window.RiloUI?.InsightCard;
+    const RecommendationCard = window.RiloUI?.RecommendationCard;
+    const health = comprehensive.healthScore || { score: 0, grade: '—', description: '暂无' };
+    const guidance = comprehensive.investmentGuidance || {};
+    const recommendationLabelMap = {
+      proceed: '建议推进',
+      hold: '建议观察',
+      reject: '建议谨慎 / 暂缓'
+    };
+
+    return h('div', { className: 'space-y-5 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
+      h('div', { key: 'header', className: 'flex flex-col gap-2 md:flex-row md:items-end md:justify-between' }, [
+        h('div', { key: 'copy' }, [
+          h('h2', { key: 'title', className: 'text-xl font-semibold text-[var(--rilo-text-1)]' }, '🧭 综合建议'),
+          h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)]' }, '汇总健康度、投资建议、风险指标与优化动作，方便先看方向再下钻。')
+        ]),
+        h('div', { key: 'score', className: 'rounded-2xl bg-[var(--rilo-surface-2)] px-4 py-3 text-right' }, [
+          h('div', { key: 'label', className: 'text-xs uppercase tracking-wide text-[var(--rilo-text-3)]' }, '健康度评分'),
+          h('div', { key: 'value', className: 'text-2xl font-bold text-[var(--rilo-text-1)]' }, `${health.score} / 100 · ${health.grade}`),
+          h('div', { key: 'desc', className: 'text-sm text-[var(--rilo-text-2)]' }, health.description)
+        ])
+      ]),
+      h('div', { key: 'grid', className: 'grid grid-cols-1 gap-4 lg:grid-cols-2' }, [
+        h('div', { key: 'guidance', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
+          h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '投资建议'),
+          h('div', { key: 'recommendation', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, recommendationLabelMap[guidance.recommendation] || '建议补充数据'),
+          h('div', { key: 'confidence', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, `置信度：${guidance.confidenceLevel ?? 0}%`),
+          h('ul', { key: 'reasons', className: 'mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--rilo-text-2)]' }, (guidance.reasons || []).map((reason, index) =>
+            h('li', { key: `reason-${index}` }, reason)
+          ))
+        ]),
+        h('div', { key: 'risks', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
+          h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '风险指标'),
+          (comprehensive.riskIndicators || []).length > 0
+            ? h('div', { key: 'items', className: 'mt-3 space-y-3' }, comprehensive.riskIndicators.map((risk, index) =>
+                InsightCard
+                  ? h(InsightCard, {
+                      key: `risk-${index}`,
+                      insight: {
+                        type: risk.level === 'high' || risk.level === 'critical' ? 'danger' : 'warning',
+                        title: risk.type || '风险提示',
+                        message: risk.message || risk.description || '请关注该风险项'
+                      }
+                    })
+                  : h('div', {
+                      key: `risk-${index}`,
+                      className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3'
+                    }, [
+                      h('div', { key: 'title', className: 'font-semibold text-[var(--rilo-text-1)]' }, risk.type || '风险提示'),
+                      h('div', { key: 'message', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, risk.message || risk.description || '请关注该风险项')
+                    ])
+              ))
+            : h('div', { key: 'empty', className: 'mt-3 text-sm text-[var(--rilo-text-3)]' }, '当前未识别到高优先级风险指标。')
+        ])
+      ]),
+      h('div', { key: 'suggestions', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
+        h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '优化建议'),
+        (comprehensive.improvementSuggestions || []).length > 0
+          ? h('div', { key: 'items', className: 'mt-3 space-y-3' }, comprehensive.improvementSuggestions.map((suggestion, index) =>
+              RecommendationCard
+                ? h(RecommendationCard, {
+                    key: `suggestion-${index}`,
+                    recommendation: {
+                      priority: suggestion.priority || 'medium',
+                      icon: '🛠️',
+                      title: suggestion.title || suggestion.category || '优化建议',
+                      content: suggestion.description || '建议结合右侧过程与术语继续核对。'
+                    }
+                  })
+                : h('div', {
+                    key: `suggestion-${index}`,
+                    className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3'
+                  }, [
+                    h('div', { key: 'title', className: 'font-semibold text-[var(--rilo-text-1)]' }, suggestion.title || suggestion.category || '优化建议'),
+                    h('div', { key: 'content', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, suggestion.description || '建议结合右侧过程与术语继续核对。')
+                  ])
+            ))
+          : h('div', { key: 'empty', className: 'mt-3 text-sm text-[var(--rilo-text-3)]' }, '当前暂无额外优化建议。')
+      ]),
+      window.ScenarioRecommendations?.ScenarioRecommendations
+        ? h(window.ScenarioRecommendations.ScenarioRecommendations, {
+            key: 'scenario-recommendations',
+            calculations,
+            currency
+          })
+        : null
     ]);
   };
 
@@ -286,12 +466,17 @@ window.OverviewPage = (function() {
   const BusinessOverview = ({ data, calculations, currency }) => {
     if (!calculations) return null;
     
-    return h('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-6' }, [
+    return h('div', { className: 'grid grid-cols-1 gap-5 lg:grid-cols-2' }, [
       h(window.RiloUI.ChartCard, { key: 'revenue', title: '💰 收入结构分析' },
         h(window.ChartComponents.RevenueStructureChart, { calculations, currency })
       ),
       h(window.RiloUI.ChartCard, { key: 'cost', title: '💸 成本结构分析' },
         h(window.ChartComponents.CostStructureChart, { calculations, currency })
+      ),
+      h(window.RiloUI.ChartCard, { key: 'breakeven', title: '⚖️ 盈亏平衡分析' },
+        window.ChartComponents.BreakevenSVGChart
+          ? h(window.ChartComponents.BreakevenSVGChart, { calculations, currency })
+          : h(window.ChartComponents.BreakevenChart, { calculations, currency })
       )
     ]);
   };
@@ -327,8 +512,8 @@ window.OverviewPage = (function() {
     if (!alerts.length && !insights.length) return null;
     const colorClasses = { error: 'bg-red-50 border-red-200 text-red-800', warning: 'bg-yellow-50 border-yellow-200 text-yellow-800' };
     
-    return h('div', { className: 'bg-white rounded-2xl shadow p-6' }, [
-      h('h3', { key: 'title', className: 'text-lg font-semibold mb-4' }, '💡 系统提醒与洞察'),
+    return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
+      h('h3', { key: 'title', className: 'mb-4 text-lg font-semibold text-[var(--rilo-text-1)] rilo-zh-header' }, '💡 系统提醒与洞察'),
       h('div', { key: 'content', className: 'space-y-4' }, [
         alerts.length > 0 && h('div', { key: 'alerts', className: 'space-y-3' }, alerts.map((alert, i) => h(window.RiloUI.AlertCard, { key: i, alert, colorClasses }))),
         insights.length > 0 && h('div', { key: 'insights', className: 'space-y-3' }, insights.map((insight, i) => h(window.RiloUI.InsightCard, { key: i, insight })))

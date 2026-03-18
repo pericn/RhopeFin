@@ -7,8 +7,10 @@
 
   window.RiloUI = window.RiloUI || {};
 
+  const toDrawerGlossaryDomId = (termKey) => `drawer-glossary-${encodeURIComponent(String(termKey || '').trim())}`;
+
   // 抽屉容器组件
-  const DefinitionsDrawer = ({ isOpen, onClose, glossaryTerms = {} }) => {
+  const DefinitionsDrawer = ({ isOpen, onClose, glossaryTerms = {}, selectedTerm = null }) => {
     if (!isOpen) return null;
 
     // ESC 键关闭
@@ -25,7 +27,18 @@
       if (e.target === e.currentTarget) onClose();
     };
 
-    const entries = Object.entries(glossaryTerms);
+    const entries = window.RiloUI?.getGlossaryEntries
+      ? window.RiloUI.getGlossaryEntries(glossaryTerms)
+      : Object.entries(glossaryTerms);
+
+    React.useEffect(() => {
+      if (!selectedTerm) return;
+
+      const el = document.getElementById(toDrawerGlossaryDomId(selectedTerm));
+      if (el && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ block: 'nearest' });
+      }
+    }, [selectedTerm]);
 
     return React.createElement('div', {
       className: 'fixed inset-0 z-50 flex justify-end'
@@ -61,14 +74,15 @@
         }, entries.length > 0 ? entries.map(([key, def]) =>
           React.createElement('div', {
             key,
-            className: 'mb-6 pb-6 border-b border-[var(--rilo-border-deep)] last:border-0'
+            id: toDrawerGlossaryDomId(key),
+            className: `mb-6 rounded-2xl pb-6 border-b border-[var(--rilo-border-deep)] last:border-0 ${selectedTerm === key ? 'bg-[var(--rilo-surface-2)] px-3 pt-3' : ''}`
           }, [
             React.createElement('h3', {
               className: 'text-base font-semibold text-[var(--rilo-accent)] mb-2'
             }, def.title || key),
             React.createElement('p', {
               className: 'text-sm text-[var(--rilo-text-2)] leading-relaxed'
-            }, def.definition || def.body || '')
+            }, def.body || def.definition || '')
           ])
         ) : React.createElement('div', {
           className: 'text-center text-[var(--rilo-text-3)] py-12'

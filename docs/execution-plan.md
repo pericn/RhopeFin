@@ -84,4 +84,4 @@
 - 定义说明通过轻量按钮 + 右侧抽屉触发
 - HQ Fee 口径修正为按总收入计提
 - 品牌与目录最终完成系统性替换
-- `npm test` / `scripts/smoke.sh` / `scripts/review_codex.sh staged` 跑通
+- `scripts/smoke.sh` / `scripts/review_codex.sh staged` 跑通；`npm test` 如有配置则通过

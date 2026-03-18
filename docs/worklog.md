@@ -172,3 +172,31 @@
 - 风险 / 阻塞：无硬 blocker；当前以 smoke + staged review + 文件快验为主
 - 下一步：输出最终交付状态
 - 是否快照：no
+
+## 2026-03-16 23:12 GMT+8
+- 时间：2026-03-16 23:12 GMT+8
+- 当前子任务：UI 交互收口 + 术语体系/Inspector 统一
+- 状态：doing
+- 已完成：共享壳层/DefinitionsDrawer/Term Registry 落地；Overview/Analysis/Settings 术语入口与 hover 链路补齐；Phase 1 KPI 与 RevPAR 落地；review gate 加固；smoke 通过
+- 风险 / 阻塞：review gate 产出不稳定；深色主题残留 class 未清；入住率双通道输入未收口；系统性改名与文档同步未完成
+- 下一步：清理 tmp review 产物 → 稳定 review verdict → 手动验收 hover/Inspector → 同步文档
+- 是否快照：no
+
+## 2026-03-19 11:18 GMT+8
+- 时间：2026-03-19 11:18 GMT+8
+- 当前子任务：prototype 方向纠偏（v4 → v5）
+- 状态：doing
+- 已确认：v4 视觉方向过度偏向 editorial 展示，牺牲了 dashboard 功能感与信息密度，不符合“形式 follow 功能”的要求
+- 本轮调整：新增 `prototypes/rilo-ledger-dashboard-v5-cn.html`，保留 KPI / 参数账本 / 敏感度 / 场景表 / Inspector 骨架；弱化强结论文案占位；提升图形表达；以 Rilo 蓝作为主 accent，并扩展和谐辅色盘
+- 风险 / 阻塞：这仍是静态 prototype，真实代码页还需继续把输入控件、深色残留与文档同步收口
+- 下一步：以 v5 作为新的 prototype 基线，继续把真实页面实现向该方向收敛
+- 是否快照：no
+
+## 2026-03-19 11:31 GMT+8
+- 时间：2026-03-19 11:31 GMT+8
+- 当前子任务：将 v5 从单长页改成多页面切换原型
+- 状态：doing
+- 已调整：增加顶部页签切换与左侧导航联动；Overview / Settings / Analysis 改为独立 page panel；Settings 页补充明确的控件清单（Basic / Member / Boarding / Medical / Retail / Cost & Investment）
+- 风险 / 阻塞：目前仍是静态交互原型，未接真实 calculator 与数据状态
+- 下一步：继续把真实代码页结构与 v5 的分页信息架构对齐
+- 是否快照：no

@@ -29,7 +29,7 @@ scripts/review_codex.sh worktree
 scripts/review_codex.sh range main HEAD
 ```
 
-输出：`tmp/codex_review.md`（包含 VERDICT/CONFIDENCE/FINDINGS）
+输出：`tmp/review-artifacts/codex_review.md`（包含 VERDICT/CONFIDENCE/FINDINGS；同目录会生成 diff / prompt）
 
 ### Gate 规则
 - `VERDICT: patch is incorrect` → **exit 1**（禁止合并/禁止继续）

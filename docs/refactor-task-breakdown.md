@@ -9,6 +9,15 @@
 - HQ 费用口径按“总收入”计提，吻合决策日志。
 - 三页面统一骨架，但保留各自侧重：参数配置/概览/敏感度。
 
+## 当前优先级（按必要性）
+- **P0**：入住率双通道输入（Slider + 数字输入）、0–100 clamp、保留 1 位小数、粘贴清洗（Settings）。
+- **P0**：术语入口一致性与 hover 链路回归（Settings/Overview/Analysis）。
+- **P0**：review/smoke gate 可用且 tmp 不污染 diff。
+- **P1**：术语内容收敛到单一事实源（term-registry 为主）。
+- **P1**：深色主题残留 class 清理（bg-white/text-gray 等）。
+- **P2**：系统性改名（Hopeful Finance → Rilo Analysis）与文档收尾。
+- **Prototype 使用原则**：`prototypes/rilo-upgrade-v2-cn.html` 作为结构/交互参考；`rilo-editorial-premium-prototype.html` 仅做视觉灵感，不作为验收标准。
+
 ---
 
 ## 参数配置页（js/pages/settings-page-v2.js）
@@ -28,8 +37,8 @@
 - 数据与状态
   - 严格只通过 `updateData` 改写；避免在子组件内部副作用写 storage。
   - 容错：空数据/NaN/Infinity 均有兜底展示。
-- 待办点（极小改动）
-  - 在 `SettingsPage` 组件顶部加入 TODO 注释，标注“入住率控件需要 0–100 且保留 1 位小数”的验证点（仅注释，不改逻辑）。
+- 待办点（当前未收口）
+  - 入住率双通道输入（Slider + 数字输入）、0–100 clamp、保留 1 位小数、粘贴清洗。
 - 验证
   - 手动：边界值 0、100、101、-1、33.3、33.34；粘贴“ 45 % ”清洗；预设切换后 projectName 保留。
 
@@ -48,8 +57,8 @@
   - 货币选择器与导入/导出按钮放入 DataActions（右上或工具区）。
 - 术语
   - 为 cogs/grossMargin/netMargin/payback 等提供 `glossaryTerms`，并可选通过 `RiloUI.Term` 包装。
-- 待办点（最小补丁）
-  - 在 `KeyMetrics` 附近加入 TODO 注释“添加 RevPAR（每间可售房晚收入）作为次级指标，来源 ADR×入住率”。
+- 已落地
+  - RevPAR（每间可售房晚收入，ADR×入住率）已在 KeyMetrics 附近呈现。
 - 验证
   - 边界：profit ≤0 提醒、margin <5% 告警、member 配比 >100% 报错路径已存在，复测。
 
@@ -82,8 +91,8 @@
   - 公式显示统一走 `FormulaDisplay`，避免各页重复实现。
 - 文案与口径
   - 中文术语为主；缩写（如 COGS）仅在公式/代码说明中出现。
-- 待办点（最小补丁）
-  - 新建术语登记处占位文件（后续单独 PR）：`js/components/rilo-ui/term-registry.js`，仅导出空表与 `Term` 占位组件。
+- 已落地
+  - 术语注册表在 `js/shared/term-registry.js`；后续需收敛各页 glossaryTerms 到该源。
 - 验证
   - 术语 hover/点击可见；抽屉初始收起；不抢主视觉空间。
 
@@ -94,7 +103,7 @@
   - TwoPaneLayout：左主内容 + 右侧 Inspector（可滚动/粘滞头部）；兼容移动端折叠。
   - 公共卡片/区块：Card、KPI、ChartCard、Toolbar 的最小统一样式。
 - 设计 Token
-  - 使用 index.html 中的 CSS 变量（--rilo-accent/ink/fog 等）；必要时新增 spacing/radius/shadow token。
+  - 使用 index.html 中的 CSS 变量（--rilo-bg-deep / surface / text / accent / brand 等）；必要时新增 spacing/radius/shadow token。
   - 颜色语义：success/warning/error/info 的统一 class 映射。
 - 行为一致性
   - 过渡/阴影/圆角半径统一；打印样式保留（去阴影）。
