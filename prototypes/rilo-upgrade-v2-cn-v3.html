@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rilo Analysis 原型 v2</title>
+  <style>
+    :root {
+      --rilo-accent: #2563eb;
+      --rilo-accent-2: #3b82f6;
+      --rilo-accent-3: #93c5fd;
+      --rilo-accent-soft: rgba(37, 99, 235, 0.14);
+      --rilo-bg: #07111f;
+      --rilo-bg-2: #0b1728;
+      --rilo-panel: #0f1f35;
+      --rilo-panel-2: #122743;
+      --rilo-panel-3: #162e4f;
+      --rilo-line: rgba(147, 197, 253, 0.16);
+      --rilo-line-strong: rgba(147, 197, 253, 0.28);
+      --rilo-text: #e8f0ff;
+      --rilo-text-2: #bfd1ef;
+      --rilo-text-3: #86a0c5;
+      --rilo-green: #34d399;
+      --rilo-yellow: #fbbf24;
+      --rilo-red: #f87171;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow: 0 24px 60px rgba(3, 10, 22, 0.46);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 28%),
+        radial-gradient(circle at right 10%, rgba(59, 130, 246, 0.16), transparent 22%),
+        linear-gradient(180deg, #07101d 0%, #091320 100%);
+      color: var(--rilo-text);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.015), rgba(255,255,255,0.015)) 0 0 / 100% 1px no-repeat;
+      opacity: 0.6;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1480px, calc(100% - 28px));
+      margin: 14px auto;
+      border: 1px solid rgba(147, 197, 253, 0.14);
+      border-radius: 30px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(7,17,31,0.96), rgba(10,22,38,0.96));
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--rilo-line);
+      background: rgba(12, 25, 44, 0.9);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--rilo-accent), #1d4ed8);
+      color: white;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.36);
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-copy h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-copy p {
+      margin: 4px 0 0;
+      color: var(--rilo-text-3);
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.02);
+      color: var(--rilo-text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      border-color: var(--rilo-line-strong);
+      background: rgba(255,255,255,0.05);
+      outline: none;
+    }
+
+    .btn.primary {
+      background: linear-gradient(180deg, var(--rilo-accent-2), var(--rilo-accent));
+      border-color: rgba(96, 165, 250, 0.3);
+      color: white;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+    }
+
+    .app-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px 24px 0;
+      background: linear-gradient(180deg, rgba(9,18,34,0.95), rgba(9,18,34,0.72));
+    }
+
+    .app-tab {
+      padding: 11px 16px;
+      border-radius: 14px 14px 0 0;
+      color: var(--rilo-text-3);
+      border: 1px solid transparent;
+      border-bottom: 0;
+      background: transparent;
+      cursor: default;
+    }
+
+    .app-tab.active {
+      color: var(--rilo-text);
+      background: var(--rilo-panel);
+      border-color: var(--rilo-line);
+    }
+
+    .view-tabs {
+      display: flex;
+      gap: 10px;
+      padding: 14px 24px 18px;
+      border-bottom: 1px solid var(--rilo-line);
+      background: rgba(9,18,34,0.58);
+      flex-wrap: wrap;
+    }
+
+    .view-tab {
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.03);
+      color: var(--rilo-text-2);
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .view-tab.active {
+      color: white;
+      background: linear-gradient(180deg, var(--rilo-accent-2), var(--rilo-accent));
+      border-color: rgba(96,165,250,0.32);
+      box-shadow: 0 8px 18px rgba(37,99,235,0.22);
+    }
+
+    .view {
+      display: none;
+      padding: 24px;
+      gap: 20px;
+    }
+
+    .view.active {
+      display: grid;
+    }
+
+    .overview {
+      grid-template-columns: minmax(0, 1.6fr) 340px;
+      align-items: start;
+    }
+
+    .ledger {
+      grid-template-columns: minmax(0, 1.45fr) 360px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .card {
+      border: 1px solid var(--rilo-line);
+      background: linear-gradient(180deg, rgba(16,31,52,0.96), rgba(13,25,43,0.96));
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2,
+    .card-header h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--rilo-text-3);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rilo-accent-2);
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.16);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero-copy h2 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-copy p {
+      margin: 12px 0 0;
+      color: var(--rilo-text-2);
+      line-height: 1.8;
+      font-size: 15px;
+      max-width: 720px;
+    }
+
+    .hero-side {
+      border: 1px solid rgba(147, 197, 253, 0.14);
+      border-radius: 20px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(37,99,235,0.12), rgba(37,99,235,0.05));
+      display: grid;
+      gap: 12px;
+      align-content: space-between;
+    }
+
+    .hero-side .big {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .hero-side .sub {
+      color: var(--rilo-text-3);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi {
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.02);
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 122px;
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .kpi:hover,
+    .kpi:focus-visible {
+      border-color: var(--rilo-line-strong);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .kpi.active {
+      border-color: rgba(96,165,250,0.34);
+      background: linear-gradient(180deg, rgba(37,99,235,0.18), rgba(255,255,255,0.04));
+    }
+
+    .kpi .label {
+      color: var(--rilo-text-3);
+      font-size: 13px;
+    }
+
+    .kpi .value {
+      font-size: clamp(26px, 3vw, 34px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .kpi .meta {
+      color: var(--rilo-text-2);
+      font-size: 12px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .subtle-card {
+      border: 1px solid var(--rilo-line);
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .subtle-card h4,
+    .inspector h3,
+    .detail-panel h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .muted {
+      color: var(--rilo-text-3);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .chart-wrap {
+      border: 1px solid var(--rilo-line);
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01));
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      margin-bottom: 12px;
+      color: var(--rilo-text-3);
+      font-size: 12px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend i {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+      background: currentColor;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .summary-list,
+    .bullet-list,
+    .mini-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item,
+    .mini-item {
+      display: grid;
+      gap: 4px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .summary-item strong,
+    .mini-item strong {
+      font-size: 14px;
+    }
+
+    .summary-item span,
+    .mini-item span {
+      color: var(--rilo-text-3);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .inspector {
+      position: sticky;
+      top: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .pill-row,
+    .segmented,
+    .toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill,
+    .segment,
+    .toolbar-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--rilo-line);
+      color: var(--rilo-text-2);
+      background: rgba(255,255,255,0.03);
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .pill.active,
+    .segment.active,
+    .toolbar-chip.active {
+      color: white;
+      border-color: rgba(96,165,250,0.34);
+      background: rgba(37,99,235,0.22);
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .ledger-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      min-width: 240px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.02);
+      border-radius: 14px;
+      padding: 0 14px;
+      height: 44px;
+    }
+
+    .search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--rilo-text);
+    }
+
+    .table {
+      border: 1px solid var(--rilo-line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .table-head,
+    .row {
+      display: grid;
+      grid-template-columns: 1.6fr 120px 120px 120px;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .table-head {
+      background: rgba(255,255,255,0.03);
+      color: var(--rilo-text-3);
+      font-size: 12px;
+      border-bottom: 1px solid var(--rilo-line);
+    }
+
+    .row {
+      border-bottom: 1px solid rgba(147, 197, 253, 0.08);
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .row:last-child { border-bottom: 0; }
+
+    .row:hover,
+    .row.active {
+      background: rgba(37,99,235,0.12);
+    }
+
+    .row-title {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .row-title strong {
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-title span {
+      color: var(--rilo-text-3);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--rilo-line);
+      color: var(--rilo-text-2);
+      width: fit-content;
+    }
+
+    .tag.blue { background: rgba(37,99,235,0.12); }
+    .tag.green { background: rgba(52,211,153,0.12); color: #bff6df; }
+    .tag.yellow { background: rgba(251,191,36,0.12); color: #ffeab1; }
+
+    .value-cell,
+    .impact-cell,
+    .status-cell {
+      font-size: 13px;
+    }
+
+    .detail-panel {
+      position: sticky;
+      top: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--rilo-text-3);
+      font-size: 12px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      color: var(--rilo-text);
+      border: 1px solid var(--rilo-line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .range {
+      width: 100%;
+      accent-color: var(--rilo-accent-2);
+    }
+
+    .detail-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-box {
+      border: 1px solid var(--rilo-line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .stat-box .name {
+      color: var(--rilo-text-3);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .stat-box .num {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .footer-note {
+      padding: 0 24px 22px;
+      color: var(--rilo-text-3);
+      font-size: 12px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1180px) {
+      .overview,
+      .ledger,
+      .hero,
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .inspector,
+      .detail-panel {
+        position: static;
+      }
+
+      .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        width: min(100% - 10px, 100%);
+        margin: 5px auto;
+        border-radius: 22px;
+      }
+
+      .topbar,
+      .view-tabs,
+      .view,
+      .app-tabs,
+      .footer-note {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .top-actions {
+        justify-content: stretch;
+      }
+
+      .top-actions .btn {
+        flex: 1;
+      }
+
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .table-head {
+        display: none;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .detail-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+        <div class="brand-copy">
+          <h1>Rilo Analysis</h1>
+          <p>宠物综合体经营测算 · 升级方向原型 v2</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" type="button">术语说明</button>
+        <button class="btn" type="button">导出数据</button>
+        <button class="btn primary" type="button" data-open-view="ledger">进入假设账本</button>
+      </div>
+    </header>
+
+    <nav class="app-tabs" aria-label="主导航">
+      <div class="app-tab">参数配置</div>
+      <div class="app-tab active">财务分析</div>
+      <div class="app-tab">敏感度分析</div>
+    </nav>
+
+    <div class="view-tabs" role="tablist" aria-label="页面视图">
+      <button class="view-tab active" type="button" role="tab" aria-selected="true" data-view-tab="overview">总览</button>
+      <button class="view-tab" type="button" role="tab" aria-selected="false" data-view-tab="ledger">假设账本</button>
+    </div>
+
+    <section id="view-overview" class="view overview active">
+      <div class="stack">
+        <article class="card">
+          <div class="hero">
+            <div class="hero-copy">
+              <div class="eyebrow">总览</div>
+              <h2>先看结果，再决定该调哪一组假设。</h2>
+              <p>
+                这一版把信息密度降下来：顶部保留熟悉的页签结构，正文只保留关键指标、一个主要图表、一个简化的假设摘要。
+                视觉仍然沿用 Rilo 的蓝色体系，但更轻、更清楚、更容易进入下一步操作。
+              </p>
+              <div class="quick-actions">
+                <button class="btn primary" type="button" data-open-view="ledger">查看假设账本</button>
+                <button class="btn" type="button">套用预设参数</button>
+              </div>
+            </div>
+            <aside class="hero-side">
+              <div>
+                <div class="eyebrow">当前结论</div>
+                <div class="big">27 个月</div>
+                <div class="sub">预计回本周期。重点检查会员收入占比、房间入住率、装修标准。</div>
+              </div>
+              <div class="toolbar-row">
+                <div class="toolbar-chip active">基础情景</div>
+                <div class="toolbar-chip">保守情景</div>
+                <div class="toolbar-chip">进取情景</div>
+              </div>
+            </aside>
+          </div>
+        </article>
+
+        <section class="kpis" aria-label="关键指标">
+          <button class="kpi active" type="button" data-open-view="ledger">
+            <div class="label">年总营收</div>
+            <div class="value">¥ 1,860 万</div>
+            <div class="meta">点击查看相关假设</div>
+          </button>
+          <button class="kpi" type="button" data-open-view="ledger">
+            <div class="label">年净利润</div>
+            <div class="value">¥ 584 万</div>
+            <div class="meta">会员与医疗贡献较高</div>
+          </button>
+          <button class="kpi" type="button" data-open-view="ledger">
+            <div class="label">净利润率</div>
+            <div class="value">31.4%</div>
+            <div class="meta">较当前版本展示更直接</div>
+          </button>
+          <button class="kpi" type="button" data-open-view="ledger">
+            <div class="label">回本周期</div>
+            <div class="value">2.3 年</div>
+            <div class="meta">受装修与入住率影响最大</div>
+          </button>
+        </section>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">经营趋势</div>
+              <h2>收入、毛利、固定成本</h2>
+            </div>
+            <div class="legend">
+              <span style="color:#60a5fa"><i></i>收入</span>
+              <span style="color:#93c5fd"><i></i>毛利</span>
+              <span style="color:#fbbf24"><i></i>固定成本线</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg viewBox="0 0 960 360" role="img" aria-label="经营趋势图">
+              <defs>
+                <linearGradient id="area1" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.32" />
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02" />
+                </linearGradient>
+                <linearGradient id="area2" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.22" />
+                  <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              <g stroke="rgba(147,197,253,0.12)" stroke-width="1">
+                <line x1="60" y1="48" x2="920" y2="48"></line>
+                <line x1="60" y1="104" x2="920" y2="104"></line>
+                <line x1="60" y1="160" x2="920" y2="160"></line>
+                <line x1="60" y1="216" x2="920" y2="216"></line>
+                <line x1="60" y1="272" x2="920" y2="272"></line>
+                <line x1="60" y1="328" x2="920" y2="328"></line>
+              </g>
+              <g fill="#7fa3d9" font-size="12" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+                <text x="16" y="52">1800</text>
+                <text x="16" y="108">1500</text>
+                <text x="16" y="164">1200</text>
+                <text x="16" y="220">900</text>
+                <text x="24" y="276">600</text>
+                <text x="24" y="332">300</text>
+              </g>
+              <path d="M60 304 C120 284, 164 250, 212 236 S332 190, 392 168 S496 146, 554 126 S680 108, 748 90 S850 74, 920 58 L920 328 L60 328 Z" fill="url(#area1)"></path>
+              <path d="M60 318 C126 304, 180 286, 236 270 S344 234, 404 212 S506 196, 566 182 S680 166, 748 150 S852 136, 920 122 L920 328 L60 328 Z" fill="url(#area2)"></path>
+              <path d="M60 304 C120 284, 164 250, 212 236 S332 190, 392 168 S496 146, 554 126 S680 108, 748 90 S850 74, 920 58" fill="none" stroke="#60a5fa" stroke-width="4" stroke-linecap="round"></path>
+              <path d="M60 318 C126 304, 180 286, 236 270 S344 234, 404 212 S506 196, 566 182 S680 166, 748 150 S852 136, 920 122" fill="none" stroke="#93c5fd" stroke-width="3.5" stroke-linecap="round"></path>
+              <path d="M60 232 L920 232" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="8 8"></path>
+              <g fill="#7fa3d9" font-size="12" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+                <text x="62" y="348">1月</text>
+                <text x="152" y="348">2月</text>
+                <text x="242" y="348">3月</text>
+                <text x="332" y="348">4月</text>
+                <text x="422" y="348">5月</text>
+                <text x="512" y="348">6月</text>
+                <text x="602" y="348">7月</text>
+                <text x="692" y="348">8月</text>
+                <text x="782" y="348">9月</text>
+                <text x="868" y="348">10-12月</text>
+              </g>
+            </svg>
+          </div>
+        </article>
+
+        <div class="panel-grid">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <div class="eyebrow">假设摘要</div>
+                <h3>与当前结果最相关的三组假设</h3>
+              </div>
+              <button class="btn" type="button" data-open-view="ledger">去账本调整</button>
+            </div>
+            <div class="summary-list">
+              <div class="summary-item">
+                <strong>会员收入占比 54%</strong>
+                <span>保留现有收入结构逻辑，但展示为更容易扫读的摘要项。</span>
+              </div>
+              <div class="summary-item">
+                <strong>寄养入住率 68%</strong>
+                <span>继续沿用当前“房间数 × 房价 × 入住率”的核心模式。</span>
+              </div>
+              <div class="summary-item">
+                <strong>装修标准 4,800 元 / ㎡</strong>
+                <span>保持投资口径不变，只把编辑入口集中到“假设账本”。</span>
+              </div>
+            </div>
+          </article>
+
+          <aside class="inspector">
+            <article class="card subtle-card">
+              <h3>本页保留的现有习惯</h3>
+              <div class="mini-list">
+                <div class="mini-item">
+                  <strong>顶部页签</strong>
+                  <span>仍然是参数配置 / 财务分析 / 敏感度分析。</span>
+                </div>
+                <div class="mini-item">
+                  <strong>KPI 卡片</strong>
+                  <span>继续用卡片展示关键指标，只减少数量和说明字数。</span>
+                </div>
+                <div class="mini-item">
+                  <strong>图表主卡片</strong>
+                  <span>保留一张重点图，而不是堆很多模块。</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card subtle-card">
+              <h3>下一步操作</h3>
+              <div class="bullet-list muted">
+                <div>1. 先看回本周期与净利润率。</div>
+                <div>2. 再进“假设账本”只改关键项。</div>
+                <div>3. 最后回到总览确认变化。</div>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </div>
+
+      <aside class="inspector">
+        <article class="card">
+          <div class="eyebrow">右侧说明</div>
+          <h3>更轻的 Inspector</h3>
+          <div class="mini-list">
+            <div class="mini-item">
+              <strong>只保留必要说明</strong>
+              <span>不再堆很多预写结论、过程、术语模块。</span>
+            </div>
+            <div class="mini-item">
+              <strong>点击路径更清楚</strong>
+              <span>KPI、按钮、页签都能直接通往“假设账本”。</span>
+            </div>
+            <div class="mini-item">
+              <strong>蓝色体系更统一</strong>
+              <span>主按钮、图表、焦点态全部回到 Rilo 蓝。</span>
+            </div>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <section id="view-ledger" class="view ledger">
+      <div class="stack">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">假设账本</div>
+              <h2>把关键假设集中到一个清晰的编辑面板里。</h2>
+            </div>
+            <button class="btn" type="button" data-open-view="overview">返回总览</button>
+          </div>
+          <p class="muted" style="margin-top:-4px; margin-bottom:18px;">
+            账本不是新概念，而是把现有参数配置页里最常用的项目，按“可检索、可筛选、可逐条编辑”的方式重新整理。
+          </p>
+
+          <div class="ledger-toolbar">
+            <div class="search" aria-label="搜索假设">
+              <span style="color:var(--rilo-text-3)">🔎</span>
+              <input type="text" placeholder="搜索假设项，如：入住率、装修、会员" />
+            </div>
+            <div class="pill-row" role="tablist" aria-label="账本分类">
+              <button class="pill active" type="button" data-filter="all">全部</button>
+              <button class="pill" type="button" data-filter="basic">基础</button>
+              <button class="pill" type="button" data-filter="revenue">收入</button>
+              <button class="pill" type="button" data-filter="cost">成本</button>
+              <button class="pill" type="button" data-filter="investment">投资</button>
+            </div>
+          </div>
+
+          <div class="table" role="table" aria-label="假设账本列表">
+            <div class="table-head" role="row">
+              <div>假设项</div>
+              <div>当前值</div>
+              <div>影响</div>
+              <div>状态</div>
+            </div>
+
+            <div class="row active" role="button" tabindex="0" data-row-id="occupancy" data-category="revenue" data-name="寄养入住率" data-desc="可售房间数 × 房价 × 入住率，直接影响寄养收入。" data-value="68" data-unit="%" data-impact="高" data-status="已启用" data-field1-label="当前值" data-field1-value="68" data-field2-label="目标值" data-field2-value="72" data-field3-label="备注" data-field3-value="暑期与节假日可上浮" data-trend="+4" data-link="关联页：参数配置 > 收入参数" data-type="number">
+              <div class="row-title">
+                <strong>寄养入住率</strong>
+                <span>收入 · 寄养收入</span>
+              </div>
+              <div class="value-cell">68%</div>
+              <div class="impact-cell"><span class="tag blue">高</span></div>
+              <div class="status-cell"><span class="tag green">已启用</span></div>
+            </div>
+
+            <div class="row" role="button" tabindex="0" data-row-id="member-share" data-category="revenue" data-name="会员收入占比" data-desc="基础会员与高级会员的组合，会影响年度收入稳定性。" data-value="54" data-unit="%" data-impact="高" data-status="已启用" data-field1-label="当前值" data-field1-value="54" data-field2-label="高级会员占比" data-field2-value="26" data-field3-label="备注" data-field3-value="建议继续作为主引擎" data-trend="+2" data-link="关联页：参数配置 > 收入参数" data-type="number">
+              <div class="row-title">
+                <strong>会员收入占比</strong>
+                <span>收入 · 会员收入</span>
+              </div>
+              <div class="value-cell">54%</div>
+              <div class="impact-cell"><span class="tag blue">高</span></div>
+              <div class="status-cell"><span class="tag green">已启用</span></div>
+            </div>
+
+            <div class="row" role="button" tabindex="0" data-row-id="rent" data-category="cost" data-name="租金单价" data-desc="按面积与营业周期计入固定成本，是最核心的成本杠杆之一。" data-value="8.4" data-unit="元/㎡/天" data-impact="高" data-status="需复核" data-field1-label="当前值" data-field1-value="8.4" data-field2-label="谈判目标" data-field2-value="7.8" data-field3-label="备注" data-field3-value="建议同步看物业费" data-trend="-0.6" data-link="关联页：参数配置 > 成本参数" data-type="number">
+              <div class="row-title">
+                <strong>租金单价</strong>
+                <span>成本 · 固定成本</span>
+              </div>
+              <div class="value-cell">8.4 元/㎡/天</div>
+              <div class="impact-cell"><span class="tag blue">高</span></div>
+              <div class="status-cell"><span class="tag yellow">需复核</span></div>
+            </div>
+
+            <div class="row" role="button" tabindex="0" data-row-id="fitout" data-category="investment" data-name="装修标准" data-desc="直接影响初始投资额与回本周期，适合在账本里单独复核。" data-value="4800" data-unit="元/㎡" data-impact="中" data-status="已启用" data-field1-label="当前值" data-field1-value="4800" data-field2-label="压缩目标" data-field2-value="4300" data-field3-label="备注" data-field3-value="优先优化非核心区域" data-trend="-500" data-link="关联页：参数配置 > 初始投资" data-type="number">
+              <div class="row-title">
+                <strong>装修标准</strong>
+                <span>投资 · 初始投资</span>
+              </div>
+              <div class="value-cell">4,800 元/㎡</div>
+              <div class="impact-cell"><span class="tag">中</span></div>
+              <div class="status-cell"><span class="tag green">已启用</span></div>
+            </div>
+
+            <div class="row" role="button" tabindex="0" data-row-id="days" data-category="basic" data-name="年营业天数" data-desc="基础经营口径，影响全年收入与成本的计提。" data-value="365" data-unit="天" data-impact="中" data-status="已启用" data-field1-label="当前值" data-field1-value="365" data-field2-label="试算值" data-field2-value="350" data-field3-label="备注" data-field3-value="如考虑检修日可下调" data-trend="-15" data-link="关联页：基础设置" data-type="number">
+              <div class="row-title">
+                <strong>年营业天数</strong>
+                <span>基础 · 基础设置</span>
+              </div>
+              <div class="value-cell">365 天</div>
+              <div class="impact-cell"><span class="tag">中</span></div>
+              <div class="status-cell"><span class="tag green">已启用</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="detail-panel">
+        <article class="card">
+          <div class="eyebrow">条目详情</div>
+          <h3 id="detail-name">寄养入住率</h3>
+          <p class="muted" id="detail-desc">可售房间数 × 房价 × 入住率，直接影响寄养收入。</p>
+
+          <div class="detail-stats">
+            <div class="stat-box">
+              <div class="name">当前值</div>
+              <div class="num" id="detail-value">68%</div>
+            </div>
+            <div class="stat-box">
+              <div class="name">影响等级</div>
+              <div class="num" id="detail-impact">高</div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-top:16px;">
+            <label id="field1-label" for="field1">当前值</label>
+            <input id="field1" type="number" value="68" />
+          </div>
+
+          <div class="field">
+            <label id="field2-label" for="field2">目标值</label>
+            <input id="field2" type="number" value="72" />
+          </div>
+
+          <div class="field">
+            <label for="range">调节幅度</label>
+            <input class="range" id="range" type="range" min="0" max="100" value="68" />
+          </div>
+
+          <div class="segmented" aria-label="变更状态">
+            <button class="segment active" type="button">已启用</button>
+            <button class="segment" type="button">暂不计入</button>
+            <button class="segment" type="button">待复核</button>
+          </div>
+
+          <div class="field">
+            <label id="field3-label" for="field3">备注</label>
+            <textarea id="field3">暑期与节假日可上浮</textarea>
+          </div>
+
+          <div class="quick-actions">
+            <button class="btn primary" type="button">保存本项</button>
+            <button class="btn" type="button">应用到总览</button>
+          </div>
+        </article>
+
+        <article class="card subtle-card">
+          <h3>关联关系</h3>
+          <div class="mini-list">
+            <div class="mini-item">
+              <strong>变动趋势</strong>
+              <span id="detail-trend">+4%，预计优先改善寄养收入。</span>
+            </div>
+            <div class="mini-item">
+              <strong>来源位置</strong>
+              <span id="detail-link">关联页：参数配置 &gt; 收入参数</span>
+            </div>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <div class="footer-note">
+      独立静态原型 · 文件可直接本地打开 · 建议与现有参数页 / 总览页并排对照
+    </div>
+  </main>
+
+  <script>
+    const viewTabs = document.querySelectorAll('[data-view-tab]');
+    const views = {
+      overview: document.getElementById('view-overview'),
+      ledger: document.getElementById('view-ledger')
+    };
+
+    function openView(name) {
+      Object.entries(views).forEach(([key, el]) => {
+        el.classList.toggle('active', key === name);
+      });
+      viewTabs.forEach((btn) => {
+        const active = btn.dataset.viewTab === name;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      if (name === 'ledger') {
+        document.getElementById('view-ledger').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    viewTabs.forEach((btn) => {
+      btn.addEventListener('click', () => openView(btn.dataset.viewTab));
+    });
+
+    document.querySelectorAll('[data-open-view]').forEach((btn) => {
+      btn.addEventListener('click', () => openView(btn.dataset.openView));
+    });
+
+    const rows = Array.from(document.querySelectorAll('.row'));
+    const pills = Array.from(document.querySelectorAll('.pill'));
+
+    const detailEls = {
+      name: document.getElementById('detail-name'),
+      desc: document.getElementById('detail-desc'),
+      value: document.getElementById('detail-value'),
+      impact: document.getElementById('detail-impact'),
+      field1Label: document.getElementById('field1-label'),
+      field1: document.getElementById('field1'),
+      field2Label: document.getElementById('field2-label'),
+      field2: document.getElementById('field2'),
+      field3Label: document.getElementById('field3-label'),
+      field3: document.getElementById('field3'),
+      trend: document.getElementById('detail-trend'),
+      link: document.getElementById('detail-link'),
+      range: document.getElementById('range')
+    };
+
+    function selectRow(row) {
+      rows.forEach((item) => item.classList.toggle('active', item === row));
+      detailEls.name.textContent = row.dataset.name;
+      detailEls.desc.textContent = row.dataset.desc;
+      detailEls.value.textContent = row.dataset.value + row.dataset.unit;
+      detailEls.impact.textContent = row.dataset.impact;
+      detailEls.field1Label.textContent = row.dataset.field1Label;
+      detailEls.field1.value = row.dataset.field1Value;
+      detailEls.field2Label.textContent = row.dataset.field2Label;
+      detailEls.field2.value = row.dataset.field2Value;
+      detailEls.field3Label.textContent = row.dataset.field3Label;
+      detailEls.field3.value = row.dataset.field3Value;
+      detailEls.trend.textContent = row.dataset.trend + '，建议先在总览里核对结果变化。';
+      detailEls.link.textContent = row.dataset.link;
+      const rangeValue = Number(row.dataset.value);
+      if (!Number.isNaN(rangeValue)) {
+        detailEls.range.value = Math.max(0, Math.min(100, rangeValue));
+      }
+    }
+
+    rows.forEach((row) => {
+      row.addEventListener('click', () => selectRow(row));
+      row.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          selectRow(row);
+        }
+      });
+    });
+
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        pills.forEach((item) => item.classList.toggle('active', item === pill));
+        const filter = pill.dataset.filter;
+        rows.forEach((row) => {
+          const show = filter === 'all' || row.dataset.category === filter;
+          row.classList.toggle('hidden', !show);
+        });
+        const firstVisible = rows.find((row) => !row.classList.contains('hidden'));
+        if (firstVisible) selectRow(firstVisible);
+      });
+    });
+  </script>
+</body>
+</html>

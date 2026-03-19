@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rilo Analysis — Editorial Prototype</title>
+  <style>
+    :root {
+      --paper: #f5f0e7;
+      --paper-2: #efe7da;
+      --paper-3: #e5d9c7;
+      --ink: #1f2724;
+      --ink-soft: #48524d;
+      --line: rgba(31, 39, 36, 0.18);
+      --forest: #1f4a45;
+      --forest-soft: #456861;
+      --merlot: #7c3d36;
+      --gold: #8b6b2d;
+      --chart-a: #254b45;
+      --chart-b: #b6744e;
+      --chart-c: #cfbf9f;
+      --shadow: 0 30px 80px rgba(46, 37, 24, 0.12);
+      --display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Baskerville", Georgia, serif;
+      --sans: "Avenir Next", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", "Menlo", monospace;
+      --radius: 28px;
+      --radius-sm: 18px;
+      --gutter: clamp(18px, 2vw, 30px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at top right, rgba(124, 61, 54, 0.09), transparent 32%),
+        radial-gradient(circle at left 20%, rgba(31, 74, 69, 0.10), transparent 30%),
+        linear-gradient(180deg, #f8f3eb 0%, var(--paper) 42%, #ece2d1 100%);
+      color: var(--ink);
+      font-family: var(--sans);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.45;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(31, 39, 36, 0.018) 0,
+          rgba(31, 39, 36, 0.018) 1px,
+          transparent 1px,
+          transparent 5px
+        );
+      mix-blend-mode: multiply;
+    }
+
+    a { color: inherit; }
+
+    .prototype-shell {
+      position: relative;
+      width: min(1540px, calc(100% - 32px));
+      margin: 16px auto;
+      border: 1px solid rgba(31, 39, 36, 0.16);
+      border-radius: 34px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.38)),
+        linear-gradient(90deg, rgba(239, 231, 218, 0.76), rgba(245, 240, 231, 0.9));
+      backdrop-filter: blur(6px);
+    }
+
+    .topline {
+      display: grid;
+      grid-template-columns: 1.4fr auto 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 14px clamp(18px, 2vw, 34px);
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .topline .center-mark {
+      justify-self: center;
+      padding: 8px 14px;
+      border: 1px solid rgba(31,39,36,0.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.38);
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: 240px 1fr 340px;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      min-height: 172px;
+    }
+
+    .masthead > * {
+      padding: 26px clamp(20px, 2vw, 34px);
+      border-right: 1px solid var(--line);
+    }
+
+    .masthead > *:last-child { border-right: 0; }
+
+    .brand-kicker,
+    .edition-kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+    }
+
+    .brand-stack {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100%;
+    }
+
+    .brand-stack .seal {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 1px solid rgba(31,39,36,0.22);
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-size: 28px;
+      background: rgba(255,255,255,0.4);
+      box-shadow: inset 0 0 0 10px rgba(139, 107, 45, 0.06);
+    }
+
+    .brand-stack .folio {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      color: var(--ink-soft);
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: clamp(3.4rem, 7vw, 6.2rem);
+      line-height: 0.92;
+      letter-spacing: -0.04em;
+    }
+
+    .title-block p {
+      margin: 0;
+      max-width: 760px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+
+    .edition-note {
+      display: grid;
+      gap: 14px;
+      align-content: space-between;
+      background: linear-gradient(180deg, rgba(31,74,69,0.02), rgba(124,61,54,0.03));
+    }
+
+    .edition-note strong {
+      font-family: var(--display);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.2;
+      display: block;
+      max-width: 240px;
+    }
+
+    .edition-note p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      min-height: calc(100vh - 220px);
+    }
+
+    .rail {
+      padding: 22px 18px 26px;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(239,231,218,0.64));
+    }
+
+    .rail-title {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 8px 10px 14px;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .nav-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      color: var(--ink-soft);
+      background: transparent;
+    }
+
+    .nav-item.active {
+      background: rgba(31, 74, 69, 0.08);
+      border-color: rgba(31, 74, 69, 0.18);
+      color: var(--ink);
+    }
+
+    .nav-item .index {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    .nav-item .name {
+      font-family: var(--display);
+      font-size: 21px;
+      line-height: 1.1;
+    }
+
+    .nav-item .state {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.42;
+    }
+
+    .rail-note {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(31,39,36,0.14);
+      background: rgba(255,255,255,0.36);
+    }
+
+    .rail-note strong,
+    .panel-label,
+    .metric label,
+    .subgrid .eyebrow,
+    .inspector .eyebrow,
+    .settings-card .eyebrow,
+    .story-card .eyebrow {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .rail-note p {
+      margin: 12px 0 0;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    .content {
+      display: grid;
+      gap: 0;
+    }
+
+    .ribbon-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px clamp(20px, 2vw, 34px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.24);
+    }
+
+    .ribbon-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .ribbon-links span,
+    .status-chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(31,39,36,0.14);
+      background: rgba(255,255,255,0.44);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .ribbon-links span.active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: var(--paper);
+    }
+
+    .status-chip {
+      color: var(--forest);
+      border-color: rgba(31,74,69,0.22);
+      background: rgba(31,74,69,0.08);
+    }
+
+    .section {
+      padding: clamp(22px, 2.2vw, 34px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-child { border-bottom: 0; }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(310px, 0.65fr);
+      gap: clamp(18px, 2vw, 28px);
+      align-items: start;
+    }
+
+    .lede {
+      display: grid;
+      gap: 18px;
+      padding-right: clamp(8px, 3vw, 80px);
+    }
+
+    .panel-label {
+      margin-bottom: 6px;
+    }
+
+    .lede h2,
+    .settings-card h3,
+    .analysis-card h3,
+    .story-card h3,
+    .inspector h3 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(2rem, 3.5vw, 3.3rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      font-weight: 600;
+    }
+
+    .lede p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.8;
+      font-size: 16px;
+      max-width: 700px;
+    }
+
+    .margin-note {
+      display: grid;
+      gap: 12px;
+      padding: 22px;
+      border: 1px solid rgba(31,39,36,0.14);
+      border-radius: var(--radius-sm);
+      background: linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,255,255,0.22));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .margin-note::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 6px;
+      background: linear-gradient(180deg, var(--forest), rgba(31,74,69,0.18));
+    }
+
+    .margin-note strong {
+      font-family: var(--display);
+      font-size: 28px;
+      line-height: 1.05;
+      font-weight: 600;
+      max-width: 230px;
+    }
+
+    .margin-note p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .metrics-band {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .metric {
+      padding: 22px 20px 20px;
+      border-radius: 22px;
+      border: 1px solid rgba(31,39,36,0.14);
+      background: rgba(255,255,255,0.36);
+      min-height: 162px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric::after {
+      content: "";
+      position: absolute;
+      inset: auto 20px 16px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(31,39,36,0.18), transparent);
+    }
+
+    .metric.primary {
+      background: linear-gradient(135deg, rgba(31,74,69,0.92), rgba(32,58,53,0.94));
+      color: #f4ecdf;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .metric.primary label,
+    .metric.primary .meta,
+    .metric.primary .caption {
+      color: rgba(244,236,223,0.72);
+    }
+
+    .metric strong {
+      font-family: var(--display);
+      font-size: clamp(2.3rem, 4vw, 4rem);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      font-weight: 600;
+      margin: 14px 0 10px;
+    }
+
+    .metric .caption,
+    .metric .meta {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink-soft);
+      max-width: 240px;
+    }
+
+    .metric .meta {
+      font-family: var(--mono);
+      letter-spacing: 0.03em;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .analysis-grid,
+    .settings-grid,
+    .story-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.32fr) minmax(310px, 0.68fr);
+      gap: clamp(18px, 2vw, 28px);
+      align-items: start;
+    }
+
+    .analysis-card,
+    .settings-card,
+    .story-card,
+    .inspector {
+      padding: 24px;
+      border-radius: 26px;
+      border: 1px solid rgba(31,39,36,0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.52), rgba(255,255,255,0.22));
+    }
+
+    .analysis-card .subhead,
+    .settings-card .subhead,
+    .story-card .subhead,
+    .inspector .subhead {
+      margin: 12px 0 0;
+      color: var(--ink-soft);
+      line-height: 1.75;
+      font-size: 15px;
+      max-width: 720px;
+    }
+
+    .chart-frame {
+      margin-top: 26px;
+      padding: 16px 18px 22px;
+      border-radius: 22px;
+      border: 1px solid rgba(31,39,36,0.14);
+      background: linear-gradient(180deg, rgba(245,240,231,0.88), rgba(255,255,255,0.52));
+    }
+
+    .chart-topline,
+    .settings-topline,
+    .story-topline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(31,39,36,0.12);
+      color: var(--ink-soft);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .chart-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    svg { display: block; width: 100%; height: auto; }
+
+    .chart-note {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .chart-note div {
+      padding: 14px 14px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.54);
+      border: 1px solid rgba(31,39,36,0.1);
+    }
+
+    .chart-note strong {
+      display: block;
+      font-family: var(--display);
+      font-size: 22px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .chart-note p,
+    .inspector p,
+    .story-card p,
+    .subgrid p,
+    .settings-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .inspector {
+      display: grid;
+      gap: 18px;
+    }
+
+    .inspector h3 {
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+    }
+
+    .score-pill {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(31,74,69,0.18);
+      background: rgba(31,74,69,0.08);
+      color: var(--forest);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .score-pill::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .inspection-list,
+    .settings-list,
+    .story-points {
+      display: grid;
+      gap: 14px;
+    }
+
+    .inspection-list article,
+    .subgrid article,
+    .settings-row,
+    .story-points article {
+      display: grid;
+      gap: 8px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(31,39,36,0.12);
+    }
+
+    .inspection-list article:first-child,
+    .subgrid article:first-child,
+    .settings-row:first-child,
+    .story-points article:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .inspection-list strong,
+    .subgrid strong,
+    .settings-row strong,
+    .story-points strong {
+      font-family: var(--display);
+      font-size: 24px;
+      line-height: 1.05;
+      font-weight: 600;
+    }
+
+    .settings-card h3,
+    .story-card h3 {
+      font-size: clamp(1.9rem, 3vw, 2.9rem);
+    }
+
+    .settings-list {
+      margin-top: 22px;
+    }
+
+    .settings-row {
+      grid-template-columns: minmax(0, 1fr) 110px;
+      align-items: end;
+      gap: 14px;
+    }
+
+    .settings-row .value {
+      justify-self: end;
+      font-family: var(--display);
+      font-size: 26px;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .track {
+      grid-column: 1 / -1;
+      position: relative;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(31,39,36,0.09);
+    }
+
+    .track span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--forest), var(--chart-b));
+    }
+
+    .subgrid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .story-card {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(155deg, rgba(124,61,54,0.08), transparent 40%),
+        linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,255,255,0.22));
+    }
+
+    .story-card::after {
+      content: "";
+      position: absolute;
+      top: -48px;
+      right: -18px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 1px solid rgba(124,61,54,0.12);
+      box-shadow: inset 0 0 0 22px rgba(124,61,54,0.04);
+    }
+
+    .story-points {
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .foot {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px 18px;
+      padding: 14px clamp(18px, 2vw, 34px) 18px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.18);
+    }
+
+    @media (max-width: 1180px) {
+      .masthead,
+      .layout,
+      .hero-grid,
+      .analysis-grid,
+      .settings-grid,
+      .story-grid,
+      .metrics-band {
+        grid-template-columns: 1fr;
+      }
+
+      .masthead > * {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .masthead > *:last-child { border-bottom: 0; }
+
+      .rail {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .chart-note {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .prototype-shell {
+        width: min(100% - 12px, 100%);
+        margin: 6px auto;
+        border-radius: 24px;
+      }
+
+      .topline {
+        grid-template-columns: 1fr;
+        justify-items: start;
+      }
+
+      .topline .center-mark { justify-self: start; }
+
+      .section,
+      .masthead > *,
+      .ribbon-nav {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .title-block h1 {
+        font-size: clamp(3rem, 15vw, 4.5rem);
+      }
+
+      .metrics-band {
+        gap: 12px;
+      }
+
+      .metric,
+      .analysis-card,
+      .settings-card,
+      .story-card,
+      .inspector,
+      .margin-note {
+        padding: 18px;
+        border-radius: 20px;
+      }
+
+      .settings-row {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-row .value {
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="prototype-shell">
+    <section class="topline">
+      <div>Rilo Analysis • Premium Editorial Prototype • March Issue</div>
+      <div class="center-mark">Pet Compound Economics / Atelier View</div>
+      <div style="text-align:right;">Static Concept • No Live Inputs • Materially New Direction</div>
+    </section>
+
+    <section class="masthead">
+      <div class="brand-stack">
+        <div>
+          <div class="brand-kicker">Brand Mark</div>
+          <div class="seal">R</div>
+        </div>
+        <div class="folio">
+          <span>Edition 03</span>
+          <span>Shanghai</span>
+        </div>
+      </div>
+
+      <div class="title-block">
+        <div class="brand-kicker">宠物综合体经营分析 / Editorial Operating Ledger</div>
+        <h1>Rilo<br />Analysis</h1>
+        <p>
+          A quieter, more premium direction for the product: part editorial spread, part operating memorandum.
+          The experience treats business inputs as a curated brief instead of a dense dashboard, giving strategy,
+          revenue mix, and operating posture more visual ceremony.
+        </p>
+      </div>
+
+      <div class="edition-note">
+        <div>
+          <div class="edition-kicker">Issue Focus</div>
+          <strong>From spreadsheet utility to investment-grade presentation.</strong>
+        </div>
+        <p>
+          The interface leans on warm paper tones, serif hierarchy, annotation rails, and measured contrast.
+          It is intentionally unlike a generic AI finance dashboard or a default SaaS admin panel.
+        </p>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="rail">
+        <div class="rail-title">Page Nav</div>
+        <nav class="nav-list">
+          <div class="nav-item active">
+            <span class="index">01</span>
+            <span class="name">Overview</span>
+            <span class="state"></span>
+          </div>
+          <div class="nav-item">
+            <span class="index">02</span>
+            <span class="name">Assumptions</span>
+            <span class="state"></span>
+          </div>
+          <div class="nav-item">
+            <span class="index">03</span>
+            <span class="name">Analysis</span>
+            <span class="state"></span>
+          </div>
+          <div class="nav-item">
+            <span class="index">04</span>
+            <span class="name">Scenarios</span>
+            <span class="state"></span>
+          </div>
+          <div class="nav-item">
+            <span class="index">05</span>
+            <span class="name">Appendix</span>
+            <span class="state"></span>
+          </div>
+        </nav>
+
+        <div class="rail-note">
+          <strong>Design premise</strong>
+          <p>
+            Settings read like a printed operating brief, key figures feel collectible, and analysis panels read
+            like an analyst’s margin notes rather than a widget gallery.
+          </p>
+        </div>
+      </aside>
+
+      <div class="content">
+        <div class="ribbon-nav">
+          <div class="ribbon-links">
+            <span class="active">Investment Summary</span>
+            <span>Revenue Architecture</span>
+            <span>Cost Posture</span>
+            <span>Capacity</span>
+            <span>Capital Plan</span>
+          </div>
+          <div class="status-chip">Base Case • Reviewed / 2026.03</div>
+        </div>
+
+        <section class="section">
+          <div class="hero-grid">
+            <div class="lede">
+              <div class="panel-label">Overview</div>
+              <h2>A calmer operating story, with more room for conviction.</h2>
+              <p>
+                Instead of opening with dense controls, the page opens like a board-ready memo: what kind of asset this is,
+                why the economic profile matters, and where attention should go next. The visual rhythm is deliberate—large
+                display moments for core numbers, smaller annotated notes for context, and generous whitespace to let each
+                section breathe.
+              </p>
+            </div>
+
+            <aside class="margin-note">
+              <span class="panel-label">Margin Comment</span>
+              <strong>Best when used in founder reviews, investor prep, and concept validation.</strong>
+              <p>
+                This direction is about perceived rigor. It trades a little density for clarity, taste, and a more premium
+                sense of trust.
+              </p>
+            </aside>
+          </div>
+
+          <div class="metrics-band">
+            <article class="metric primary">
+              <div>
+                <label>Projected EBITDA Margin</label>
+                <strong>31.4%</strong>
+                <div class="caption">Healthy enough to feel deliberate, not inflated. Framed as an operating thesis instead of a KPI tile.</div>
+              </div>
+              <div class="meta">Target profile / mature year / base case</div>
+            </article>
+
+            <article class="metric">
+              <div>
+                <label>Annual Revenue</label>
+                <strong>¥18.6M</strong>
+                <div class="caption">Member-led recurring income anchors the mix.</div>
+              </div>
+              <div class="meta">+12% vs prior planning draft</div>
+            </article>
+
+            <article class="metric">
+              <div>
+                <label>Payback Window</label>
+                <strong>27 mo</strong>
+                <div class="caption">Capital recovery expressed with memo-like restraint.</div>
+              </div>
+              <div class="meta">Renovation + equipment basis</div>
+            </article>
+
+            <article class="metric">
+              <div>
+                <label>Utilisation Threshold</label>
+                <strong>62%</strong>
+                <div class="caption">A practical occupancy line with room for premium pricing.</div>
+              </div>
+              <div class="meta">Boarding breakeven marker</div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="settings-grid">
+            <article class="settings-card">
+              <span class="eyebrow">Settings-like Area</span>
+              <h3>Operating frame presented like a refined briefing sheet.</h3>
+              <p class="subhead">
+                Inputs are visualised as calibrated editorial rows instead of dense form blocks. The goal is not interaction here,
+                but a sense of deliberate configuration: every assumption feels chosen, ranked, and legible.
+              </p>
+
+              <div class="settings-list">
+                <div class="settings-row">
+                  <div>
+                    <strong>Footprint / 营业面积</strong>
+                    <p>Two-floor flagship layout with enough breadth to support hospitality, wellness, and medical cross-sell.</p>
+                  </div>
+                  <div class="value">2,400㎡</div>
+                  <div class="track"><span style="width: 76%;"></span></div>
+                </div>
+
+                <div class="settings-row">
+                  <div>
+                    <strong>Membership share</strong>
+                    <p>Base and premium tiers are treated as the stabilising engine, not a side product.</p>
+                  </div>
+                  <div class="value">54%</div>
+                  <div class="track"><span style="width: 54%; background: linear-gradient(90deg, var(--forest), var(--gold));"></span></div>
+                </div>
+
+                <div class="settings-row">
+                  <div>
+                    <strong>Boarding utilisation</strong>
+                    <p>Held below a hard sell-out narrative to preserve service quality and pricing integrity.</p>
+                  </div>
+                  <div class="value">68%</div>
+                  <div class="track"><span style="width: 68%; background: linear-gradient(90deg, var(--forest), var(--chart-b));"></span></div>
+                </div>
+
+                <div class="settings-row">
+                  <div>
+                    <strong>Headcount plan</strong>
+                    <p>Staffing model supports front-of-house polish while keeping labour disciplined against revenue density.</p>
+                  </div>
+                  <div class="value">31 FTE</div>
+                  <div class="track"><span style="width: 62%; background: linear-gradient(90deg, var(--merlot), var(--chart-b));"></span></div>
+                </div>
+              </div>
+            </article>
+
+            <aside class="subgrid">
+              <article>
+                <span class="eyebrow">Input posture</span>
+                <strong>Assumptions feel curated, not dumped.</strong>
+                <p>The visual language borrows from print ledgers and luxury hospitality tear-sheets: slim rules, careful spacing, and values that feel benchmarked.</p>
+              </article>
+              <article>
+                <span class="eyebrow">Density control</span>
+                <strong>Fewer boxes. Stronger hierarchy.</strong>
+                <p>The layout avoids nested cards and default UI chrome. Structure comes from rhythm, columns, and typographic contrast.</p>
+              </article>
+              <article>
+                <span class="eyebrow">Best contrast</span>
+                <strong>Warm paper + deep forest + merlot accents.</strong>
+                <p>A deliberate move away from neon dark dashboards and blue SaaS palettes. It feels more editorial, more tactile, and more premium.</p>
+              </article>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="analysis-grid">
+            <article class="analysis-card">
+              <span class="eyebrow">Analysis-like Area</span>
+              <h3>Revenue mix and cost posture, staged as an analyst’s desk view.</h3>
+              <p class="subhead">
+                The chart uses restrained color, precise annotation, and a wide reading surface. It privileges comparison and reading comfort over decorative motion.
+              </p>
+
+              <div class="chart-frame">
+                <div class="chart-topline">
+                  <span>Performance contour / 12-month cadence</span>
+                  <div class="legend">
+                    <span style="color: var(--chart-a);"><i></i> Revenue</span>
+                    <span style="color: var(--chart-b);"><i></i> Gross Profit</span>
+                    <span style="color: var(--merlot);"><i></i> Fixed Cost Line</span>
+                  </div>
+                </div>
+
+                <div class="chart-wrap">
+                  <svg viewBox="0 0 920 420" aria-label="Editorial style revenue analysis chart" role="img">
+                    <defs>
+                      <linearGradient id="areaRevenue" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#2d5a53" stop-opacity="0.28" />
+                        <stop offset="100%" stop-color="#2d5a53" stop-opacity="0.04" />
+                      </linearGradient>
+                      <linearGradient id="areaProfit" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#b6744e" stop-opacity="0.22" />
+                        <stop offset="100%" stop-color="#b6744e" stop-opacity="0.02" />
+                      </linearGradient>
+                    </defs>
+
+                    <rect x="0" y="0" width="920" height="420" fill="transparent" rx="20" />
+
+                    <g stroke="rgba(31,39,36,0.12)" stroke-width="1">
+                      <line x1="76" y1="64" x2="876" y2="64" />
+                      <line x1="76" y1="128" x2="876" y2="128" />
+                      <line x1="76" y1="192" x2="876" y2="192" />
+                      <line x1="76" y1="256" x2="876" y2="256" />
+                      <line x1="76" y1="320" x2="876" y2="320" />
+                      <line x1="76" y1="384" x2="876" y2="384" />
+                    </g>
+
+                    <g font-family="Avenir Next, Segoe UI, sans-serif" font-size="12" fill="#5a625e" letter-spacing="0.08em">
+                      <text x="34" y="68">18M</text>
+                      <text x="34" y="132">15M</text>
+                      <text x="34" y="196">12M</text>
+                      <text x="34" y="260">9M</text>
+                      <text x="34" y="324">6M</text>
+                      <text x="34" y="388">3M</text>
+                    </g>
+
+                    <path d="M76 362 C140 332, 180 308, 220 278 S320 214, 368 202 S462 174, 510 160 S620 134, 670 122 S772 98, 828 84 L828 384 L76 384 Z" fill="url(#areaRevenue)" />
+                    <path d="M76 378 C150 356, 198 338, 238 322 S332 286, 382 272 S470 248, 522 236 S620 220, 678 204 S772 180, 828 164 L828 384 L76 384 Z" fill="url(#areaProfit)" />
+
+                    <path d="M76 362 C140 332, 180 308, 220 278 S320 214, 368 202 S462 174, 510 160 S620 134, 670 122 S772 98, 828 84" fill="none" stroke="#254b45" stroke-width="5" stroke-linecap="round" />
+                    <path d="M76 378 C150 356, 198 338, 238 322 S332 286, 382 272 S470 248, 522 236 S620 220, 678 204 S772 180, 828 164" fill="none" stroke="#b6744e" stroke-width="4" stroke-linecap="round" />
+                    <path d="M76 296 L828 296" fill="none" stroke="#7c3d36" stroke-width="2.5" stroke-dasharray="8 8" />
+
+                    <g fill="#f5f0e7" stroke="#254b45" stroke-width="3">
+                      <circle cx="220" cy="278" r="8" />
+                      <circle cx="510" cy="160" r="8" />
+                      <circle cx="828" cy="84" r="8" />
+                    </g>
+
+                    <g fill="#f5f0e7" stroke="#b6744e" stroke-width="3">
+                      <circle cx="382" cy="272" r="7" />
+                      <circle cx="678" cy="204" r="7" />
+                    </g>
+
+                    <g font-family="Iowan Old Style, Georgia, serif" fill="#1f2724">
+                      <text x="198" y="250" font-size="18">Membership momentum locks in</text>
+                      <text x="486" y="132" font-size="18">Margin widens after service mix improves</text>
+                      <text x="650" y="282" font-size="18">Fixed cost line stays intentionally calm</text>
+                    </g>
+
+                    <g stroke="#1f2724" stroke-width="1.2">
+                      <line x1="232" y1="258" x2="220" y2="278" />
+                      <line x1="582" y1="140" x2="510" y2="160" />
+                      <line x1="726" y1="274" x2="682" y2="296" />
+                    </g>
+
+                    <g font-family="Avenir Next, Segoe UI, sans-serif" font-size="12" fill="#5a625e" letter-spacing="0.08em">
+                      <text x="90" y="408">JAN</text>
+                      <text x="162" y="408">FEB</text>
+                      <text x="234" y="408">MAR</text>
+                      <text x="306" y="408">APR</text>
+                      <text x="378" y="408">MAY</text>
+                      <text x="450" y="408">JUN</text>
+                      <text x="522" y="408">JUL</text>
+                      <text x="594" y="408">AUG</text>
+                      <text x="666" y="408">SEP</text>
+                      <text x="738" y="408">OCT</text>
+                      <text x="810" y="408">NOV–DEC</text>
+                    </g>
+                  </svg>
+                </div>
+
+                <div class="chart-note">
+                  <div>
+                    <strong>¥6.4M</strong>
+                    <p>Member-led annual run-rate by mid-year, giving the operating story a recurring backbone.</p>
+                  </div>
+                  <div>
+                    <strong>3.1x</strong>
+                    <p>Gross profit grows faster than cost burden once service mix leans higher-ticket.</p>
+                  </div>
+                  <div>
+                    <strong>Q3</strong>
+                    <p>The visual narrative marks when confidence shifts from setup mode to disciplined scaling.</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <aside class="inspector">
+              <span class="eyebrow">Inspector</span>
+              <h3>Annotated takeaways instead of a side stack of widgets.</h3>
+              <div class="score-pill">Conviction Score • High</div>
+              <p class="subhead">
+                The right rail acts like an analyst’s notebook. It holds decisions, cautions, and narrative synthesis—making the page feel authored.
+              </p>
+
+              <div class="inspection-list">
+                <article>
+                  <strong>01 — Revenue quality over volume.</strong>
+                  <p>Membership and medical are framed as high-trust anchors, while retail stays present but visually subordinate.</p>
+                </article>
+                <article>
+                  <strong>02 — Cost line is readable at a glance.</strong>
+                  <p>One disciplined reference line replaces multiple noisy badges, helping operators see when the business truly starts to breathe.</p>
+                </article>
+                <article>
+                  <strong>03 — Notes carry the strategy.</strong>
+                  <p>Instead of tooltips and micro-panels, the interface uses confident written observations to make the prototype feel more premium and more human.</p>
+                </article>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="story-grid">
+            <article class="story-card">
+              <div class="story-topline">
+                <span>Decision Narrative</span>
+                <span>Why this direction feels materially different</span>
+              </div>
+              <span class="eyebrow">Editorial finish</span>
+              <h3>A UI concept that behaves more like a premium report than a generic web app.</h3>
+              <p class="subhead">
+                The prototype rejects the usual recipe—no purple/blue gradients, no stacked cards inside cards, no glowing data widgets.
+                It borrows from luxury hospitality, financial magazines, and printed investment briefs to feel slower, more composed, and more expensive.
+              </p>
+              <div class="story-points">
+                <article>
+                  <strong>Typography does the heavy lifting.</strong>
+                  <p>A serif display gives the product a point of view, while the sans layer keeps captions and labels quietly operational.</p>
+                </article>
+                <article>
+                  <strong>The canvas is warm, not clinical.</strong>
+                  <p>Paper tones and softened rules help financial content feel intentional instead of sterile.</p>
+                </article>
+                <article>
+                  <strong>The whole page reads top to bottom.</strong>
+                  <p>It is easier to imagine this in strategy reviews, brand presentations, or investor-facing discussions than a default admin shell.</p>
+                </article>
+              </div>
+            </article>
+
+            <aside class="subgrid">
+              <article>
+                <span class="eyebrow">Suitable next steps</span>
+                <strong>Prototype the remaining views in the same language.</strong>
+                <p>Scenario comparison, module inputs, and breakeven views could all inherit the same editorial grid without touching the live app.</p>
+              </article>
+              <article>
+                <span class="eyebrow">Constraint respected</span>
+                <strong>Main application files remain untouched.</strong>
+                <p>This concept is isolated as a standalone HTML file, self-contained, and safe to open locally without changing the existing product build.</p>
+              </article>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span>Standalone local prototype • No external assets</span>
+      <span>Open directly in browser • prototypes/rilo-editorial-premium-prototype.html</span>
+    </footer>
+  </main>
+</body>
+</html>

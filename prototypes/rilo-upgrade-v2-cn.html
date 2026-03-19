@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rilo Analysis 原型 v3</title>
+  <style>
+    :root {
+      --rilo-accent: #2563eb;
+      --rilo-accent-2: #3b82f6;
+      --rilo-accent-3: #93c5fd;
+      --rilo-accent-soft: rgba(37, 99, 235, 0.14);
+      --rilo-bg: #07111f;
+      --rilo-bg-2: #0b1728;
+      --rilo-panel: #0f1f35;
+      --rilo-panel-2: #122743;
+      --rilo-panel-3: #162e4f;
+      --rilo-line: rgba(147, 197, 253, 0.16);
+      --rilo-line-strong: rgba(147, 197, 253, 0.28);
+      --rilo-text: #e8f0ff;
+      --rilo-text-2: #bfd1ef;
+      --rilo-text-3: #86a0c5;
+      --rilo-green: #34d399;
+      --rilo-yellow: #fbbf24;
+      --rilo-red: #f87171;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --shadow: 0 24px 60px rgba(3, 10, 22, 0.46);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 28%),
+        radial-gradient(circle at right 10%, rgba(59, 130, 246, 0.16), transparent 22%),
+        linear-gradient(180deg, #07101d 0%, #091320 100%);
+      color: var(--rilo-text);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(rgba(255,255,255,0.015), rgba(255,255,255,0.015)) 0 0 / 100% 1px no-repeat;
+      opacity: 0.6;
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(1480px, calc(100% - 28px));
+      margin: 14px auto;
+      border: 1px solid rgba(147, 197, 253, 0.14);
+      border-radius: 30px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(7,17,31,0.96), rgba(10,22,38,0.96));
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--rilo-line);
+      background: rgba(12, 25, 44, 0.9);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--rilo-accent), #1d4ed8);
+      color: white;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.36);
+    }
+
+    .brand-copy h1 { margin: 0; font-size: 18px; line-height: 1.2; font-weight: 700; }
+    .brand-copy p { margin: 4px 0 0; color: var(--rilo-text-3); font-size: 13px; }
+
+    .top-actions, .quick-actions, .toolbar-row, .kpi-grid, .signal-grid, .scenario-grid, .toolbar-line, .field-grid, .term-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn, .app-tab, .panel-tab {
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.02);
+      color: var(--rilo-text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover, .btn:focus-visible, .app-tab:hover, .panel-tab:hover {
+      border-color: var(--rilo-line-strong);
+      background: rgba(255,255,255,0.05);
+      outline: none;
+    }
+
+    .btn.primary, .app-tab.active, .panel-tab.active, .chip.active {
+      background: linear-gradient(180deg, var(--rilo-accent-2), var(--rilo-accent));
+      border-color: rgba(96, 165, 250, 0.3);
+      color: white;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+    }
+
+    .app-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--rilo-line);
+      background: linear-gradient(180deg, rgba(9,18,34,0.95), rgba(9,18,34,0.72));
+    }
+
+    .page {
+      display: none;
+      grid-template-columns: minmax(0, 1.7fr) 360px;
+      gap: 20px;
+      padding: 24px;
+      align-items: start;
+    }
+
+    .page.active { display: grid; }
+    .stack { display: grid; gap: 20px; min-width: 0; }
+
+    .card {
+      border: 1px solid var(--rilo-line);
+      background: linear-gradient(180deg, rgba(16,31,52,0.96), rgba(13,25,43,0.96));
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .card-header h2, .card-header h3, .hero-copy h2 { margin: 0; line-height: 1.15; }
+    .card-header h2, .hero-copy h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; }
+    .card-header h3 { font-size: 20px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--rilo-text-3);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rilo-accent-2);
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.16);
+    }
+
+    .muted { color: var(--rilo-text-2); line-height: 1.7; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 18px; }
+    .hero-copy p { margin: 12px 0 0; color: var(--rilo-text-2); line-height: 1.8; }
+
+    .hero-side, .calc-panel {
+      border: 1px solid rgba(147, 197, 253, 0.14);
+      border-radius: 20px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(37,99,235,0.12), rgba(37,99,235,0.05));
+    }
+
+    .hero-side .big { font-size: 36px; font-weight: 800; line-height: 1; }
+    .hero-side .sub { margin-top: 10px; color: var(--rilo-text-2); line-height: 1.6; }
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--rilo-line);
+      color: var(--rilo-text-2);
+      background: rgba(255,255,255,0.03);
+      font-size: 13px;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .kpi {
+      text-align: left;
+      border: 1px solid var(--rilo-line);
+      background: linear-gradient(180deg, rgba(15,31,53,0.96), rgba(13,25,43,0.96));
+      border-radius: 18px;
+      padding: 18px;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .kpi .label { color: var(--rilo-text-3); font-size: 13px; }
+    .kpi .value { margin-top: 10px; font-size: 28px; font-weight: 800; }
+    .kpi .meta { margin-top: 10px; color: var(--rilo-text-2); font-size: 13px; }
+
+    .chart-wrap {
+      border-radius: 18px;
+      border: 1px solid var(--rilo-line);
+      background: rgba(8, 17, 31, 0.55);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .legend, .panel-tabs, .toolbar-inline, .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--rilo-text-2);
+      font-size: 13px;
+    }
+
+    .legend i {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: currentColor;
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+    }
+
+    .signal-box {
+      border: 1px solid var(--rilo-line);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(7,17,31,0.38);
+    }
+
+    .signal-box h4 { margin: 0 0 12px; font-size: 18px; }
+    .signal-list { display: grid; gap: 12px; }
+    .signal-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(147, 197, 253, 0.1);
+    }
+    .signal-item:last-child { padding-bottom: 0; border-bottom: 0; }
+    .signal-item strong { display: block; margin-bottom: 4px; }
+    .signal-tag { font-size: 12px; padding: 5px 8px; border-radius: 999px; white-space: nowrap; }
+    .signal-tag.green { background: rgba(52, 211, 153, 0.15); color: #8cf0c8; }
+    .signal-tag.yellow { background: rgba(251, 191, 36, 0.15); color: #fcd875; }
+    .signal-tag.red { background: rgba(248, 113, 113, 0.15); color: #fda4a4; }
+
+    .calc-panel { position: sticky; top: 16px; display: grid; gap: 16px; }
+    .calc-panel h3 { margin: 0; font-size: 24px; }
+    .panel-body { display: none; }
+    .panel-body.active { display: block; }
+    .panel-list, .detail-list, .term-list, .setting-list, .sensitivity-list, .table { display: grid; gap: 12px; }
+
+    .panel-stat, .detail-row, .term-item, .setting-row, .scenario-card, .table-row {
+      border: 1px solid var(--rilo-line);
+      border-radius: 16px;
+      background: rgba(7,17,31,0.42);
+      padding: 14px;
+    }
+
+    .panel-stat strong, .detail-row strong, .term-item strong, .setting-row strong, .scenario-card strong { display: block; margin-bottom: 6px; }
+    .panel-stat .num { font-size: 28px; font-weight: 800; margin: 4px 0; }
+    .delta { color: #8fc3ff; font-size: 13px; }
+
+    .linkish {
+      color: var(--rilo-accent-3);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: help;
+    }
+
+    .hint {
+      border: 1px dashed rgba(147, 197, 253, 0.24);
+      border-radius: 16px;
+      padding: 14px 16px;
+      color: var(--rilo-text-2);
+      background: rgba(37,99,235,0.08);
+    }
+
+    .toolbar-line { justify-content: space-between; align-items: center; }
+    .search {
+      flex: 1 1 280px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--rilo-line);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      padding: 10px 14px;
+    }
+
+    .search input, .field input, .field select {
+      width: 100%;
+      background: transparent;
+      border: 0;
+      color: var(--rilo-text);
+      outline: none;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--rilo-line);
+      color: var(--rilo-text-2);
+      cursor: pointer;
+    }
+
+    .pill.active { background: var(--rilo-accent-soft); color: white; border-color: rgba(96,165,250,0.32); }
+
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .field label { display: block; color: var(--rilo-text-3); font-size: 13px; margin-bottom: 8px; }
+    .field input, .field select {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--rilo-line);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .row-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr 0.7fr 0.7fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bar-chart { display: grid; gap: 12px; }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr) 80px;
+      gap: 14px;
+      align-items: center;
+    }
+    .bar-track {
+      height: 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+    .bar-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #60a5fa, #93c5fd);
+    }
+
+    .table-head, .table-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 0.9fr 0.9fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .table-head {
+      color: var(--rilo-text-3);
+      font-size: 13px;
+      padding: 0 14px;
+    }
+
+    .footer-note {
+      padding: 0 24px 24px;
+      color: var(--rilo-text-3);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1180px) {
+      .page, .signal-grid, .hero { grid-template-columns: 1fr; }
+      .calc-panel { position: static; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 780px) {
+      .app { width: min(100%, calc(100% - 16px)); margin: 8px auto; border-radius: 22px; }
+      .topbar, .app-tabs, .page, .footer-note { padding-left: 16px; padding-right: 16px; }
+      .kpis, .field-grid, .row-grid, .table-head, .table-row, .bar-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">R</div>
+        <div class="brand-copy">
+          <h1>Rilo Analysis</h1>
+          <p>宠物综合体经营测算 · 原型 v3（P0 命名与计算面板对齐）</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn" type="button" data-open-panel="terms">术语</button>
+        <button class="btn" type="button">导出数据</button>
+        <button class="btn primary" type="button" data-open-page="settings">去参数设置</button>
+      </div>
+    </header>
+
+    <nav class="app-tabs" aria-label="主导航">
+      <button class="app-tab active" type="button" data-page-tab="overview">总览</button>
+      <button class="app-tab" type="button" data-page-tab="settings">参数设置</button>
+      <button class="app-tab" type="button" data-page-tab="sensitivity">敏感度分析</button>
+    </nav>
+
+    <section id="page-overview" class="page active">
+      <div class="stack">
+        <article class="card">
+          <div class="hero">
+            <div class="hero-copy">
+              <div class="eyebrow">总览</div>
+              <h2>先判断能不能赚钱，再决定要改哪几个参数。</h2>
+              <p>
+                首屏只保留结论、4 个 KPI、1 张主图和关键驱动 / 风险卡。
+                不再解释页面设计本身；需要深入时，直接去右侧计算面板看结论、明细或术语。
+              </p>
+              <div class="quick-actions" style="margin-top:18px;">
+                <button class="btn primary" type="button" data-open-page="settings">去参数设置</button>
+                <button class="btn" type="button" data-open-panel="details">看明细口径</button>
+              </div>
+            </div>
+            <aside class="hero-side">
+              <div>
+                <div class="eyebrow">当前结论</div>
+                <div class="big">2.3 年</div>
+                <div class="sub">预计回本周期。当前模型的优先杠杆是会员收入占比、寄养入住率与装修标准。</div>
+              </div>
+              <div class="toolbar-row">
+                <div class="chip active">基础情景</div>
+                <div class="chip">保守情景</div>
+                <div class="chip">进取情景</div>
+              </div>
+            </aside>
+          </div>
+        </article>
+
+        <section class="kpis" aria-label="关键指标">
+          <button class="kpi" type="button" data-open-panel="summary">
+            <div class="label">年总营收</div>
+            <div class="value">¥ 1,860 万</div>
+            <div class="meta">统一按年度口径展示</div>
+          </button>
+          <button class="kpi" type="button" data-open-panel="summary">
+            <div class="label">年净利润</div>
+            <div class="value">¥ 584 万</div>
+            <div class="meta">会员与医疗为核心利润来源</div>
+          </button>
+          <button class="kpi" type="button" data-open-panel="summary">
+            <div class="label">净利润率</div>
+            <div class="value">31.4%</div>
+            <div class="meta">与年净利润使用同一口径</div>
+          </button>
+          <button class="kpi" type="button" data-open-panel="summary">
+            <div class="label">回本周期</div>
+            <div class="value">2.3 年</div>
+            <div class="meta">全页统一为“年”，不再重复月/年混用</div>
+          </button>
+        </section>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">主图</div>
+              <h3>年度经营趋势</h3>
+            </div>
+            <div class="legend">
+              <span style="color:#60a5fa"><i></i>营收</span>
+              <span style="color:#93c5fd"><i></i>毛利</span>
+              <span style="color:#fbbf24"><i></i>固定成本线</span>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg viewBox="0 0 960 360" role="img" aria-label="年度经营趋势图">
+              <defs>
+                <linearGradient id="area1" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.32" />
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.02" />
+                </linearGradient>
+                <linearGradient id="area2" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.24" />
+                  <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              <g stroke="rgba(147,197,253,0.12)" stroke-width="1">
+                <line x1="60" y1="48" x2="920" y2="48"></line>
+                <line x1="60" y1="104" x2="920" y2="104"></line>
+                <line x1="60" y1="160" x2="920" y2="160"></line>
+                <line x1="60" y1="216" x2="920" y2="216"></line>
+                <line x1="60" y1="272" x2="920" y2="272"></line>
+                <line x1="60" y1="328" x2="920" y2="328"></line>
+              </g>
+              <g fill="#7fa3d9" font-size="12" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+                <text x="16" y="52">1800</text>
+                <text x="16" y="108">1500</text>
+                <text x="16" y="164">1200</text>
+                <text x="16" y="220">900</text>
+                <text x="24" y="276">600</text>
+                <text x="24" y="332">300</text>
+              </g>
+              <path d="M60 304 C120 284, 164 250, 212 236 S332 190, 392 168 S496 146, 554 126 S680 108, 748 90 S850 74, 920 58 L920 328 L60 328 Z" fill="url(#area1)"></path>
+              <path d="M60 318 C126 304, 180 286, 236 270 S344 234, 404 212 S506 196, 566 182 S680 166, 748 150 S852 136, 920 122 L920 328 L60 328 Z" fill="url(#area2)"></path>
+              <path d="M60 304 C120 284, 164 250, 212 236 S332 190, 392 168 S496 146, 554 126 S680 108, 748 90 S850 74, 920 58" fill="none" stroke="#60a5fa" stroke-width="4" stroke-linecap="round"></path>
+              <path d="M60 318 C126 304, 180 286, 236 270 S344 234, 404 212 S506 196, 566 182 S680 166, 748 150 S852 136, 920 122" fill="none" stroke="#93c5fd" stroke-width="3.5" stroke-linecap="round"></path>
+              <path d="M60 232 L920 232" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="8 8"></path>
+              <g fill="#7fa3d9" font-size="12" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+                <text x="62" y="348">1月</text>
+                <text x="152" y="348">2月</text>
+                <text x="242" y="348">3月</text>
+                <text x="332" y="348">4月</text>
+                <text x="422" y="348">5月</text>
+                <text x="512" y="348">6月</text>
+                <text x="602" y="348">7月</text>
+                <text x="692" y="348">8月</text>
+                <text x="782" y="348">9月</text>
+                <text x="868" y="348">10-12月</text>
+              </g>
+            </svg>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">关键驱动 / 风险</div>
+              <h3>只保留最影响决策的 5 条信号</h3>
+            </div>
+            <button class="btn primary" type="button" data-open-page="settings">去参数设置</button>
+          </div>
+          <div class="signal-grid">
+            <div class="signal-box">
+              <h4>关键驱动</h4>
+              <div class="signal-list">
+                <div class="signal-item">
+                  <div>
+                    <strong>会员收入占比 54%</strong>
+                    <span class="muted">稳定性高，直接支撑基础现金流，是年净利润的首要驱动。</span>
+                  </div>
+                  <span class="signal-tag green">高影响</span>
+                </div>
+                <div class="signal-item">
+                  <div>
+                    <strong>寄养入住率 68%</strong>
+                    <span class="muted">每上调 1%，年总营收约增加 22 万，优先级仅次于会员结构。</span>
+                  </div>
+                  <span class="signal-tag green">高影响</span>
+                </div>
+                <div class="signal-item">
+                  <div>
+                    <strong>医疗转化率 18%</strong>
+                    <span class="muted">毛利贡献高，决定净利润率是否能稳住 30% 以上。</span>
+                  </div>
+                  <span class="signal-tag yellow">中高</span>
+                </div>
+              </div>
+            </div>
+            <div class="signal-box">
+              <h4>风险提醒</h4>
+              <div class="signal-list">
+                <div class="signal-item">
+                  <div>
+                    <strong>装修标准 4,800 元 / ㎡</strong>
+                    <span class="muted">若不压缩，回本周期会从 2.3 年拉长至接近 2.7 年。</span>
+                  </div>
+                  <span class="signal-tag red">投资风险</span>
+                </div>
+                <div class="signal-item">
+                  <div>
+                    <strong>租金单价 8.4 元 / ㎡ / 天</strong>
+                    <span class="muted">租金与物业若一起上浮，会明显侵蚀年净利润。</span>
+                  </div>
+                  <span class="signal-tag yellow">成本风险</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="calc-panel">
+        <div>
+          <div class="eyebrow">计算面板</div>
+          <h3>右侧始终回答三个问题</h3>
+          <p class="muted" style="margin:8px 0 0;">先看结论；需要追公式就切明细；对陌生概念有疑问就看术语。</p>
+        </div>
+        <div class="panel-tabs" role="tablist" aria-label="计算面板标签">
+          <button class="panel-tab active" type="button" data-panel-tab="summary">结论</button>
+          <button class="panel-tab" type="button" data-panel-tab="details">明细</button>
+          <button class="panel-tab" type="button" data-panel-tab="terms">术语</button>
+        </div>
+        <div class="panel-body active" data-panel-body="summary">
+          <div class="panel-list">
+            <div class="panel-stat">
+              <strong>结论一眼看懂</strong>
+              <div class="num">能做</div>
+              <span>基础情景下，项目具备盈利能力，当前更像“可优化的好项目”，不是“需要推倒重来”。</span>
+            </div>
+            <div class="panel-stat">
+              <strong>年总营收</strong>
+              <div class="num">¥ 1,860 万</div>
+              <span class="delta">会员 + 寄养合计占比 72%</span>
+            </div>
+            <div class="panel-stat">
+              <strong>年净利润 / 回本周期</strong>
+              <div class="num">¥ 584 万 / 2.3 年</div>
+              <span class="delta">若装修降到 4,300 元 / ㎡，回本可缩短到 2.1 年</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body" data-panel-body="details">
+          <div class="detail-list">
+            <div class="detail-row">
+              <strong>收入明细</strong>
+              <span>会员 ¥ 610 万 + 寄养 ¥ 520 万 + 医疗 ¥ 410 万 + 零售/餐饮 ¥ 320 万。</span>
+            </div>
+            <div class="detail-row">
+              <strong>成本明细</strong>
+              <span>固定成本 ¥ 476 万 / 年；变动成本 ¥ 800 万 / 年；装修摊销与租金是关键变量。</span>
+            </div>
+            <div class="detail-row">
+              <strong>回本口径</strong>
+              <span>初始投资 ¥ 1,350 万 ÷ 年净现金回流 ¥ 584 万 ≈ 2.3 年，全页统一按“年”展示。</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body" data-panel-body="terms">
+          <div class="term-list">
+            <div class="term-item">
+              <strong>回本周期</strong>
+              <span>初始投资全部收回所需时间。当前原型统一用“年”，避免同页出现年/月双口径。</span>
+            </div>
+            <div class="term-item">
+              <strong>净利润率</strong>
+              <span>年净利润 ÷ 年总营收，用于判断经营质量是否足够健康。</span>
+            </div>
+            <div class="term-item">
+              <strong>入住率</strong>
+              <span>可售房晚中被售出的比例，直接影响寄养收入，是最敏感的营收杠杆之一。</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="page-settings" class="page">
+      <div class="stack">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">参数设置</div>
+              <h2>把决定结果的参数，集中到一个真正可调的面板。</h2>
+            </div>
+            <button class="btn" type="button" data-open-panel="terms">术语</button>
+          </div>
+          <div class="hint">提示：带浅蓝下划线的术语可悬停理解；想看完整定义时，点“术语”直接切到右侧计算面板。</div>
+        </article>
+
+        <article class="card">
+          <div class="toolbar-line" style="margin-bottom:16px;">
+            <div class="search" aria-label="搜索参数">
+              <span style="color:var(--rilo-text-3)">🔎</span>
+              <input type="text" placeholder="搜索参数，如：入住率、装修、会员" />
+            </div>
+            <div class="filters">
+              <button class="pill active" type="button">全部</button>
+              <button class="pill" type="button">收入</button>
+              <button class="pill" type="button">成本</button>
+              <button class="pill" type="button">投资</button>
+            </div>
+          </div>
+          <div class="setting-list">
+            <div class="setting-row">
+              <div class="row-grid">
+                <div>
+                  <strong><span class="linkish">寄养入住率</span></strong>
+                  <span class="muted">收入参数 · 房间利用效率</span>
+                </div>
+                <div>当前值：68%</div>
+                <div>目标值：72%</div>
+                <div>影响：高</div>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="row-grid">
+                <div>
+                  <strong><span class="linkish">会员收入占比</span></strong>
+                  <span class="muted">收入参数 · 基础现金流稳定器</span>
+                </div>
+                <div>当前值：54%</div>
+                <div>目标值：58%</div>
+                <div>影响：高</div>
+              </div>
+            </div>
+            <div class="setting-row">
+              <div class="row-grid">
+                <div>
+                  <strong><span class="linkish">装修标准</span></strong>
+                  <span class="muted">投资参数 · 决定回本周期</span>
+                </div>
+                <div>当前值：4,800 元 / ㎡</div>
+                <div>目标值：4,300 元 / ㎡</div>
+                <div>影响：中高</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">批量调参</div>
+              <h3>只保留最常改的字段</h3>
+            </div>
+            <button class="btn primary" type="button" data-open-page="overview">回到总览看变化</button>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>寄养入住率</label>
+              <input type="text" value="68%" />
+            </div>
+            <div class="field">
+              <label>会员收入占比</label>
+              <input type="text" value="54%" />
+            </div>
+            <div class="field">
+              <label>租金单价</label>
+              <input type="text" value="8.4 元 / ㎡ / 天" />
+            </div>
+            <div class="field">
+              <label>装修标准</label>
+              <input type="text" value="4,800 元 / ㎡" />
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="calc-panel">
+        <div>
+          <div class="eyebrow">计算面板</div>
+          <h3>调参时默认看结论</h3>
+          <p class="muted" style="margin:8px 0 0;">每次改值后，先确认年净利润和回本周期是否仍在可接受区间。</p>
+        </div>
+        <div class="panel-tabs" role="tablist" aria-label="参数页计算面板标签">
+          <button class="panel-tab active" type="button" data-panel-tab="summary">结论</button>
+          <button class="panel-tab" type="button" data-panel-tab="details">明细</button>
+          <button class="panel-tab" type="button" data-panel-tab="terms">术语</button>
+        </div>
+        <div class="panel-body active" data-panel-body="summary">
+          <div class="panel-list">
+            <div class="panel-stat">
+              <strong>改动后的即时反馈</strong>
+              <div class="num">2.1 年</div>
+              <span>假设入住率提升到 72%、装修压到 4,300 元 / ㎡ 后，回本周期从 2.3 年缩短到 2.1 年。</span>
+            </div>
+            <div class="panel-stat">
+              <strong>年净利润</strong>
+              <div class="num">¥ 628 万</div>
+              <span class="delta">较基础情景 +44 万</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body" data-panel-body="details">
+          <div class="detail-list">
+            <div class="detail-row">
+              <strong>寄养收入变化</strong>
+              <span>入住率 68% → 72%，年寄养收入约 +31 万。</span>
+            </div>
+            <div class="detail-row">
+              <strong>投资变化</strong>
+              <span>装修标准 4,800 → 4,300 元 / ㎡，初始投资约 -85 万。</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body" data-panel-body="terms">
+          <div class="term-list">
+            <div class="term-item">
+              <strong>会员收入占比</strong>
+              <span>会员业务收入占年总营收的比例，越高通常意味着现金流更稳。</span>
+            </div>
+            <div class="term-item">
+              <strong>装修标准</strong>
+              <span>单位面积初始投入，是影响回本周期最直接的投资参数。</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section id="page-sensitivity" class="page">
+      <div class="stack">
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">敏感度分析</div>
+              <h2>确认哪些变量最值得优先盯住。</h2>
+            </div>
+            <button class="btn" type="button" data-open-page="settings">回参数设置</button>
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label>选择敏感变量</label>
+              <select>
+                <option>寄养入住率</option>
+                <option>会员收入占比</option>
+                <option>装修标准</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>观察指标</label>
+              <select>
+                <option>回本周期</option>
+                <option>年净利润</option>
+                <option>净利润率</option>
+              </select>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">影响排序</div>
+              <h3>变量对回本周期的影响强弱</h3>
+            </div>
+            <button class="btn" type="button" data-open-panel="details">看明细</button>
+          </div>
+          <div class="bar-chart">
+            <div class="bar-row">
+              <span>装修标准</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 86%;"></div></div>
+              <strong>0.42 年</strong>
+            </div>
+            <div class="bar-row">
+              <span>寄养入住率</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 72%;"></div></div>
+              <strong>0.35 年</strong>
+            </div>
+            <div class="bar-row">
+              <span>会员收入占比</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 58%;"></div></div>
+              <strong>0.27 年</strong>
+            </div>
+            <div class="bar-row">
+              <span>租金单价</span>
+              <div class="bar-track"><div class="bar-fill" style="width: 44%;"></div></div>
+              <strong>0.18 年</strong>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <div class="eyebrow">情景对比</div>
+              <h3>结论、明细、风险在同一张表里对照</h3>
+            </div>
+          </div>
+          <div class="table">
+            <div class="table-head">
+              <span>情景</span>
+              <span>年净利润</span>
+              <span>净利润率</span>
+              <span>回本周期</span>
+            </div>
+            <div class="table-row">
+              <span>基础</span>
+              <strong>¥ 584 万</strong>
+              <strong>31.4%</strong>
+              <strong>2.3 年</strong>
+            </div>
+            <div class="table-row">
+              <span>保守</span>
+              <strong>¥ 462 万</strong>
+              <strong>26.2%</strong>
+              <strong>2.8 年</strong>
+            </div>
+            <div class="table-row">
+              <span>进取</span>
+              <strong>¥ 663 万</strong>
+              <strong>34.1%</strong>
+              <strong>2.0 年</strong>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="calc-panel">
+        <div>
+          <div class="eyebrow">计算面板</div>
+          <h3>敏感度先看结论，再追变量</h3>
+          <p class="muted" style="margin:8px 0 0;">这里不重复解释图表，只回答：哪个变量最重要、影响多少、为什么。</p>
+        </div>
+        <div class="panel-tabs" role="tablist" aria-label="敏感度页计算面板标签">
+          <button class="panel-tab active" type="button" data-panel-tab="summary">结论</button>
+          <button class="panel-tab" type="button" data-panel-tab="details">明细</button>
+          <button class="panel-tab" type="button" data-panel-tab="terms">术语</button>
+        </div>
+        <div class="panel-body active" data-panel-body="summary">
+          <div class="panel-list">
+            <div class="panel-stat">
+              <strong>当前最敏感变量</strong>
+              <div class="num">装修标准</div>
+              <span>每变动 500 元 / ㎡，回本周期约变化 0.42 年。</span>
+            </div>
+            <div class="panel-stat">
+              <strong>第二敏感变量</strong>
+              <div class="num">寄养入住率</div>
+              <span class="delta">每提升 4%，回本周期可缩短约 0.35 年</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body" data-panel-body="details">
+          <div class="detail-list">
+            <div class="detail-row">
+              <strong>测算范围</strong>
+              <span>按单变量上下浮动 10% 进行模拟，其余参数保持基础情景不变。</span>
+            </div>
+            <div class="detail-row">
+              <strong>风险判断</strong>
+              <span>若装修超支与入住率下滑同时发生，回本周期可能超过 3 年，需要重点预警。</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-body" data-panel-body="terms">
+          <div class="term-list">
+            <div class="term-item">
+              <strong>敏感度</strong>
+              <span>当一个参数发生变化时，目标指标跟着变化的幅度，用于判断优先盯哪一项。</span>
+            </div>
+            <div class="term-item">
+              <strong>基础情景</strong>
+              <span>当前默认假设组合，是其它保守 / 进取情景的比较基准。</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="footer-note">独立静态原型 · 已按 P0 统一命名为：总览 / 参数设置 / 敏感度分析；右侧统一为计算面板。</div>
+  </main>
+
+  <script>
+    const pageTabs = Array.from(document.querySelectorAll('[data-page-tab]'));
+    const pages = {
+      overview: document.getElementById('page-overview'),
+      settings: document.getElementById('page-settings'),
+      sensitivity: document.getElementById('page-sensitivity')
+    };
+
+    function openPage(name) {
+      Object.entries(pages).forEach(([key, page]) => {
+        page.classList.toggle('active', key === name);
+      });
+      pageTabs.forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.pageTab === name);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openPanel(name, scope) {
+      const root = scope || document;
+      root.querySelectorAll('.panel-tab').forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.panelTab === name);
+      });
+      root.querySelectorAll('.panel-body').forEach((panel) => {
+        panel.classList.toggle('active', panel.dataset.panelBody === name);
+      });
+    }
+
+    pageTabs.forEach((tab) => {
+      tab.addEventListener('click', () => openPage(tab.dataset.pageTab));
+    });
+
+    document.querySelectorAll('[data-open-page]').forEach((button) => {
+      button.addEventListener('click', () => openPage(button.dataset.openPage));
+    });
+
+    document.querySelectorAll('.calc-panel').forEach((panel) => {
+      panel.querySelectorAll('.panel-tab').forEach((tab) => {
+        tab.addEventListener('click', () => openPanel(tab.dataset.panelTab, panel));
+      });
+    });
+
+    document.querySelectorAll('[data-open-panel]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const currentPage = document.querySelector('.page.active');
+        const currentPanel = currentPage.querySelector('.calc-panel');
+        openPanel(button.dataset.openPanel, currentPanel);
+      });
+    });
+  </script>
+</body>
+</html>

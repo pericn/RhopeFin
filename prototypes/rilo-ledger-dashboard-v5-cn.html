@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rilo 经营分析原型 v5 · Ledger Dashboard</title>
+  <style>
+    :root {
+      --paper-base: #f6f0e6;
+      --paper-warm: #efe5d7;
+      --paper-cool: #e9edf3;
+      --paper-line: #ddcfbe;
+      --paper-fold: #ccb9a2;
+      --ink-1: #221f1a;
+      --ink-2: #5f564a;
+      --ink-3: #8c8275;
+      --rilo-accent: #221C8B;
+      --rilo-accent-soft: rgba(34, 28, 139, 0.10);
+      --rilo-accent-mid: rgba(34, 28, 139, 0.18);
+      --emerald: #2f7d67;
+      --emerald-soft: rgba(47, 125, 103, 0.12);
+      --amber: #b78128;
+      --amber-soft: rgba(183, 129, 40, 0.12);
+      --plum: #835b7d;
+      --plum-soft: rgba(131, 91, 125, 0.12);
+      --brick: #9d5b4b;
+      --brick-soft: rgba(157, 91, 75, 0.12);
+      --line: rgba(34, 31, 26, 0.13);
+      --line-strong: rgba(34, 31, 26, 0.22);
+      --shadow: 0 26px 80px rgba(85, 61, 28, 0.12);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --space-1: 12px;
+      --space-2: 16px;
+      --space-3: 20px;
+      --space-4: 28px;
+      --space-5: 38px;
+      --space-6: 50px;
+      --display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Baskerville, Georgia, serif;
+      --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: var(--sans);
+      color: var(--ink-1);
+      line-height: 1.85;
+      letter-spacing: 0.02em;
+      background:
+        radial-gradient(circle at left top, rgba(34, 28, 139, 0.08), transparent 28%),
+        radial-gradient(circle at right 8%, rgba(183, 129, 40, 0.07), transparent 24%),
+        linear-gradient(180deg, #faf6ef 0%, var(--paper-base) 48%, #eee5d8 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(34, 31, 26, 0.017) 0,
+          rgba(34, 31, 26, 0.017) 1px,
+          transparent 1px,
+          transparent 7px
+        );
+      mix-blend-mode: multiply;
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(1520px, calc(100% - 28px));
+      margin: 18px auto 26px;
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.28)),
+        linear-gradient(90deg, rgba(246,240,230,0.96), rgba(239,229,215,0.90));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .topline {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 24px;
+      align-items: center;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .topline .center {
+      justify-self: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.34);
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .masthead > div {
+      min-height: 166px;
+      padding: 32px 30px;
+      border-right: 1px solid var(--line);
+    }
+
+    .masthead > div:last-child { border-right: 0; }
+
+    .brand-stack {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 100%;
+    }
+
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 12px;
+    }
+
+    .seal {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: var(--display);
+      font-size: 30px;
+      border: 1px solid rgba(37, 99, 235, 0.20);
+      box-shadow: inset 0 0 0 10px rgba(37, 99, 235, 0.06);
+      background: rgba(255,255,255,0.38);
+    }
+
+    .folio {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      font-size: 12px;
+      color: var(--ink-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 600;
+    }
+
+    .title-block p,
+    .summary-note,
+    .muted,
+    .side-note,
+    .field-meta,
+    .table td,
+    .ledger-note {
+      color: var(--ink-2);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 216px minmax(0, 1fr);
+      min-height: calc(100vh - 240px);
+    }
+
+    .rail {
+      padding: 28px 20px 32px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(239,229,215,0.52));
+      border-right: 1px solid var(--line);
+    }
+
+    .rail-title,
+    .panel-label,
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rail-title { margin: 8px 10px 14px; }
+
+    .nav-list,
+    .mini-grid,
+    .metric-strip,
+    .field-list,
+    .control-catalog,
+    .tabs,
+    .inspector-blocks,
+    .scenario-grid,
+    .swatch-list,
+    .sensitivity-list,
+    .settings-cat-nav,
+    .four-col {
+      display: grid;
+      gap: 18px;
+    }
+
+    .nav-item,
+    .ghost-card,
+    .metric,
+    .card,
+    .inspector-card,
+    .swatch,
+    .field-row,
+    .table,
+    .bars,
+    .legend-chip,
+    .cat-item,
+    .settings-form > div {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.34);
+    }
+
+    .nav-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 13px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .nav-item.active {
+      border-color: rgba(37, 99, 235, 0.24);
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.10), rgba(255,255,255,0.42));
+      box-shadow: inset 3px 0 0 var(--rilo-accent);
+    }
+
+    .nav-item .index,
+    .mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-3);
+    }
+
+    .nav-item .name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-item .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.26);
+    }
+
+    .nav-item.active .dot { background: var(--rilo-accent); }
+
+    .ghost-card,
+    .inspector-card,
+    .card,
+    .metric,
+    .swatch {
+      padding: 16px 18px;
+    }
+
+    .ghost-card strong,
+    .inspector-card strong,
+    .metric .value,
+    .card h3,
+    .section-title h2,
+    .big-number {
+      font-family: var(--display);
+      font-weight: 600;
+    }
+
+    .metric .value,
+    .big-number {
+      font-size: 34px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .metric .meta-line {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      color: var(--ink-3);
+      font-size: 12px;
+    }
+
+    .two-col,
+    .three-col,
+    .four-col {
+      display: grid;
+      gap: 24px;
+    }
+
+    .two-col { grid-template-columns: 1.35fr 0.95fr; }
+    .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .four-col { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card-header,
+    .card-topline,
+    .field-head,
+    .inspector-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card h3,
+    .inspector h3 {
+      margin: 6px 0 0;
+      font-size: 26px;
+      line-height: 1.15;
+    }
+
+    .chart-wrap,
+    .bars,
+    .table {
+      padding: 14px;
+      background: rgba(255,255,255,0.26);
+    }
+
+    .chart-wrap svg { width: 100%; height: auto; display: block; }
+
+    .mini-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ghost-card { min-height: 110px; }
+
+    .field-list { margin-top: 12px; }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr) 112px;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+    }
+
+    .field-label strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      word-break: keep-all;
+    }
+
+    .control {
+      display: grid;
+      gap: 10px;
+    }
+
+    .control-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--ink-3);
+    }
+
+    .slider {
+      position: relative;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(34,31,26,0.08);
+      overflow: hidden;
+    }
+
+    .slider > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--rilo-accent), #78a6ff);
+    }
+
+    .dual-input {
+      justify-self: end;
+      min-width: 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(37,99,235,0.18);
+      background: rgba(255,255,255,0.56);
+      text-align: right;
+      font-family: var(--mono);
+      color: var(--ink-1);
+    }
+
+    .field-row.accent { box-shadow: inset 3px 0 0 var(--rilo-accent); }
+    .field-row.emerald { box-shadow: inset 3px 0 0 var(--emerald); }
+    .field-row.amber { box-shadow: inset 3px 0 0 var(--amber); }
+    .field-row.plum { box-shadow: inset 3px 0 0 var(--plum); }
+
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+    }
+
+    .settings-cat-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cat-item {
+      display: block;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.34);
+      color: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .cat-item.active {
+      border-color: rgba(37,99,235,0.24);
+      background: linear-gradient(90deg, rgba(37,99,235,0.10), rgba(255,255,255,0.42));
+      box-shadow: inset 3px 0 0 var(--rilo-accent);
+    }
+
+    .settings-form {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .param-group {
+      display: block;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 72px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bar-row + .bar-row { margin-top: 16px; }
+
+    .track {
+      position: relative;
+      height: 13px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(34,31,26,0.08);
+    }
+
+    .track span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+    }
+
+    .table {
+      display: grid;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    .table .thead,
+    .table .row {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+    }
+
+    .table .thead {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink-3);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.34);
+    }
+
+    .table .row + .row { border-top: 1px dashed var(--line); }
+
+    .table .row.current {
+      background: rgba(37,99,235,0.08);
+    }
+
+    .scenario-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .scenario-card {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.30);
+    }
+
+    .scenario-card.highlight {
+      border-color: rgba(37,99,235,0.24);
+      background: linear-gradient(180deg, rgba(37,99,235,0.10), rgba(255,255,255,0.28));
+    }
+
+    .small-note,
+    .side-note {
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--ink-2);
+      margin-top: 8px;
+    }
+
+    .main {
+      padding: 32px;
+      display: grid;
+      gap: 32px;
+    }
+
+    .page-panel { display: none; }
+    .page-panel.active { display: block; }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: end;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-title h2 {
+      margin: 8px 0 0;
+      font-size: 32px;
+      line-height: 1.08;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    @media (max-width: 1280px) {
+      .layout { grid-template-columns: 200px minmax(0, 1fr); }
+      .two-col, .three-col, .four-col, .metric-strip, .scenario-grid { grid-template-columns: 1fr; }
+      .masthead { grid-template-columns: 1fr; }
+      .masthead > div { border-right: 0; border-bottom: 1px solid var(--line); min-height: auto; }
+      .masthead > div:last-child { border-bottom: 0; }
+      .settings-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .rail { border-right: 0; border-bottom: 1px solid var(--line); }
+      .field-row, .table .thead, .table .row, .bar-row, .topline { grid-template-columns: 1fr; }
+      .main { padding: 18px; }
+      .settings-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="topline">
+      <div>Rilo 经营分析 / 宠物综合体经营测算</div>
+      <div class="center">Ledger Dashboard Prototype</div>
+      <div style="text-align:right">March 19, 2026 · CN Interface</div>
+    </section>
+
+    <section class="masthead">
+      <div>
+        <div class="brand-stack">
+          <div>
+            <div class="kicker">Rilo Analysis</div>
+            <div class="seal">R</div>
+          </div>
+          <div class="folio"><span>Issue 05</span><span>Ledger Sheet</span></div>
+        </div>
+      </div>
+      <div class="title-block">
+        <div class="kicker">Pet Complex Operating Workbench</div>
+        <h1>Rilo<br />Analysis</h1>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="rail">
+        <div class="rail-title">Workspace</div>
+        <div class="nav-list">
+          <a class="nav-item active" href="#overview">
+            <span class="index">01</span><span class="name">财务分析</span><span class="dot"></span>
+          </a>
+          <a class="nav-item" href="#settings">
+            <span class="index">02</span><span class="name">参数设置</span><span class="dot"></span>
+          </a>
+          <a class="nav-item" href="#analysis">
+            <span class="index">03</span><span class="name">敏感度分析</span><span class="dot"></span>
+          </a>
+        </div>
+
+        <div id="immediate-results" class="feedback-panel" style="display:none;">
+          <div class="feedback-card">
+            <div class="kicker">即时结果</div>
+            <div class="small-note">年净利润 <span style="color:var(--rilo-accent); font-weight:600;">¥584 万</span></div>
+            <div class="small-note">净利润率 <span style="color:var(--emerald); font-weight:600;">31.4%</span></div>
+            <div class="small-note">回本周期 <span style="color:var(--amber); font-weight:600;">2.3 年</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="main">
+        <section id="overview" class="page-panel active" data-page-panel="overview">
+          <div class="section-title">
+            <div>
+              <div class="eyebrow">Overview</div>
+              <h2>财务分析</h2>
+            </div>
+          </div>
+
+          <div class="metric-strip">
+            <article class="metric">
+              <div class="name">年总营收</div>
+              <div class="value">¥ 1,860 万</div>
+            </article>
+            <article class="metric">
+              <div class="name">年总成本</div>
+              <div class="value">¥ 1,276 万</div>
+            </article>
+            <article class="metric">
+              <div class="name">年净利润</div>
+              <div class="value">¥ 584 万</div>
+            </article>
+            <article class="metric">
+              <div class="name">回本周期</div>
+              <div class="value">2.3 年</div>
+            </article>
+          </div>
+
+          <div class="two-col" style="margin-top:24px;">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="panel-label">主图</div>
+                  <h3>收入、毛利与固定成本线</h3>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <svg viewBox="0 0 940 360" role="img" aria-label="经营趋势图">
+                  <defs>
+                    <linearGradient id="revFill5" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.24"></stop>
+                      <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"></stop>
+                    </linearGradient>
+                    <linearGradient id="gpFill5" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#2f7d67" stop-opacity="0.24"></stop>
+                      <stop offset="100%" stop-color="#2f7d67" stop-opacity="0.02"></stop>
+                    </linearGradient>
+                  </defs>
+                  <g stroke="rgba(34,31,26,0.10)" stroke-width="1">
+                    <line x1="64" y1="52" x2="906" y2="52"></line>
+                    <line x1="64" y1="108" x2="906" y2="108"></line>
+                    <line x1="64" y1="164" x2="906" y2="164"></line>
+                    <line x1="64" y1="220" x2="906" y2="220"></line>
+                    <line x1="64" y1="276" x2="906" y2="276"></line>
+                    <line x1="64" y1="332" x2="906" y2="332"></line>
+                  </g>
+                  <g fill="#8c8275" font-size="12" font-family="'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+                    <text x="18" y="56">1800</text>
+                    <text x="18" y="112">1500</text>
+                    <text x="18" y="168">1200</text>
+                    <text x="26" y="224">900</text>
+                    <text x="26" y="280">600</text>
+                    <text x="26" y="336">300</text>
+                  </g>
+                  <path d="M64 304 C128 290, 176 264, 234 238 S346 188, 406 166 S516 138, 584 118 S710 94, 780 76 S858 64, 906 58 L906 332 L64 332 Z" fill="url(#revFill5)"></path>
+                  <path d="M64 320 C126 310, 180 292, 236 272 S346 234, 408 214 S518 186, 586 166 S708 144, 778 124 S860 112, 906 108 L906 332 L64 332 Z" fill="url(#gpFill5)"></path>
+                  <path d="M64 304 C128 290, 176 264, 234 238 S346 188, 406 166 S516 138, 584 118 S710 94, 780 76 S858 64, 906 58" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round"></path>
+                  <path d="M64 320 C126 310, 180 292, 236 272 S346 234, 408 214 S518 186, 586 166 S708 144, 778 124 S860 112, 906 108" fill="none" stroke="#2f7d67" stroke-width="4" stroke-linecap="round"></path>
+                  <line x1="64" y1="198" x2="906" y2="198" stroke="#b78128" stroke-width="3" stroke-dasharray="12 10"></line>
+                  <g fill="#8c8275" font-size="12" font-family="'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif">
+                    <text x="84" y="352">Q1</text>
+                    <text x="302" y="352">Q2</text>
+                    <text x="520" y="352">Q3</text>
+                    <text x="738" y="352">Q4</text>
+                  </g>
+                </svg>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="panel-label">结构分布</div>
+                  <h3>收入 / 成本 / 扩展 KPI</h3>
+                </div>
+              </div>
+              <div class="mini-grid">
+                <div class="ghost-card">
+                  <div class="panel-label">收入结构</div>
+                  <div class="bars" style="margin-top:10px;">
+                    <div class="bar-row"><strong>会员</strong><div class="track"><span style="width:32%; background:var(--rilo-accent)"></span></div><div class="meta">32%</div></div>
+                    <div class="bar-row"><strong>寄养</strong><div class="track"><span style="width:28%; background:var(--emerald)"></span></div><div class="meta">28%</div></div>
+                    <div class="bar-row"><strong>医疗</strong><div class="track"><span style="width:21%; background:var(--plum)"></span></div><div class="meta">21%</div></div>
+                    <div class="bar-row"><strong>零售/餐饮</strong><div class="track"><span style="width:19%; background:var(--amber)"></span></div><div class="meta">19%</div></div>
+                  </div>
+                </div>
+                <div class="ghost-card">
+                  <div class="panel-label">成本结构</div>
+                  <div class="bars" style="margin-top:10px;">
+                    <div class="bar-row"><strong>租金+物业</strong><div class="track"><span style="width:26%; background:var(--brick)"></span></div><div class="meta">26%</div></div>
+                    <div class="bar-row"><strong>人工</strong><div class="track"><span style="width:23%; background:#b66d58"></span></div><div class="meta">23%</div></div>
+                    <div class="bar-row"><strong>业务成本</strong><div class="track"><span style="width:31%; background:#cf8a67"></span></div><div class="meta">31%</div></div>
+                    <div class="bar-row"><strong>其他</strong><div class="track"><span style="width:20%; background:#d6a889"></span></div><div class="meta">20%</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="four-col" style="margin-top:14px;">
+                <div class="ghost-card">
+                  <div class="panel-label">租金占收比</div>
+                  <div class="big-number" style="font-size:26px; line-height:1.2;">14.8%</div>
+                </div>
+                <div class="ghost-card">
+                  <div class="panel-label">盈亏平衡入住率</div>
+                  <div class="big-number" style="font-size:26px; line-height:1.2;">56.2%</div>
+                </div>
+                <div class="ghost-card">
+                  <div class="panel-label">RevPAR</div>
+                  <div class="big-number" style="font-size:26px; line-height:1.2;">¥ 313</div>
+                </div>
+                <div class="ghost-card">
+                  <div class="panel-label">获客效率</div>
+                  <div class="big-number" style="font-size:26px; line-height:1.2;">3.8x</div>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="scenario-grid" style="margin-top:18px;">
+            <div class="scenario-card highlight">
+              <div class="panel-label">当前情景</div>
+              <strong>Base Case</strong>
+            </div>
+            <div class="scenario-card">
+              <div class="panel-label">保守情景</div>
+              <strong>Low Demand</strong>
+            </div>
+            <div class="scenario-card">
+              <div class="panel-label">进取情景</div>
+              <strong>Optimized Mix</strong>
+            </div>
+          </div>
+        </section>
+
+        <section id="settings" class="page-panel" data-page-panel="settings">
+          <div class="section-title">
+            <div>
+              <div class="eyebrow">Settings</div>
+              <h2>参数设置</h2>
+            </div>
+          </div>
+
+          <div class="settings-layout">
+            <nav class="settings-cat-nav">
+              <a class="cat-item active" data-cat="basic">基础设置</a>
+              <a class="cat-item" data-cat="member">会员收入</a>
+              <a class="cat-item" data-cat="boarding">寄养收入</a>
+              <a class="cat-item" data-cat="medical">医疗收入</a>
+              <a class="cat-item" data-cat="retail">零售/餐饮/社交</a>
+              <a class="cat-item" data-cat="fixed-cost">固定成本</a>
+              <a class="cat-item" data-cat="variable-cost">变动成本</a>
+              <a class="cat-item" data-cat="investment">初始投资</a>
+            </nav>
+
+            <div class="settings-form">
+              <!-- Basic -->
+              <div class="param-group" data-group="basic">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">基础设置</div>
+                    <h3>项目基本信息</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row accent">
+                    <div class="field-label"><strong>营业面积</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>0</span><span>10000</span></div>
+                      <div class="slider"><span style="width:45%;"></span></div>
+                    </div>
+                    <div class="dual-input">2,500 ㎡</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>年营业天数</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>300</span><span>365</span></div>
+                      <div class="slider"><span style="width:82%; background:linear-gradient(90deg,var(--rilo-accent),#78a6ff);"></span></div>
+                    </div>
+                    <div class="dual-input">360 天</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Member -->
+              <div class="param-group" data-group="member" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">会员收入</div>
+                    <h3>会员设置</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row emerald">
+                    <div class="field-label"><strong>会员总数</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>100</span><span>2000</span></div>
+                      <div class="slider"><span style="width:35%; background:linear-gradient(90deg,var(--emerald),#6eb39d);"></span></div>
+                    </div>
+                    <div class="dual-input">600 人</div>
+                  </div>
+                  <div class="field-row emerald">
+                    <div class="field-label"><strong>基础会员占比</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>30%</span><span>70%</span></div>
+                      <div class="slider"><span style="width:55%; background:linear-gradient(90deg,var(--emerald),#6eb39d);"></span></div>
+                    </div>
+                    <div class="dual-input">55%</div>
+                  </div>
+                  <div class="field-row emerald">
+                    <div class="field-label"><strong>高级会员占比</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>20%</span><span>50%</span></div>
+                      <div class="slider"><span style="width:42%; background:linear-gradient(90deg,var(--emerald),#6eb39d);"></span></div>
+                    </div>
+                    <div class="dual-input">35%</div>
+                  </div>
+                  <div class="field-row emerald">
+                    <div class="field-label"><strong>基础会员价格</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥1,000</span><span>¥5,000</span></div>
+                      <div class="slider"><span style="width:30%; background:linear-gradient(90deg,var(--emerald),#6eb39d);"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 2,500</div>
+                  </div>
+                  <div class="field-row emerald">
+                    <div class="field-label"><strong>高级会员价格</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥2,000</span><span>¥8,000</span></div>
+                      <div class="slider"><span style="width:40%; background:linear-gradient(90deg,var(--emerald),#6eb39d);"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 4,200</div>
+                  </div>
+                  <div class="field-row emerald">
+                    <div class="field-label"><strong>会员毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>60%</span><span>90%</span></div>
+                      <div class="slider"><span style="width:85%;"></span></div>
+                    </div>
+                    <div class="dual-input">85%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Boarding -->
+              <div class="param-group" data-group="boarding" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">寄养收入</div>
+                    <h3>寄养设置</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row plum">
+                    <div class="field-label"><strong>可售房间数</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>5</span><span>50</span></div>
+                      <div class="slider"><span style="width:40%; background:linear-gradient(90deg,var(--plum),#b28cab);"></span></div>
+                    </div>
+                    <div class="dual-input">18 间</div>
+                  </div>
+                  <div class="field-row plum">
+                    <div class="field-label"><strong>平均房价 ADR</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥120</span><span>¥680</span></div>
+                      <div class="slider"><span style="width:54%; background:linear-gradient(90deg,var(--plum),#b28cab);"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 460</div>
+                  </div>
+                  <div class="field-row plum">
+                    <div class="field-label"><strong>平均入住率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>0%</span><span>100%</span></div>
+                      <div class="slider"><span style="width:68%; background:linear-gradient(90deg,var(--plum),#b28cab);"></span></div>
+                    </div>
+                    <div class="dual-input">68.0%</div>
+                  </div>
+                  <div class="field-row plum">
+                    <div class="field-label"><strong>可售天数</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>300</span><span>365</span></div>
+                      <div class="slider"><span style="width:95%; background:linear-gradient(90deg,var(--plum),#b28cab);"></span></div>
+                    </div>
+                    <div class="dual-input">360 天</div>
+                  </div>
+                  <div class="field-row plum">
+                    <div class="field-label"><strong>寄养毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>40%</span><span>80%</span></div>
+                      <div class="slider"><span style="width:70%; background:linear-gradient(90deg,var(--plum),#b28cab);"></span></div>
+                    </div>
+                    <div class="dual-input">70%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Medical -->
+              <div class="param-group" data-group="medical" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">医疗收入</div>
+                    <h3>医疗设置</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row amber">
+                    <div class="field-label"><strong>医疗年营收</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥50万</span><span>¥500万</span></div>
+                      <div class="slider"><span style="width:38%; background:linear-gradient(90deg,var(--amber),#d6aa5d);"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 180 万</div>
+                  </div>
+                  <div class="field-row amber">
+                    <div class="field-label"><strong>诊疗占比</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>40%</span><span>80%</span></div>
+                      <div class="slider"><span style="width:60%; background:linear-gradient(90deg,var(--amber),#d6aa5d);"></span></div>
+                    </div>
+                    <div class="dual-input">60%</div>
+                  </div>
+                  <div class="field-row amber">
+                    <div class="field-label"><strong>增值服务占比</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>10%</span><span>40%</span></div>
+                      <div class="slider"><span style="width:35%; background:linear-gradient(90deg,var(--amber),#d6aa5d);"></span></div>
+                    </div>
+                    <div class="dual-input">25%</div>
+                  </div>
+                  <div class="field-row amber">
+                    <div class="field-label"><strong>产品占比</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>5%</span><span>30%</span></div>
+                      <div class="slider"><span style="width:25%; background:linear-gradient(90deg,var(--amber),#d6aa5d);"></span></div>
+                    </div>
+                    <div class="dual-input">15%</div>
+                  </div>
+                  <div class="field-row amber">
+                    <div class="field-label"><strong>医疗毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>40%</span><span>85%</span></div>
+                      <div class="slider"><span style="width:75%;"></span></div>
+                    </div>
+                    <div class="dual-input">75%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Retail -->
+              <div class="param-group" data-group="retail" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">零售/餐饮/社交</div>
+                    <h3>零售与社交收入</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row">
+                    <div class="field-label"><strong>零售年营收</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥10万</span><span>¥200万</span></div>
+                      <div class="slider"><span style="width:25%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 50 万</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>餐饮社交年营收</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥5万</span><span>¥150万</span></div>
+                      <div class="slider"><span style="width:20%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 30 万</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Fixed Cost -->
+              <div class="param-group" data-group="fixed-cost" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">固定成本</div>
+                    <h3>固定成本项</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row">
+                    <div class="field-label"><strong>租金 (¥/㎡/天)</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥0.5</span><span>¥5</span></div>
+                      <div class="slider"><span style="width:30%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 1.8</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>物业 (¥/㎡/月)</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥2</span><span>¥20</span></div>
+                      <div class="slider"><span style="width:35%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 8</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>保洁安保杂项 (年)</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥2万</span><span>¥50万</span></div>
+                      <div class="slider"><span style="width:45%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 12 万</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>员工人数</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>3</span><span>50</span></div>
+                      <div class="slider"><span style="width:40%;"></span></div>
+                    </div>
+                    <div class="dual-input">12 人</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>人均月薪</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥3,000</span><span>¥15,000</span></div>
+                      <div class="slider"><span style="width:50%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 6,500</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>总部/管理费 %</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>0%</span><span>15%</span></div>
+                      <div class="slider"><span style="width:33%;"></span></div>
+                    </div>
+                    <div class="dual-input">5%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Variable Cost -->
+              <div class="param-group" data-group="variable-cost" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">变动成本</div>
+                    <h3>毛利率设置</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row">
+                    <div class="field-label"><strong>会员毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>60%</span><span>90%</span></div>
+                      <div class="slider"><span style="width:85%;"></span></div>
+                    </div>
+                    <div class="dual-input">85%</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>寄养毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>40%</span><span>80%</span></div>
+                      <div class="slider"><span style="width:70%;"></span></div>
+                    </div>
+                    <div class="dual-input">70%</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>医疗毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>40%</span><span>85%</span></div>
+                      <div class="slider"><span style="width:75%;"></span></div>
+                    </div>
+                    <div class="dual-input">75%</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>零售餐饮毛利率</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>30%</span><span>70%</span></div>
+                      <div class="slider"><span style="width:60%;"></span></div>
+                    </div>
+                    <div class="dual-input">60%</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>水电能耗 (年)</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥1万</span><span>¥30万</span></div>
+                      <div class="slider"><span style="width:50%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 8 万</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>其他变动 (年)</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥0</span><span>¥20万</span></div>
+                      <div class="slider"><span style="width:30%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 3 万</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Investment -->
+              <div class="param-group" data-group="investment" style="display:none;">
+                <div class="card-header">
+                  <div>
+                    <div class="panel-label">初始投资</div>
+                    <h3>投资参数</h3>
+                  </div>
+                </div>
+                <div class="field-list">
+                  <div class="field-row">
+                    <div class="field-label"><strong>装修投入</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥10万</span><span>¥200万</span></div>
+                      <div class="slider"><span style="width:40%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 80 万</div>
+                  </div>
+                  <div class="field-row">
+                    <div class="field-label"><strong>医疗初始投入</strong></div>
+                    <div class="control">
+                      <div class="control-meta"><span>¥5万</span><span>¥100万</span></div>
+                      <div class="slider"><span style="width:25%;"></span></div>
+                    </div>
+                    <div class="dual-input">¥ 25 万</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="analysis" class="page-panel" data-page-panel="analysis">
+          <div class="section-title">
+            <div>
+              <div class="eyebrow">Sensitivity Analysis</div>
+              <h2>敏感度分析</h2>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="panel-label">控制区</div>
+                  <h3>变量 / 范围 / 影响指标</h3>
+                </div>
+              </div>
+              <div class="three-col">
+                <div class="ghost-card">
+                  <div class="panel-label">变量</div>
+                  <div style="margin-top:10px; font-weight:600;">寄养入住率</div>
+                  <div class="small-note">Occ / 利用效率</div>
+                </div>
+                <div class="ghost-card">
+                  <div class="panel-label">范围</div>
+                  <div style="margin-top:10px; font-weight:600;">±10%</div>
+                  <div class="small-note">支持滑杆连续调整</div>
+                </div>
+                <div class="ghost-card">
+                  <div class="panel-label">指标</div>
+                  <div style="margin-top:10px; font-weight:600;">回本周期</div>
+                  <div class="small-note">可切净利润 / 净利润率 / 毛利率</div>
+                </div>
+              </div>
+
+              <div class="bars sensitivity-list" style="margin-top:16px;">
+                <div class="bar-row">
+                  <strong>会员收入占比</strong>
+                  <div class="track"><span style="width:88%; background:linear-gradient(90deg,var(--rilo-accent),#80a9ff);"></span></div>
+                  <div class="meta">高影响</div>
+                </div>
+                <div class="bar-row">
+                  <strong>寄养入住率</strong>
+                  <div class="track"><span style="width:81%; background:linear-gradient(90deg,var(--emerald),#8dcdb9);"></span></div>
+                  <div class="meta">高影响</div>
+                </div>
+                <div class="bar-row">
+                  <strong>装修标准</strong>
+                  <div class="track"><span style="width:72%; background:linear-gradient(90deg,var(--amber),#e0bc7b);"></span></div>
+                  <div class="meta">成本敏感</div>
+                </div>
+                <div class="bar-row">
+                  <strong>租金单价</strong>
+                  <div class="track"><span style="width:66%; background:linear-gradient(90deg,var(--brick),#cc8f7e);"></span></div>
+                  <div class="meta">长期约束</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="panel-label">情景对比</div>
+                  <h3>对比</h3>
+                </div>
+              </div>
+              <div class="table">
+                <div class="thead"><span>情景</span><span>年净利润</span><span>净利润率</span><span>回本周期</span><span>备注</span></div>
+                <div class="row"><strong>低需求</strong><span>¥438 万</span><span>24.9%</span><span>3.1 年</span><span>Occ 与客单回落</span></div>
+                <div class="row current"><strong>当前情况</strong><span>¥584 万</span><span>31.4%</span><span>2.3 年</span><span>基线情景</span></div>
+                <div class="row"><strong>优化结构</strong><span>¥653 万</span><span>34.7%</span><span>2.0 年</span><span>会员占比与 RevPAR 提升</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+  <script>
+    (function () {
+      const navItems = Array.from(document.querySelectorAll('.nav-item'));
+      const panels = Array.from(document.querySelectorAll('[data-page-panel]'));
+      const catItems = Array.from(document.querySelectorAll('.cat-item'));
+      const paramGroups = Array.from(document.querySelectorAll('.param-group'));
+      const immediateResults = document.getElementById('immediate-results');
+
+      function setActivePage(page) {
+        panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.pagePanel === page));
+        navItems.forEach((item) => {
+          const href = (item.getAttribute('href') || '').replace('#', '');
+          item.classList.toggle('active', href === page);
+        });
+        // 只在参数设置页显示即时结果
+        if (immediateResults) {
+          immediateResults.style.display = (page === 'settings') ? 'block' : 'none';
+        }
+      }
+
+      function setActiveCategory(cat) {
+        catItems.forEach((item) => item.classList.toggle('active', item.dataset.cat === cat));
+        paramGroups.forEach((group) => {
+          group.style.display = group.dataset.group === cat ? 'block' : 'none';
+        });
+      }
+
+      // 初始化
+      const initialPage = (navItems.find(item => item.classList.contains('active'))?.getAttribute('href') || '').replace('#', '');
+      if (immediateResults) {
+        immediateResults.style.display = (initialPage === 'settings') ? 'block' : 'none';
+      }
+
+      navItems.forEach((item) => {
+        item.addEventListener('click', (event) => {
+          event.preventDefault();
+          const page = (item.getAttribute('href') || '').replace('#', '');
+          setActivePage(page);
+        });
+      });
+
+      catItems.forEach((item) => {
+        item.addEventListener('click', (event) => {
+          event.preventDefault();
+          const cat = item.dataset.cat;
+          setActiveCategory(cat);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
