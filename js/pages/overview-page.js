@@ -49,8 +49,8 @@ window.OverviewPage = (function() {
     // Process section: detailed calculations
     const process = h(DetailedCalculationDisplay, { calculations, currency: resolvedCurrency });
 
-    const left = h('div', { className: 'space-y-5 lg:space-y-6 rilo-zh-page' }, [
-      h(PageHeader, { key: 'page-header', onOpenGlossaryFallback: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary'), data, calculations, currency: resolvedCurrency }),
+    const left = h('div', { className: 'space-y-4 lg:space-y-5 rilo-zh-page' }, [
+      h(PageHeader, { key: 'page-header', data, calculations, currency: resolvedCurrency }),
       h(KeyMetrics, { key: 'key-metrics', data, calculations, currency: resolvedCurrency, showDetails: false }),
       h(BusinessOverview, { key: 'business-overview', data, calculations, currency: resolvedCurrency }),
       h(ScenarioQuickView, { key: 'scenario-view', calculations, currency: resolvedCurrency })
@@ -60,7 +60,7 @@ window.OverviewPage = (function() {
       ? h(window.RiloUI.TwoPaneLayout, {
           leftTitle: null,
           left,
-          inspectorTitle: '财务分析 Inspector',
+          inspectorTitle: '项目概况',
           conclusion,
           process,
           glossaryTerms
@@ -80,30 +80,7 @@ window.OverviewPage = (function() {
       aside ? h('div', { key: 'aside', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle md:text-right' }, aside) : null
     ]);
 
-  const PageHeader = ({ onOpenGlossaryFallback, data, calculations, currency = '¥' }) => {
-    const Button = window.UIComponents?.Button || 'button';
-    const buttonProps = Button === 'button'
-      ? {
-          className: 'rilo-btn-soft rounded-[14px] px-4 py-2 text-sm font-medium whitespace-nowrap'
-        }
-      : {
-          variant: 'outline',
-          size: 'small',
-          className: 'whitespace-nowrap'
-        };
-
-    // Prefer Inspector glossary, fallback to drawer
-    const useInspector = window.RiloUI?.useInspector;
-    const inspector = useInspector ? useInspector() : null;
-    const openGlossary = () => {
-      if (inspector?.setActiveSection && inspector?.setSelectedTerm) {
-        inspector.setActiveSection('glossary');
-        inspector.setSelectedTerm(null);
-      } else if (onOpenGlossaryFallback) {
-        onOpenGlossaryFallback();
-      }
-    };
-
+  const PageHeader = ({ data, calculations, currency = '¥' }) => {
     const Term = window.RiloUI?.Term;
     const titleNode = (termKey, text) => Term ? h(Term, { termKey }, text) : text;
     const profit = calculations?.profitability?.profit || 0;
@@ -113,19 +90,10 @@ window.OverviewPage = (function() {
 
     return h('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[var(--rilo-border-deep)] px-5 py-5 md:px-6 md:py-6 rilo-zh-page' }, [
       h('div', { key: 'row', className: 'rilo-ledger-header' }, [
-        h('div', { key: 'top', className: 'flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between' }, [
+        h('div', { key: 'top', className: 'flex flex-col gap-3' }, [
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Overview'),
-            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '财务分析'),
-            h('p', { key: 'subtitle', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '先对齐全局经营结果，再继续查看结构拆解与情景预览。')
-          ]),
-          h('div', { key: 'actions', className: 'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3' }, [
-            h('span', { key: 'glossary-entry', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle max-w-[22rem]' }, '带下划线术语可悬停查看；点按钮可直接打开术语抽屉。'),
-            h(Button, {
-              key: 'glossary-btn',
-              onClick: openGlossary,
-              ...buttonProps
-            }, '📖 术语解释')
+            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '项目概况')
           ])
         ]),
         h('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
@@ -147,8 +115,7 @@ window.OverviewPage = (function() {
         ]),
         h('div', { key: 'band', className: 'rilo-ledger-band' }, [
           h('span', { key: 'p1', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '项目'), ` ${projectName}`]),
-          h('span', { key: 'p2', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '货币'), ` ${currency}`]),
-          h('span', { key: 'p3', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '下一步'), ' 继续查看结构分布与情景预览'])
+          h('span', { key: 'p2', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '货币'), ` ${currency}`])
         ])
       ])
     ]);

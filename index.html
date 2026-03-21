@@ -69,10 +69,10 @@
       /* Radius, shadow, spacing */
       --rilo-radius-card: 16px;
       --rilo-radius-control: 12px;
-      --rilo-shadow-card: 0 18px 44px rgba(85, 61, 28, 0.10);
-      --rilo-shadow-soft: 0 8px 22px rgba(85, 61, 28, 0.06);
-      --rilo-shadow-press: 0 12px 28px rgba(85, 61, 28, 0.12);
-      --rilo-shadow-shell: 0 28px 72px rgba(85, 61, 28, 0.14);
+      --rilo-shadow-card: 0 10px 24px rgba(85, 61, 28, 0.06);
+      --rilo-shadow-soft: 0 4px 12px rgba(85, 61, 28, 0.04);
+      --rilo-shadow-press: 0 8px 20px rgba(85, 61, 28, 0.08);
+      --rilo-shadow-shell: 0 18px 48px rgba(85, 61, 28, 0.09);
       --rilo-gap-page: 24px;
       --rilo-gap-form: 16px;
 
@@ -91,36 +91,34 @@
 
       /* === v5 Visual System: Paper + Ink + Jewel === */
       /* Paper base (warm, matte) */
-      --paper-base: #f6f0e6;
-      --paper-warm: #efe5d7;
-      --paper-cool: #e9edf3;
-      --paper-line: #ddcfbe;
-      --paper-fold: #ccb9a2;
+      --paper-base: #f4efe8;
+      --paper-warm: #ece5dc;
+      --paper-cool: #e7eaee;
+      --paper-line: #d8cec1;
+      --paper-fold: #c7baab;
 
       /* Ink (text hierarchy) */
-      --ink-1: #221f1a;
-      --ink-2: #5f564a;
-      --ink-3: #8c8275;
+      --ink-1: #2c333b;
+      --ink-2: #59616a;
+      --ink-3: #87909b;
 
       /* Accent (primary brand - 深蓝) */
-      --rilo-accent-v5: #221C8B;
+      --rilo-accent-v5: #56657d;
       --rilo-accent: var(--rilo-accent-v5);
-      --rilo-accent-500: #3932a5;
-      --rilo-accent-50: rgba(34, 28, 139, 0.08);
+      --rilo-accent-500: #657690;
+      --rilo-accent-50: rgba(86, 101, 125, 0.08);
 
-      /* Semantic jewel accents (v5) */
-      --emerald: #2f7d67;
-      --amber: #b78128;
-      --brick: #9d5b4b;
-      --plum: #835b7d;
+      /* Semantic jewel accents (V5-only, capped at 4 coordinated colors) */
+      --emerald: #768b76;
+      --amber: #8f8168;
+      --brick: #8d756f;
 
       /* Derived soft variants */
-      --rilo-accent-soft-v5: rgba(34, 28, 139, 0.10);
-      --rilo-accent-mid-v5: rgba(34, 28, 139, 0.18);
-      --emerald-soft: rgba(47, 125, 103, 0.12);
-      --amber-soft: rgba(183, 129, 40, 0.12);
-      --brick-soft: rgba(157, 91, 75, 0.12);
-      --plum-soft: rgba(131, 91, 125, 0.12);
+      --rilo-accent-soft-v5: rgba(86, 101, 125, 0.10);
+      --rilo-accent-mid-v5: rgba(86, 101, 125, 0.18);
+      --emerald-soft: rgba(118, 139, 118, 0.12);
+      --amber-soft: rgba(143, 129, 104, 0.12);
+      --brick-soft: rgba(141, 117, 111, 0.12);
 
       /* Lines */
       --line: rgba(34, 31, 26, 0.13);
@@ -155,9 +153,9 @@
       line-height: 1.85;
       letter-spacing: 0.02em;
       background:
-        radial-gradient(circle at left top, rgba(34, 28, 139, 0.08), transparent 28%),
-        radial-gradient(circle at right 8%, rgba(183, 129, 40, 0.07), transparent 24%),
-        linear-gradient(180deg, #faf6ef 0%, var(--paper-base) 48%, #eee5d8 100%);
+        radial-gradient(circle at left top, rgba(86, 101, 125, 0.05), transparent 26%),
+        radial-gradient(circle at right 8%, rgba(143, 129, 104, 0.05), transparent 22%),
+        linear-gradient(180deg, #f7f3ec 0%, var(--paper-base) 52%, #ede5da 100%);
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
       min-height: 100vh;
@@ -191,8 +189,8 @@
       border-radius: var(--radius-xl, 30px);
       overflow: hidden;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.16)),
-        linear-gradient(135deg, rgba(246,240,230,0.98), rgba(239,229,215,0.96) 56%, rgba(233,237,243,0.90));
+        linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,255,255,0.20)),
+        linear-gradient(135deg, rgba(244,239,232,0.98), rgba(238,231,221,0.96) 58%, rgba(232,235,239,0.84));
       box-shadow: var(--rilo-shadow-shell);
       border: 1px solid rgba(34, 31, 26, 0.10);
       min-height: calc(100vh - 48px);
@@ -499,50 +497,141 @@
       }
     }
 
-    /* Settings v3.0 布局样式 */
     .settings-layout {
       display: grid;
-      grid-template-columns: 200px 1fr;
-      gap: 24px;
-      min-height: calc(100vh - 240px);
+      grid-template-columns: minmax(220px, 248px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
     }
 
-    .settings-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+    .settings-layout--reset {
+      min-height: 0;
+    }
+
+    .settings-sidebar,
+    .settings-editor {
+      min-width: 0;
+    }
+
+    .settings-sidebar-card,
+    .settings-editor {
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(242,236,229,0.92));
+      box-shadow: var(--rilo-shadow-soft);
+    }
+
+    .settings-sidebar-card {
+      position: sticky;
+      top: 18px;
+      padding: 14px;
+    }
+
+    .settings-sidebar-title,
+    .settings-editor-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
     }
 
     .settings-cat-nav {
-      display: flex;
-      flex-direction: column;
+      display: grid;
       gap: 8px;
+      margin-top: 10px;
     }
 
     .cat-item {
-      display: block;
-      padding: 12px 14px;
-      border-radius: var(--rilo-radius-card, 16px);
-      border: 1px solid var(--rilo-border-deep, #2A2622);
-      background: rgba(255,255,255,0.34);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(255,255,255,0.36);
       color: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+      text-align: left;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
       cursor: pointer;
     }
 
+    .cat-item:hover {
+      border-color: rgba(86, 101, 125, 0.24);
+      transform: translateY(-1px);
+    }
+
     .cat-item.active {
-      border-color: rgba(37,99,235,0.24);
-      background: linear-gradient(90deg, rgba(37,99,235,0.10), rgba(255,255,255,0.42));
-      box-shadow: inset 3px 0 0 var(--rilo-accent, #2563EB);
+      border-color: rgba(86, 101, 125, 0.22);
+      background: linear-gradient(90deg, rgba(86, 101, 125, 0.08), rgba(255,255,255,0.5));
+      box-shadow: inset 3px 0 0 var(--rilo-accent);
+    }
+
+    .cat-item-index {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--ink-3);
+    }
+
+    .cat-item-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .cat-item-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-1);
+    }
+
+    .cat-item-note {
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .cat-item-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(86, 101, 125, 0.18);
+    }
+
+    .cat-item.active .cat-item-dot {
+      background: var(--rilo-accent);
+    }
+
+    .settings-editor {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .settings-editor-header {
+      display: grid;
+      gap: 6px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(34, 31, 26, 0.08);
+    }
+
+    .settings-editor-title {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ink-1);
     }
 
     .settings-form {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .settings-outcome-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 2px;
     }
 
     .feedback-panel {
@@ -575,21 +664,17 @@
 
     /* 响应式调整 */
     @media (max-width: 768px) {
-      .settings-layout {
+      .settings-layout,
+      .settings-outcome-strip {
         grid-template-columns: 1fr;
       }
-      .settings-sidebar {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: 8px;
+
+      .settings-sidebar-card {
+        position: static;
       }
+
       .settings-cat-nav {
-        flex-direction: row;
-        flex-wrap: nowrap;
-      }
-      .cat-item {
-        white-space: nowrap;
-        flex-shrink: 0;
+        grid-template-columns: 1fr;
       }
     }
 
@@ -633,16 +718,15 @@
 
     /* 卡片统一类（v5） */
     .rilo-card {
-      background: var(--rilo-surface-card);
-      border: 1px solid rgba(34, 31, 26, 0.11);
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(34, 31, 26, 0.1);
       border-radius: var(--radius-lg, 22px);
-      box-shadow: var(--rilo-shadow-card);
       padding: var(--space-4, 28px);
     }
 
     .rilo-ledger-panel {
-      background: var(--rilo-surface-panel);
-      border: 1px solid rgba(34, 31, 26, 0.11);
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(243,237,230,0.92));
+      border: 1px solid rgba(34, 31, 26, 0.1);
       border-radius: calc(var(--radius-lg) * 1.05);
       box-shadow: var(--rilo-shadow-card);
       position: relative;
@@ -682,10 +766,10 @@
       top: 16px;
       display: grid;
       gap: 14px;
-      padding: 16px;
+      padding: 14px;
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(247,240,231,0.94)),
-        linear-gradient(135deg, rgba(233,237,243,0.32), transparent 58%);
+        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(246,240,232,0.92)),
+        linear-gradient(135deg, rgba(233,237,243,0.18), transparent 58%);
       border: 1px solid rgba(34, 31, 26, 0.12);
       border-radius: calc(var(--radius-lg) * 1.04);
       box-shadow: var(--rilo-shadow-card);
@@ -723,7 +807,7 @@
     }
 
     .rilo-inspector-section {
-      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(244,235,223,0.92));
+      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(244,237,229,0.9));
       border: 1px solid rgba(34,31,26,0.10);
       border-radius: var(--radius-lg);
       box-shadow: var(--rilo-shadow-soft);
@@ -749,8 +833,7 @@
       position: relative;
       border: 1px solid rgba(34,31,26,0.10);
       border-radius: var(--radius-md);
-      background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,236,224,0.88));
-      box-shadow: var(--rilo-shadow-soft);
+      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(245,237,229,0.84));
       padding: 14px 15px;
       overflow: hidden;
     }
@@ -786,19 +869,18 @@
     }
 
     .rilo-kpi-strong {
-      background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(244,235,223,0.96));
-      border: 1px solid rgba(34,31,26,0.12);
-      box-shadow: 0 16px 34px rgba(85, 61, 28, 0.10);
+      background: rgba(255,255,255,0.66);
+      border: 1px solid rgba(34,31,26,0.11);
     }
 
     .rilo-card-hierarchy-high {
-      background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(239,229,215,0.94));
+      background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(240,233,223,0.9));
       border-color: rgba(34,31,26,0.12) !important;
-      box-shadow: 0 22px 44px rgba(85, 61, 28, 0.11) !important;
+      box-shadow: var(--rilo-shadow-card) !important;
     }
 
     .rilo-card-hierarchy-mid {
-      background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(244,235,223,0.90));
+      background: linear-gradient(180deg, rgba(255,255,255,0.66), rgba(244,237,229,0.86));
       border-color: rgba(34,31,26,0.10) !important;
       box-shadow: var(--rilo-shadow-soft) !important;
     }
@@ -846,9 +928,225 @@
       box-shadow: 0 16px 32px rgba(34,28,139,0.22);
     }
 
+    .rilo-app-shell {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.10));
+    }
+
+    .rilo-app-sidebar {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 16px;
+      padding: 22px 16px 16px;
+      border-right: 1px solid rgba(34, 31, 26, 0.09);
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(236,229,220,0.56));
+    }
+
+    .rilo-app-brand {
+      display: grid;
+      gap: 8px;
+      padding: 6px 6px 2px;
+    }
+
+    .rilo-app-sidebar-actions {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 0 6px;
+    }
+
+    .rilo-app-icon-slot {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px dashed rgba(86, 101, 125, 0.28);
+      background: rgba(255,255,255,0.26);
+    }
+
+    .rilo-app-brand-kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-app-brand-title {
+      margin: 0;
+      font-family: var(--font-display), Georgia, serif;
+      font-size: 1.8rem;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--ink-1);
+    }
+
+    .rilo-app-brand-copy {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--ink-2);
+    }
+
+    .rilo-app-nav {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .rilo-app-sidebar-section-title {
+      padding: 0 6px;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-app-nav-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(255,255,255,0.30);
+      color: var(--ink-1);
+      text-align: left;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+    }
+
+    .rilo-app-nav-item:hover {
+      border-color: rgba(86, 101, 125, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .rilo-app-nav-item.is-active {
+      background: linear-gradient(90deg, rgba(86, 101, 125, 0.08), rgba(255,255,255,0.52));
+      border-color: rgba(86, 101, 125, 0.20);
+      box-shadow: inset 3px 0 0 var(--rilo-accent);
+    }
+
+    .rilo-app-nav-index {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--ink-3);
+    }
+
+    .rilo-app-nav-label,
+    .rilo-app-nav-meta {
+      display: block;
+    }
+
+    .rilo-app-nav-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-1);
+    }
+
+    .rilo-app-nav-meta {
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .rilo-app-nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(86, 101, 125, 0.16);
+    }
+
+    .rilo-app-nav-item.is-active .rilo-app-nav-dot {
+      background: var(--rilo-accent);
+    }
+
+    .rilo-app-sidebar-tools {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      align-content: start;
+    }
+
+    .rilo-app-sidebar-tool {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(255,255,255,0.34);
+      color: var(--ink-1);
+      font-size: 13px;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+    }
+
+    .rilo-app-sidebar-tool:hover {
+      border-color: rgba(86, 101, 125, 0.22);
+      background: rgba(255,255,255,0.48);
+    }
+
+    .rilo-app-sidebar-tool.is-danger:hover {
+      border-color: rgba(141, 117, 111, 0.28);
+    }
+
+    .rilo-app-sidebar-footer {
+      padding: 2px 6px 0;
+    }
+
+    .rilo-app-sidebar-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 28px;
+      width: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink-2);
+      font-size: 12px;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+    }
+
+    .rilo-app-sidebar-link:hover {
+      color: var(--ink-1);
+    }
+
+    .rilo-app-main {
+      min-width: 0;
+      padding: 20px 22px;
+      display: grid;
+      align-content: start;
+      gap: 0;
+    }
+
+    .rilo-app-content {
+      min-width: 0;
+    }
+
     @media (min-width: 1024px) {
       .rilo-shell-grid {
-        grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.92fr);
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .rilo-app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .rilo-app-sidebar {
+        grid-template-rows: auto auto auto;
+        border-right: 0;
+        border-bottom: 1px solid rgba(34, 31, 26, 0.09);
+      }
+
+      .rilo-app-nav {
+        grid-template-columns: 1fr;
+      }
+
+      .rilo-app-sidebar-tools {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
@@ -897,7 +1195,7 @@
       padding: 14px 16px;
       border-radius: var(--radius-md);
       border: 1px solid rgba(34, 31, 26, 0.10);
-      background: linear-gradient(180deg, rgba(255,255,255,0.56), rgba(248,242,235,0.86));
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(247,242,236,0.82));
       display: flex;
       flex-direction: column;
       justify-content: space-between;

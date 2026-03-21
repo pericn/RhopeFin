@@ -7,7 +7,7 @@
   const App = () => {
     const [data, setData] = React.useState(null);
     const [calculations, setCalculations] = React.useState(null);
-    const [activeTab, setActiveTab] = React.useState('settings'); // 恢复页签模式
+    const [activeTab, setActiveTab] = React.useState('overview');
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false); // 抽屉状态
@@ -86,9 +86,82 @@
 
     // 页签配置
     const tabs = [
-      { key: 'settings', label: '参数配置', icon: '⚙️' },
-      { key: 'overview', label: '财务分析', icon: '📊' },
-      { key: 'analysis', label: '敏感度分析', icon: '📈' }
+      { key: 'overview', label: '项目概况', detail: '默认落点' },
+      { key: 'settings', label: '经营设置', detail: '输入与校准' },
+      { key: 'analysis', label: '敏感度分析', detail: '参数扰动' }
+    ];
+
+    const pageActionButtonProps = {
+      variant: 'outline',
+      size: 'small'
+    };
+
+    const settingsPageActions = [
+      React.createElement(window.UIComponents.Button, {
+        key: 'preset',
+        onClick: () => {
+          const presetData = dataManager.getPresetData();
+          const preservedProjectName = data?.basic?.projectName;
+          if (preservedProjectName && preservedProjectName !== 'Rilo Analysis 示例') {
+            presetData.basic.projectName = preservedProjectName;
+          }
+          setData(presetData);
+          updateData(presetData);
+        },
+        ...pageActionButtonProps
+      }, '示例参数'),
+      React.createElement(window.UIComponents.Button, {
+        key: 'export',
+        onClick: () => dataManager.exportData(data),
+        ...pageActionButtonProps
+      }, '导出数据'),
+      React.createElement('div', {
+        key: 'import-wrapper',
+        className: 'relative'
+      }, [
+        React.createElement('input', {
+          key: 'import-input',
+          type: 'file',
+          accept: '.json',
+          onChange: (event) => {
+            const file = event.target.files[0];
+            if (file && dataManager) {
+              dataManager.importData(file, (error, importedData) => {
+                alert(error ? '导入失败: ' + error.message : '数据导入成功！');
+                if (!error) updateData(importedData);
+                event.target.value = '';
+              });
+            }
+          },
+          className: 'absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0'
+        }),
+        React.createElement(window.UIComponents.Button, {
+          key: 'import-button',
+          ...pageActionButtonProps,
+          className: 'pointer-events-none'
+        }, '导入数据')
+      ]),
+      React.createElement(window.UIComponents.Button, {
+        key: 'clear',
+        onClick: () => {
+          if (confirm('确认清除所有保存的数据？')) {
+            const clearedData = dataManager.clearStorage();
+            setData(clearedData);
+            updateData(clearedData);
+          }
+        },
+        danger: true,
+        ...pageActionButtonProps
+      }, '清除数据'),
+      React.createElement(window.UIComponents.Button, {
+        key: 'glossary',
+        onClick: () => {
+          setDrawerTermKey(null);
+          setDrawerSection('glossary');
+          setIsDrawerOpen(true);
+        },
+        ...pageActionButtonProps
+      }, '术语说明')
     ];
 
     // 初始化数据
@@ -269,12 +342,33 @@
               React.createElement('h1', {
                 key: 'title',
                 className: 'rilo-app-brand-title'
-              }, data?.basic?.projectName || '宠物综合体经营测算'),
+              }, 'Rilo Analysis'),
               React.createElement('p', {
                 key: 'subtitle',
                 className: 'rilo-app-brand-copy'
-              }, '左侧切页，右侧只保留当前页面的指标、图表与明细入口。')
+              }, 'V5 frame, calm operating model workspace')
             ]),
+            React.createElement('div', {
+              key: 'sidebar-actions',
+              className: 'rilo-app-sidebar-actions'
+            }, [
+              React.createElement('span', {
+                key: 'icon-slot',
+                className: 'rilo-app-icon-slot',
+                'aria-hidden': 'true'
+              }),
+              React.createElement(window.UIComponents.Button, {
+                key: 'reload-analysis',
+                onClick: () => window.location.reload(),
+                variant: 'outline',
+                size: 'small',
+                className: 'justify-center'
+              }, '重新加载分析')
+            ]),
+            React.createElement('div', {
+              key: 'nav-section-title',
+              className: 'rilo-app-sidebar-section-title'
+            }, '页面'),
             React.createElement('nav', {
               key: 'nav',
               className: 'rilo-app-nav',
@@ -285,162 +379,21 @@
               className: `rilo-app-nav-item ${activeTab === tab.key ? 'is-active' : ''}`,
               onClick: () => setActiveTab(tab.key)
             }, [
+              React.createElement('span', { key: 'index', className: 'rilo-app-nav-index' }, tab.key === 'overview' ? '01' : tab.key === 'settings' ? '02' : '03'),
               React.createElement('span', { key: 'label', className: 'rilo-app-nav-label' }, tab.label),
-              React.createElement('span', { key: 'meta', className: 'rilo-app-nav-meta' }, tab.key === 'settings' ? '参数与输入' : tab.key === 'overview' ? '全局经营读数' : '单参数扰动')
+              React.createElement('span', { key: 'meta', className: 'rilo-app-nav-meta' }, tab.detail),
+              React.createElement('span', { key: 'dot', className: 'rilo-app-nav-dot' })
             ]))),
-            React.createElement('div', {
-              key: 'sidebar-footer',
-              className: 'rilo-app-sidebar-footer'
-            }, [
-              React.createElement('div', {
-                key: 'profit-status',
-                className: `rilo-app-status ${calculations?.profitability?.profit > 0 ? 'is-positive' : 'is-negative'}`
-              }, calculations?.profitability?.profit > 0 ? '✅ 当前模型为盈利状态' : '⚠️ 当前模型仍为亏损状态'),
-              React.createElement('button', {
-                key: 'glossary-btn',
-                type: 'button',
-                className: 'rilo-app-sidebar-link',
-                onClick: () => {
-                  setDrawerTermKey(null);
-                  setDrawerSection('glossary');
-                  setIsDrawerOpen(true);
-                }
-              }, '📖 打开术语说明')
-            ])
           ]),
 
           React.createElement('div', {
             key: 'main',
             className: 'rilo-app-main'
           }, [
-            React.createElement('div', {
-              key: 'header',
-              className: 'rilo-app-header'
-            }, [
-              React.createElement('div', {
-                key: 'header-main',
-                className: 'rilo-app-header-main'
-              }),
-              React.createElement('div', {
-                key: 'header-row',
-                className: 'flex items-center justify-between gap-4'
-              }, [
-                React.createElement('div', {
-                  key: 'title-stack',
-                  className: 'space-y-1'
-                }, [
-                  React.createElement('div', {
-                    key: 'current-tab',
-                    className: 'text-xs uppercase tracking-[0.24em] text-[var(--rilo-text-3)]'
-                  }, tabs.find(tab => tab.key === activeTab)?.label || '页面'),
-                  React.createElement('h2', {
-                    key: 'title',
-                    className: 'text-2xl font-semibold text-[var(--rilo-text-1)]'
-                  }, data?.basic?.projectName || 'Rilo Analysis'),
-                  React.createElement('p', {
-                    key: 'subtitle',
-                    className: 'text-sm text-[var(--rilo-text-2)]'
-                  }, '保持全局指标在上，业务细节下沉，术语与过程通过 Drawer 查看。')
-                ]),
-                React.createElement('div', {
-                  key: 'status',
-                  className: 'text-right'
-                }, [
-                  React.createElement('div', {
-                    key: 'profit-status',
-                    className: `text-sm font-medium ${
-                      calculations?.profitability?.profit > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'
-                    }`
-                  }, calculations?.profitability?.profit > 0 ? '✅ 盈利中' : '❌ 亏损中'),
-                  React.createElement('div', {
-                    key: 'amount',
-                    className: 'text-xs text-[var(--rilo-text-3)]'
-                  }, `${data?.basic?.currency || '¥'}${(calculations?.profitability?.profit || 0).toLocaleString()}/年`)
-                ])
-              ]),
-
-              React.createElement('div', {
-                key: 'quick-actions-row',
-                className: 'rilo-top-tools is-hidden flex items-center justify-between border-t pt-4'
-              }, [
-                React.createElement('div', {
-                  key: 'quick-actions',
-                  className: 'flex gap-3'
-                }, [
-                  React.createElement(window.UIComponents.Button, {
-                    key: 'preset',
-                    size: 'small',
-                    variant: 'secondary',
-                    onClick: () => {
-                      const presetData = dataManager.getPresetData();
-                      // 保留用户的项目名称
-                      const preservedProjectName = data?.basic?.projectName;
-                      if (preservedProjectName && preservedProjectName !== "Rilo Analysis 示例") {
-                        presetData.basic.projectName = preservedProjectName;
-                      }
-                      setData(presetData);
-                      updateData(presetData);
-                    }
-                  }, '📋 示例参数'),
-                  React.createElement(window.UIComponents.Button, {
-                    key: 'export',
-                    size: 'small',
-                    variant: 'primary',
-                    onClick: () => dataManager.exportData(data)
-                  }, '📤 导出数据'),
-                  React.createElement('div', {
-                    key: 'import-wrapper',
-                    className: 'relative'
-                  }, [
-                    React.createElement('input', {
-                      key: 'import-input',
-                      type: 'file',
-                      accept: '.json',
-                      onChange: (event) => {
-                        const file = event.target.files[0];
-                        if (file && dataManager) {
-                          dataManager.importData(file, (error, importedData) => {
-                            alert(error ? '导入失败: ' + error.message : '数据导入成功！');
-                            if (!error) updateData(importedData);
-                            event.target.value = '';
-                          });
-                        }
-                      },
-                      className: 'absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-                    }),
-                    React.createElement(window.UIComponents.Button, {
-                      key: 'import',
-                      size: 'small',
-                      variant: 'outline',
-                      onClick: (event) => {
-                        const input = event.target.closest('.relative').querySelector('input[type="file"]');
-                        if (input) input.click();
-                      }
-                    }, '📥 导入数据')
-                  ]),
-                  React.createElement(window.UIComponents.Button, {
-                    key: 'clear',
-                    size: 'small',
-                    variant: 'danger',
-                    onClick: () => {
-                      if (confirm('确认清除所有保存的数据？')) {
-                        const clearedData = dataManager.clearStorage();
-                        setData(clearedData);
-                        updateData(clearedData);
-                      }
-                    }
-                  }, '🗑️ 清除数据')
-                ]),
-                // 页签导航
-                React.createElement(window.UIComponents.Tabs, {
-                  key: 'tabs',
-                  tabs: tabs,
-                  activeTab: activeTab,
-                  onTabChange: setActiveTab
-                })
-              ])
-            ]),
-
+            activeTab === 'settings' && React.createElement('div', {
+              key: 'settings-actions',
+              className: 'mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-3'
+            }, settingsPageActions),
             React.createElement('div', {
               key: 'page-content',
               className: 'rilo-app-content'

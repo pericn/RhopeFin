@@ -2,7 +2,7 @@
 window.UIComponents = (function() {
 
   // 通用输入组件
-  const Input = ({ label, value, onChange, type = "number", step = 1, suffix = "", hint = "", required = false, format = "decimal" }) => {
+  const Input = ({ label, value, onChange, type = "number", step = 1, suffix = "", hint = "", required = false, format = "decimal", width = null, className = "" }) => {
     const [inputValue, setInputValue] = React.useState('');
     const [isEditing, setIsEditing] = React.useState(false);
 
@@ -49,7 +49,8 @@ window.UIComponents = (function() {
     };
 
     return React.createElement('div', {
-      className: 'flex flex-col gap-1'
+      className: `flex flex-col gap-1 ${className}`.trim(),
+      style: width ? { width } : undefined
     }, [
       React.createElement('label', {
         key: 'label',
@@ -68,7 +69,7 @@ window.UIComponents = (function() {
         React.createElement('input', {
           key: 'input',
           type: type,
-          className: `px-3 py-2.5 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] placeholder-[var(--rilo-text-3)] shadow-[var(--rilo-shadow-soft)] ${required && !value ? 'border-[var(--rilo-sem-danger)]' : 'border-[var(--rilo-border-deep)]'} focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15`,
+          className: `px-3 py-2.5 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] placeholder-[var(--rilo-text-3)] ${required && !value ? 'border-[var(--rilo-sem-danger)]' : 'border-[var(--rilo-border-deep)]'} focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15`,
           value: inputValue,
           step: step,
           onChange: (e) => {
@@ -150,7 +151,7 @@ window.UIComponents = (function() {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
     return React.createElement('div', {
-      className: `rilo-ledger-panel rounded-[var(--radius-lg)] border border-[var(--rilo-border-deep)] p-4 lg:p-6 shadow-[var(--rilo-shadow-card)] backdrop-blur-sm ${className}`
+      className: `rilo-ledger-panel rounded-[var(--radius-lg)] border border-[var(--rilo-border-deep)] p-4 lg:p-6 ${className}`
     }, [
       React.createElement('div', {
         key: 'header',
@@ -187,10 +188,10 @@ window.UIComponents = (function() {
   const KPI = ({ title, value, color = "info", size = "normal", change = null, changeLabel = null, format = null, suffix = "" }) => {
     const getColorClasses = (color) => {
       const colors = {
-        success: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(232,246,240,0.94))] text-[var(--rilo-sem-success)] border-[rgba(47,125,103,0.16)]',
-        danger: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,235,231,0.94))] text-[var(--rilo-sem-danger)] border-[rgba(157,91,75,0.16)]',
-        warning: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(249,239,223,0.94))] text-[var(--rilo-sem-warning)] border-[rgba(183,129,40,0.16)]',
-        info: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.74),rgba(235,236,248,0.94))] text-[var(--rilo-sem-info)] border-[rgba(34,28,139,0.16)]'
+        success: 'bg-[rgba(243,248,243,0.88)] text-[var(--rilo-sem-success)] border-[rgba(118,139,118,0.16)]',
+        danger: 'bg-[rgba(248,242,241,0.88)] text-[var(--rilo-sem-danger)] border-[rgba(141,117,111,0.16)]',
+        warning: 'bg-[rgba(247,244,238,0.88)] text-[var(--rilo-sem-warning)] border-[rgba(143,129,104,0.16)]',
+        info: 'bg-[rgba(241,244,247,0.88)] text-[var(--rilo-sem-info)] border-[rgba(86,101,125,0.16)]'
       };
       return colors[color] || colors.info;
     };
@@ -219,7 +220,7 @@ window.UIComponents = (function() {
       : null);
 
     return React.createElement('div', {
-      className: `${getColorClasses(color)} rilo-kpi-strong rounded-[var(--radius-md)] p-4 border shadow-[var(--rilo-shadow-soft)] relative overflow-hidden ${size === 'large' ? 'col-span-2' : ''}`
+      className: `${getColorClasses(color)} rilo-kpi-strong rounded-[var(--radius-md)] p-4 border relative overflow-hidden ${size === 'large' ? 'col-span-2' : ''}`
     }, [
       React.createElement('div', {
         key: 'glow',
@@ -250,10 +251,10 @@ window.UIComponents = (function() {
   const Button = ({ children, onClick, variant = 'primary', size = 'normal', disabled = false, className = "" }) => {
     const getVariantClasses = (variant) => {
       const variants = {
-        primary: 'border border-[rgba(19,16,89,0.20)] bg-[linear-gradient(180deg,#2d289f,#221c86)] text-[#f7f2ea] shadow-[0_12px_28px_rgba(34,28,139,0.18)] hover:-translate-y-px hover:shadow-[0_16px_32px_rgba(34,28,139,0.22)] active:translate-y-0 active:shadow-[0_10px_18px_rgba(34,28,139,0.18)]',
-        secondary: 'border border-[rgba(34,31,26,0.11)] bg-[var(--rilo-surface-card)] text-[var(--rilo-text-1)] shadow-[var(--rilo-shadow-soft)] hover:-translate-y-px hover:border-[var(--rilo-border-strong)] hover:bg-[var(--rilo-surface-muted)]',
-        success: 'border border-[rgba(47,125,103,0.18)] bg-[linear-gradient(180deg,#33866d,#2f7d67)] text-[#f7f2ea] shadow-[var(--rilo-shadow-soft)] hover:-translate-y-px',
-        danger: 'border border-[rgba(157,91,75,0.18)] bg-[linear-gradient(180deg,#ab6653,#9d5b4b)] text-[#f7f2ea] shadow-[var(--rilo-shadow-soft)] hover:-translate-y-px',
+        primary: 'border border-[rgba(86,101,125,0.18)] bg-[rgba(86,101,125,0.92)] text-[#f7f2ea] hover:-translate-y-px hover:bg-[rgba(86,101,125,0.98)]',
+        secondary: 'border border-[rgba(34,31,26,0.11)] bg-[rgba(255,255,255,0.62)] text-[var(--rilo-text-1)] hover:-translate-y-px hover:border-[var(--rilo-border-strong)] hover:bg-[var(--rilo-surface-muted)]',
+        success: 'border border-[rgba(118,139,118,0.18)] bg-[rgba(118,139,118,0.92)] text-[#f7f2ea] hover:-translate-y-px',
+        danger: 'border border-[rgba(141,117,111,0.18)] bg-[rgba(141,117,111,0.92)] text-[#f7f2ea] hover:-translate-y-px',
         outline: 'rilo-btn-soft hover:-translate-y-px',
         ghost: 'border border-transparent bg-transparent text-[var(--rilo-text-2)] hover:bg-[rgba(255,255,255,0.36)] hover:text-[var(--rilo-text-1)]'
       };

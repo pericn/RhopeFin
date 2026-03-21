@@ -203,23 +203,18 @@ window.AnalysisPage = (function() {
 
     const process = React.createElement('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)] rilo-zh-page' }, [
       React.createElement('div', { key: 'summary', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4' }, [
-        React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, '当前测算口径'),
+        React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, '当前口径'),
         React.createElement('div', { key: 'b', className: 'mt-2 space-y-1 text-sm text-[var(--rilo-text-2)]' }, [
-          React.createElement('div', { key: 'p' }, `观察参数：${getParamLabel(selectedParam, data)}`),
-          React.createElement('div', { key: 'r' }, `变化范围：±${paramRange}%`),
-          React.createElement('div', { key: 'm' }, `影响指标：${getMetricLabel(impactMetric)}`)
+          React.createElement('div', { key: 'p' }, `参数：${getParamLabel(selectedParam, data)}`),
+          React.createElement('div', { key: 'r' }, `范围：±${paramRange}%`),
+          React.createElement('div', { key: 'm' }, `指标：${getMetricLabel(impactMetric)}`)
         ])
-      ]),
-      React.createElement('div', { key: 'table-note', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4' }, [
-        React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, '读数口径'),
-        React.createElement('div', { key: 'b', className: 'mt-2 text-sm text-[var(--rilo-text-2)]' }, '图表展示单参数扰动后的结果变化，明细表保留当前档 / 保守档 / 优化档三组读数。')
       ])
     ]);
 
-    const left = React.createElement('div', { className: 'space-y-8 rilo-zh-page' }, [
+    const left = React.createElement('div', { className: 'space-y-6 rilo-zh-page' }, [
       React.createElement(PageHeader, {
         key: 'header',
-        onOpenGlossaryFallback: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary'),
         data,
         selectedParam,
         paramRange,
@@ -279,23 +274,7 @@ window.AnalysisPage = (function() {
     return React.createElement(React.Fragment, null, [mainContent]);
   };
 
-  const PageHeader = ({ onOpenGlossaryFallback, data, selectedParam, paramRange, impactMetric, calculations, currency, scenarios }) => {
-    const Button = window.UIComponents?.Button || 'button';
-    const buttonProps = Button === 'button'
-      ? { className: 'rilo-btn-soft rounded-[14px] px-4 py-2 text-sm font-medium whitespace-nowrap' }
-      : { variant: 'outline', size: 'small', className: 'whitespace-nowrap' };
-
-    const useInspector = window.RiloUI?.useInspector;
-    const inspector = useInspector ? useInspector() : null;
-    const openGlossary = () => {
-      if (inspector?.setActiveSection && inspector?.setSelectedTerm) {
-        inspector.setActiveSection('glossary');
-        inspector.setSelectedTerm(null);
-      } else if (onOpenGlossaryFallback) {
-        onOpenGlossaryFallback();
-      }
-    };
-
+  const PageHeader = ({ data, selectedParam, paramRange, impactMetric, calculations, currency, scenarios }) => {
     const profit = calculations?.profitability?.profit || 0;
     const Term = window.RiloUI?.Term;
     const titleNode = (termKey, text) => Term ? React.createElement(Term, { termKey }, text) : text;
@@ -308,22 +287,11 @@ window.AnalysisPage = (function() {
       React.createElement('div', { key: 'header-main', className: 'rilo-ledger-header' }, [
         React.createElement('div', {
           key: 'top-row',
-          className: 'flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between'
+          className: 'flex flex-col gap-3'
         }, [
           React.createElement('div', { key: 'copy', className: 'rilo-ledger-header-copy text-left' }, [
             React.createElement('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Sensitivity Analysis'),
-            React.createElement('h1', { key: 'title', className: 'rilo-ledger-title' }, '敏感度分析'),
-            React.createElement('p', {
-              key: 'subtitle',
-              className: 'rilo-ledger-subtitle'
-            }, '单次仅调整一个参数，观察图表与表格中的全局指标变化。')
-          ]),
-          React.createElement('div', { key: 'actions', className: 'flex justify-start xl:justify-end' }, [
-            React.createElement(Button, {
-              key: 'glossary-btn',
-              onClick: openGlossary,
-              ...buttonProps
-            }, '📖 术语解释')
+            React.createElement('h1', { key: 'title', className: 'rilo-ledger-title' }, '敏感度分析')
           ])
         ]),
         React.createElement('div', { key: 'summary-strip', className: 'rilo-ledger-metrics' }, [
@@ -345,8 +313,7 @@ window.AnalysisPage = (function() {
         ]),
         React.createElement('div', { key: 'band', className: 'rilo-ledger-band' }, [
           React.createElement('span', { key: 'b1', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k1' }, '参数'), ` ${getParamLabel(selectedParam, data)}`]),
-          React.createElement('span', { key: 'b2', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k2' }, '口径'), ` ${getMetricLabel(impactMetric)}`]),
-          React.createElement('span', { key: 'b3', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k3' }, '视图'), ' 图表 + 情景对比表'])
+          React.createElement('span', { key: 'b2', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k2' }, '指标'), ` ${getMetricLabel(impactMetric)}`])
         ])
       ])
     ]);

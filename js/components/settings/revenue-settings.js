@@ -12,8 +12,7 @@ window.RevenueSettings = (function() {
       label: config.label,
       value: currentValue || config.defaultValue || 0,
       onChange: (value) => updateField(path, value),
-      suffix: config.suffix,
-      width: '25%'
+      suffix: config.suffix
     });
   };
 
@@ -51,7 +50,7 @@ window.RevenueSettings = (function() {
 
     return React.createElement('div', {
       className: 'flex flex-col gap-2',
-      style: { width: '25%' }
+      style: { width: '100%' }
     }, [
       React.createElement('label', {
         key: 'label',
@@ -108,6 +107,49 @@ window.RevenueSettings = (function() {
     value,
     updateField
   });
+
+  const FieldGrid = ({ children }) => React.createElement('div', {
+    className: 'grid gap-4 md:grid-cols-2 xl:grid-cols-3'
+  }, children);
+
+  const Subsection = ({ title, hint = '', children }) => React.createElement('div', {
+    className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[rgba(255,255,255,0.44)] p-4'
+  }, [
+    React.createElement('div', {
+      key: 'header',
+      className: 'mb-3 flex flex-col gap-1'
+    }, [
+      React.createElement('div', {
+        key: 'title',
+        className: 'text-sm font-semibold text-[var(--rilo-text-1)]'
+      }, title),
+      hint && React.createElement('div', {
+        key: 'hint',
+        className: 'text-xs text-[var(--rilo-text-3)]'
+      }, hint)
+    ]),
+    children
+  ]);
+
+  const RevenueReadout = ({ items }) => React.createElement('div', {
+    className: 'grid gap-3 md:grid-cols-3'
+  }, items.map((item) => React.createElement('div', {
+    key: item.label,
+    className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[rgba(255,255,255,0.52)] px-3 py-3'
+  }, [
+    React.createElement('div', {
+      key: 'label',
+      className: 'text-[11px] uppercase tracking-[0.18em] text-[var(--rilo-text-3)]'
+    }, item.label),
+    React.createElement('div', {
+      key: 'value',
+      className: 'mt-1 text-base font-semibold text-[var(--rilo-text-1)]'
+    }, item.value),
+    item.note && React.createElement('div', {
+      key: 'note',
+      className: 'mt-1 text-xs text-[var(--rilo-text-3)]'
+    }, item.note)
+  ])));
 
   const RevenueSettings = ({ data, updateData, formulaEngine }) => {
     const updateField = (path, value) => {
@@ -218,77 +260,52 @@ window.RevenueSettings = (function() {
       size: 'middle',
       style: { width: '100%' }
     }, [
-      React.createElement('div', {
-        key: 'member-top-row',
-        className: 'flex gap-4 w-full'
-      }, [
-        // 会员总数 (数字输入 - 25% width)
+      React.createElement(Subsection, {
+        key: 'member-scale',
+        title: '规模与盈利口径',
+        hint: '先确认全年会员池和毛利率。'
+      }, React.createElement(FieldGrid, null, [
         React.createElement(window.UIComponents.Input, {
+          key: 'count',
           label: '会员总数',
           value: data?.revenue?.member?.count || 0,
-          onChange: (value) => updateField('revenue.member.count', value),
-          width: '25%'
+          onChange: (value) => updateField('revenue.member.count', value)
         }),
-
-        // 会员毛利率 (数字输入 - 25% width)
         React.createElement(window.UIComponents.Input, {
+          key: 'margin',
           label: '会员毛利率 (%)',
           value: data?.cost?.margins?.members || 0,
           onChange: (value) => updateField('cost.margins.members', value),
-          suffix: '%',
-          width: '25%'
+          suffix: '%'
         })
-      ]),
-
-      React.createElement(MemberTypePercentages, {
-        key: 'type-percentages',
+      ])),
+      React.createElement(Subsection, {
+        key: 'member-mix',
+        title: '会员结构占比',
+        hint: '三档占比建议合计为 100%。'
+      }, React.createElement(MemberTypePercentages, {
         data: data,
         updateField: updateField
-      }),
-
-      React.createElement(MemberPrices, {
-        key: 'prices',
+      })),
+      React.createElement(Subsection, {
+        key: 'member-pricing',
+        title: '会员单价',
+        hint: '按年费口径输入各档位价格。'
+      }, React.createElement(MemberPrices, {
         data: data,
         updateField: updateField
-      }),
-
-      React.createElement('div', {
-        key: 'member-calculation',
-        style: { 
-          marginTop: '8px',
-          paddingTop: '8px',
-          borderTop: '1px solid #f0f0f0'
-        }
-      }, [
-        React.createElement('div', {
-          key: 'title',
-          className: 'text-xs font-medium text-gray-500 mb-1'
-        }, '收入预测'),
-        React.createElement('div', {
-          key: 'daily',
-          className: 'text-sm text-gray-600 mb-1'
-        }, [
-          React.createElement('span', {
-            key: 'daily-label'
-          }, '日均收入: '),
-          React.createElement('span', {
-            key: 'daily-value',
-            className: 'font-medium'
-          }, `¥${(revenueData.memberDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
-        ]),
-        React.createElement('div', {
-          key: 'annual',
-          className: 'text-sm text-gray-600'
-        }, [
-          React.createElement('span', {
-            key: 'annual-label'
-          }, '年度收入: '),
-          React.createElement('span', {
-            key: 'annual-value',
-            className: 'font-medium'
-          }, `${(revenueData.memberRevenue / 10000).toFixed(2)} 万元`)
-        ])
-      ])
+      })),
+      React.createElement(Subsection, {
+        key: 'member-output',
+        title: '收入产出',
+        hint: '快速复核日均、年度和人均贡献。'
+      }, React.createElement(RevenueReadout, {
+        items: [
+          { label: '日均收入', value: `¥${(revenueData.memberDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+          { label: '年度收入', value: `${(revenueData.memberRevenue / 10000).toFixed(2)} 万元` },
+          { label: '人均年收入', value: `¥${Math.round((revenueData.memberRevenue || 0) / Math.max(data?.revenue?.member?.count || 1, 1)).toLocaleString()}`, note: `当前结构合计 ${((data?.revenue?.member?.basePct || 0) + (data?.revenue?.member?.proPct || 0) + (data?.revenue?.member?.vipPct || 0)).toFixed(0)}%` }
+        ]
+      }))
     ]));
   };
 
@@ -323,9 +340,8 @@ window.RevenueSettings = (function() {
         key: 'title',
         className: 'text-sm font-medium text-gray-700 mb-3'
       }, '会员类型分布'),
-      React.createElement('div', {
-        key: 'inputs',
-        className: 'flex gap-4 w-full'
+      React.createElement(FieldGrid, {
+        key: 'inputs'
       }, [
         // 基础会员比例 (数字输入 - 25% width)
         React.createElement(window.UIComponents.Input, {
@@ -333,7 +349,6 @@ window.RevenueSettings = (function() {
           value: data?.revenue?.member?.basePct || 0,
           onChange: (value) => updateField('revenue.member.basePct', value),
           suffix: '%',
-          width: '25%'
         }),
 
         // 高级会员比例 (数字输入 - 25% width)
@@ -342,7 +357,6 @@ window.RevenueSettings = (function() {
           value: data?.revenue?.member?.proPct || 0,
           onChange: (value) => updateField('revenue.member.proPct', value),
           suffix: '%',
-          width: '25%'
         }),
 
         // VIP会员比例 (数字输入 - 25% width)
@@ -351,7 +365,6 @@ window.RevenueSettings = (function() {
           value: data?.revenue?.member?.vipPct || 0,
           onChange: (value) => updateField('revenue.member.vipPct', value),
           suffix: '%',
-          width: '25%'
         })
       ]),
       React.createElement('div', {
@@ -374,17 +387,15 @@ window.RevenueSettings = (function() {
         key: 'title',
         className: 'text-sm font-medium text-gray-700 mb-3'
       }, '会员年费设置'),
-      React.createElement('div', {
-        key: 'inputs',
-        className: 'flex gap-4 w-full'
+      React.createElement(FieldGrid, {
+        key: 'inputs'
       }, memberPrices.map(price => 
         React.createElement(window.UIComponents.Input, {
           key: price.key,
           label: price.label,
           value: data?.revenue?.member?.[price.key] || 0,
           onChange: (value) => updateField(`revenue.member.${price.key}`, value),
-          suffix: '元',
-          width: '25%'
+          suffix: '元'
         })
       ))
     ]);
@@ -409,58 +420,34 @@ window.RevenueSettings = (function() {
       size: 'middle',
       style: { width: '100%' }
     }, [
-      React.createElement('div', {
-        key: 'core-inputs',
-        className: 'flex gap-4 w-full'
-      }, boardingFields.map(field => createInputField(field, data, updateField))),
-
-      React.createElement('div', {
-        key: 'percentage-inputs',
-        className: 'flex gap-4 w-full'
+      React.createElement(Subsection, {
+        key: 'boarding-capacity',
+        title: '房量与房价',
+        hint: '先确认可售房量，再校准日价。'
+      }, React.createElement(FieldGrid, null, boardingFields.map(field => createInputField(field, data, updateField)))),
+      React.createElement(Subsection, {
+        key: 'boarding-conversion',
+        title: '入住与毛利',
+        hint: '入住率和毛利率决定寄养收入质量。'
+      }, React.createElement('div', {
+        className: 'grid gap-4 md:grid-cols-2'
       }, boardingPercentageFields.map(field => {
         const currentValue = field.path === 'cost.margins.boarding'
           ? data?.cost?.margins?.boarding
           : data?.revenue?.boarding?.occ;
         return createDualPercentageField(field, currentValue || 0, updateField);
-      })),
-
-      React.createElement('div', {
-        key: 'boarding-calculation',
-        style: { 
-          marginTop: '8px',
-          paddingTop: '8px',
-          borderTop: '1px solid #f0f0f0'
-        }
-      }, [
-        React.createElement('div', {
-          key: 'title',
-          className: 'text-xs font-medium text-gray-500 mb-1'
-        }, '收入预测'),
-        React.createElement('div', {
-          key: 'daily',
-          className: 'text-sm text-gray-600 mb-1'
-        }, [
-          React.createElement('span', {
-            key: 'daily-label'
-          }, '日均收入: '),
-          React.createElement('span', {
-            key: 'daily-value',
-            className: 'font-medium'
-          }, `¥${(revenueData.boardingDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
-        ]),
-        React.createElement('div', {
-          key: 'annual',
-          className: 'text-sm text-gray-600'
-        }, [
-          React.createElement('span', {
-            key: 'annual-label'
-          }, '年度收入: '),
-          React.createElement('span', {
-            key: 'annual-value',
-            className: 'font-medium'
-          }, `${(revenueData.boardingRevenue / 10000).toFixed(2)} 万元`)
-        ])
-      ])
+      }))),
+      React.createElement(Subsection, {
+        key: 'boarding-output',
+        title: '收入产出',
+        hint: '检查房间效率和年化收入。'
+      }, React.createElement(RevenueReadout, {
+        items: [
+          { label: '日均收入', value: `¥${(revenueData.boardingDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+          { label: '年度收入', value: `${(revenueData.boardingRevenue / 10000).toFixed(2)} 万元` },
+          { label: '单房年收入', value: `¥${Math.round((revenueData.boardingRevenue || 0) / Math.max(data?.revenue?.boarding?.rooms || 1, 1)).toLocaleString()}` }
+        ]
+      }))
     ]));
   };
 
@@ -473,66 +460,36 @@ window.RevenueSettings = (function() {
       size: 'middle',
       style: { width: '100%' }
     }, [
-      React.createElement('div', {
-        key: 'medical-row',
-        className: 'flex gap-4 w-full'
-      }, [
-        // 月均医疗收入 (数字输入 - 25% width)
+      React.createElement(Subsection, {
+        key: 'medical-assumption',
+        title: '基础假设',
+        hint: '月均收入与毛利率分开校准。'
+      }, React.createElement(FieldGrid, null, [
         React.createElement(window.UIComponents.Input, {
+          key: 'revenue',
           label: '月均医疗收入',
           value: data?.revenue?.medical?.monthlyRevenue || 0,
           onChange: (value) => updateField('revenue.medical.monthlyRevenue', value),
-          suffix: '元',
-          width: '25%'
+          suffix: '元'
         }),
-
-        // 医疗毛利率 (数字输入 - 25% width)
         React.createElement(window.UIComponents.Input, {
+          key: 'margin',
           label: '医疗毛利率 (%)',
           value: data?.cost?.margins?.medical || 0,
           onChange: (value) => updateField('cost.margins.medical', value),
-          suffix: '%',
-          width: '25%'
+          suffix: '%'
         })
-      ]),
-
-      React.createElement('div', {
-        key: 'medical-calculation',
-        style: { 
-          marginTop: '8px',
-          paddingTop: '8px',
-          borderTop: '1px solid #f0f0f0'
-        }
-      }, [
-        React.createElement('div', {
-          key: 'title',
-          className: 'text-xs font-medium text-gray-500 mb-1'
-        }, '收入预测'),
-        React.createElement('div', {
-          key: 'daily',
-          className: 'text-sm text-gray-600 mb-1'
-        }, [
-          React.createElement('span', {
-            key: 'daily-label'
-          }, '日均收入: '),
-          React.createElement('span', {
-            key: 'daily-value',
-            className: 'font-medium'
-          }, `¥${(revenueData.medicalDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
-        ]),
-        React.createElement('div', {
-          key: 'annual',
-          className: 'text-sm text-gray-600'
-        }, [
-          React.createElement('span', {
-            key: 'annual-label'
-          }, '年度收入: '),
-          React.createElement('span', {
-            key: 'annual-value',
-            className: 'font-medium'
-          }, `${(revenueData.medicalRevenue / 10000).toFixed(2)} 万元`)
-        ])
-      ])
+      ])),
+      React.createElement(Subsection, {
+        key: 'medical-output',
+        title: '收入产出'
+      }, React.createElement(RevenueReadout, {
+        items: [
+          { label: '日均收入', value: `¥${(revenueData.medicalDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+          { label: '年度收入', value: `${(revenueData.medicalRevenue / 10000).toFixed(2)} 万元` },
+          { label: '月均折算', value: `¥${Math.round((revenueData.medicalRevenue || 0) / 12).toLocaleString()}` }
+        ]
+      }))
     ]));
   };
 
@@ -545,66 +502,35 @@ window.RevenueSettings = (function() {
       size: 'middle',
       style: { width: '100%' }
     }, [
-      React.createElement('div', {
-        key: 'retail-row',
-        className: 'flex gap-4 w-full'
-      }, [
-        // 月均零售收入 (数字输入 - 25% width)
+      React.createElement(Subsection, {
+        key: 'retail-assumption',
+        title: '基础假设'
+      }, React.createElement(FieldGrid, null, [
         React.createElement(window.UIComponents.Input, {
+          key: 'revenue',
           label: '月均零售收入',
           value: data?.revenue?.retail?.monthlyRevenue || 0,
           onChange: (value) => updateField('revenue.retail.monthlyRevenue', value),
-          suffix: '元',
-          width: '25%'
+          suffix: '元'
         }),
-
-        // 零售毛利率 (数字输入 - 25% width)
         React.createElement(window.UIComponents.Input, {
+          key: 'margin',
           label: '零售毛利率 (%)',
           value: data?.cost?.margins?.retail || 0,
           onChange: (value) => updateField('cost.margins.retail', value),
-          suffix: '%',
-          width: '25%'
+          suffix: '%'
         })
-      ]),
-
-      React.createElement('div', {
-        key: 'retail-calculation',
-        style: { 
-          marginTop: '8px',
-          paddingTop: '8px',
-          borderTop: '1px solid #f0f0f0'
-        }
-      }, [
-        React.createElement('div', {
-          key: 'title',
-          className: 'text-xs font-medium text-gray-500 mb-1'
-        }, '收入预测'),
-        React.createElement('div', {
-          key: 'daily',
-          className: 'text-sm text-gray-600 mb-1'
-        }, [
-          React.createElement('span', {
-            key: 'daily-label'
-          }, '日均收入: '),
-          React.createElement('span', {
-            key: 'daily-value',
-            className: 'font-medium'
-          }, `¥${(revenueData.retailDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
-        ]),
-        React.createElement('div', {
-          key: 'annual',
-          className: 'text-sm text-gray-600'
-        }, [
-          React.createElement('span', {
-            key: 'annual-label'
-          }, '年度收入: '),
-          React.createElement('span', {
-            key: 'annual-value',
-            className: 'font-medium'
-          }, `${(revenueData.retailRevenue / 10000).toFixed(2)} 万元`)
-        ])
-      ])
+      ])),
+      React.createElement(Subsection, {
+        key: 'retail-output',
+        title: '收入产出'
+      }, React.createElement(RevenueReadout, {
+        items: [
+          { label: '日均收入', value: `¥${(revenueData.retailDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+          { label: '年度收入', value: `${(revenueData.retailRevenue / 10000).toFixed(2)} 万元` },
+          { label: '月均折算', value: `¥${Math.round((revenueData.retailRevenue || 0) / 12).toLocaleString()}` }
+        ]
+      }))
     ]));
   };
 
@@ -617,66 +543,35 @@ window.RevenueSettings = (function() {
       size: 'middle',
       style: { width: '100%' }
     }, [
-      React.createElement('div', {
-        key: 'cafe-row',
-        className: 'flex gap-4 w-full'
-      }, [
-        // 月均餐饮/社交收入 (数字输入 - 25% width)
+      React.createElement(Subsection, {
+        key: 'cafe-assumption',
+        title: '基础假设'
+      }, React.createElement(FieldGrid, null, [
         React.createElement(window.UIComponents.Input, {
+          key: 'revenue',
           label: '月均餐饮/社交收入',
           value: data?.revenue?.cafe?.monthlyRevenue || 0,
           onChange: (value) => updateField('revenue.cafe.monthlyRevenue', value),
-          suffix: '元',
-          width: '25%'
+          suffix: '元'
         }),
-
-        // 餐饮毛利率 (数字输入 - 25% width)
         React.createElement(window.UIComponents.Input, {
+          key: 'margin',
           label: '餐饮毛利率 (%)',
           value: data?.cost?.margins?.cafe || 0,
           onChange: (value) => updateField('cost.margins.cafe', value),
-          suffix: '%',
-          width: '25%'
+          suffix: '%'
         })
-      ]),
-
-      React.createElement('div', {
-        key: 'cafe-calculation',
-        style: { 
-          marginTop: '8px',
-          paddingTop: '8px',
-          borderTop: '1px solid #f0f0f0'
-        }
-      }, [
-        React.createElement('div', {
-          key: 'title',
-          className: 'text-xs font-medium text-gray-500 mb-1'
-        }, '收入预测'),
-        React.createElement('div', {
-          key: 'daily',
-          className: 'text-sm text-gray-600 mb-1'
-        }, [
-          React.createElement('span', {
-            key: 'daily-label'
-          }, '日均收入: '),
-          React.createElement('span', {
-            key: 'daily-value',
-            className: 'font-medium'
-          }, `¥${(revenueData.cafeDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
-        ]),
-        React.createElement('div', {
-          key: 'annual',
-          className: 'text-sm text-gray-600'
-        }, [
-          React.createElement('span', {
-            key: 'annual-label'
-          }, '年度收入: '),
-          React.createElement('span', {
-            key: 'annual-value',
-            className: 'font-medium'
-          }, `${(revenueData.cafeRevenue / 10000).toFixed(2)} 万元`)
-        ])
-      ])
+      ])),
+      React.createElement(Subsection, {
+        key: 'cafe-output',
+        title: '收入产出'
+      }, React.createElement(RevenueReadout, {
+        items: [
+          { label: '日均收入', value: `¥${(revenueData.cafeDaily || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+          { label: '年度收入', value: `${(revenueData.cafeRevenue / 10000).toFixed(2)} 万元` },
+          { label: '月均折算', value: `¥${Math.round((revenueData.cafeRevenue || 0) / 12).toLocaleString()}` }
+        ]
+      }))
     ]));
   };
 

@@ -121,7 +121,7 @@
       className: `min-h-[36px] px-3.5 py-1.5 rounded-[14px] text-sm font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 ${active ? 'rilo-btn-strong' : 'rilo-btn-soft hover:-translate-y-px text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]'}`
     }, children);
 
-  const InspectorPanel = ({ title = 'Inspector', conclusion, process, glossary, glossaryTerms = {} }) => {
+  const InspectorPanel = ({ title = '参考面板', conclusion, process, glossary, glossaryTerms = {} }) => {
     const { activeSection, setActiveSection, selectedTerm } = useInspector();
     const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
 
@@ -179,7 +179,7 @@
 
     return React.createElement('div', { className: 'rilo-inspector-panel' }, [
       React.createElement('div', { key: 'title', className: 'rilo-inspector-header' }, [
-        React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, 'Inspector'),
+        React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, 'Reference'),
         React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title),
         React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
           React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
