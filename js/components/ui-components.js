@@ -68,7 +68,7 @@ window.UIComponents = (function() {
         React.createElement('input', {
           key: 'input',
           type: type,
-          className: `px-3 py-2 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] placeholder-[var(--rilo-text-3)] ${required && !value ? 'border-[var(--rilo-sem-danger)]' : 'border-[var(--rilo-border-deep)]'} focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20`,
+          className: `px-3 py-2.5 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] placeholder-[var(--rilo-text-3)] shadow-[var(--rilo-shadow-soft)] ${required && !value ? 'border-[var(--rilo-sem-danger)]' : 'border-[var(--rilo-border-deep)]'} focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15`,
           value: inputValue,
           step: step,
           onChange: (e) => {
@@ -81,12 +81,12 @@ window.UIComponents = (function() {
         }),
         suffix && React.createElement('span', {
           key: 'suffix',
-          className: 'absolute right-3 top-2 text-gray-400 text-sm'
+          className: 'absolute right-3 top-2 text-sm text-[var(--rilo-text-3)]'
         }, suffix)
       ]),
       hint && React.createElement('div', {
         key: 'hint',
-        className: 'text-xs text-gray-400'
+        className: 'text-xs text-[var(--rilo-text-3)]'
       }, hint)
     ]);
   };
@@ -104,11 +104,11 @@ window.UIComponents = (function() {
     }, [
       React.createElement('label', {
         key: 'label',
-        className: 'text-sm text-gray-600'
+        className: 'text-sm text-[var(--rilo-text-2)]'
       }, label),
       React.createElement('textarea', {
         key: 'textarea',
-        className: 'px-3 py-2 rounded-xl border w-full resize-none focus:border-blue-500 focus:outline-none',
+        className: 'px-3 py-2.5 rounded-xl border w-full resize-none bg-[var(--rilo-surface-1)] border-[var(--rilo-border-deep)] text-[var(--rilo-text-1)] shadow-[var(--rilo-shadow-soft)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15',
         rows: rows,
         value: textValue,
         placeholder: placeholder,
@@ -129,7 +129,7 @@ window.UIComponents = (function() {
       }, label),
       React.createElement('select', {
         key: 'select',
-        className: 'px-3 py-2 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] border-[var(--rilo-border-deep)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20',
+        className: 'px-3 py-2.5 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] border-[var(--rilo-border-deep)] shadow-[var(--rilo-shadow-soft)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15',
         value: value,
         onChange: (e) => onChange(e.target.value)
       }, options.map(option => 
@@ -150,19 +150,23 @@ window.UIComponents = (function() {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
     return React.createElement('div', {
-      className: `bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] p-4 lg:p-6 ${className}`
+      className: `rilo-ledger-panel rounded-[var(--radius-lg)] border border-[var(--rilo-border-deep)] p-4 lg:p-6 shadow-[var(--rilo-shadow-card)] backdrop-blur-sm ${className}`
     }, [
       React.createElement('div', {
         key: 'header',
-        className: 'flex items-center justify-between mb-4'
+        className: 'flex items-center justify-between mb-5 border-b border-[var(--line)] pb-4'
       }, [
         React.createElement('div', {
           key: 'title-section',
-          className: 'flex items-center gap-2'
+          className: 'flex items-center gap-3'
         }, [
+          React.createElement('span', {
+            key: 'index',
+            className: 'text-[11px] uppercase tracking-[0.24em] text-[var(--rilo-text-3)]'
+          }, 'Section'),
           React.createElement('h2', {
             key: 'title',
-            className: 'text-lg font-semibold text-[var(--rilo-text-1)]'
+            className: 'text-lg font-semibold tracking-[var(--rilo-tracking-tight-cn)] text-[var(--rilo-text-1)]'
           }, title),
           collapsible && React.createElement('button', {
             key: 'toggle',
@@ -174,19 +178,19 @@ window.UIComponents = (function() {
       ]),
       !isCollapsed && React.createElement('div', {
         key: 'content',
-        className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+        className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5'
       }, children)
     ]);
   };
 
   // KPI指标显示组件
-  const KPI = ({ title, value, color = "info", size = "normal", change = null, format = null }) => {
+  const KPI = ({ title, value, color = "info", size = "normal", change = null, changeLabel = null, format = null, suffix = "" }) => {
     const getColorClasses = (color) => {
       const colors = {
-        success: 'bg-[var(--rilo-sem-success)]/10 text-[var(--rilo-sem-success)] border-[var(--rilo-sem-success)]/30',
-        danger: 'bg-[var(--rilo-sem-danger)]/10 text-[var(--rilo-sem-danger)] border-[var(--rilo-sem-danger)]/30',
-        warning: 'bg-[var(--rilo-sem-warning)]/10 text-[var(--rilo-sem-warning)] border-[var(--rilo-sem-warning)]/30',
-        info: 'bg-[var(--rilo-sem-info)]/10 text-[var(--rilo-sem-info)] border-[var(--rilo-sem-info)]/30'
+        success: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(232,246,240,0.94))] text-[var(--rilo-sem-success)] border-[rgba(47,125,103,0.16)]',
+        danger: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,235,231,0.94))] text-[var(--rilo-sem-danger)] border-[rgba(157,91,75,0.16)]',
+        warning: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(249,239,223,0.94))] text-[var(--rilo-sem-warning)] border-[rgba(183,129,40,0.16)]',
+        info: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.74),rgba(235,236,248,0.94))] text-[var(--rilo-sem-info)] border-[rgba(34,28,139,0.16)]'
       };
       return colors[color] || colors.info;
     };
@@ -202,21 +206,43 @@ window.UIComponents = (function() {
       return val;
     };
 
+    const formattedValue = formatValue(value);
+    const showSuffix = suffix && typeof formattedValue === 'string' && !formattedValue.includes(suffix);
+    const hasChange = changeLabel !== null || change !== null;
+    const changeTone = change > 0
+      ? 'bg-[var(--emerald-soft)] text-[var(--rilo-sem-success)]'
+      : change < 0
+        ? 'bg-[var(--brick-soft)] text-[var(--rilo-sem-danger)]'
+        : 'bg-[rgba(34,31,26,0.08)] text-[var(--rilo-text-2)]';
+    const resolvedChangeLabel = changeLabel || (change !== null
+      ? `${change > 0 ? '+' : ''}${change.toFixed(1)}%`
+      : null);
+
     return React.createElement('div', {
-      className: `${getColorClasses(color)} rounded-xl p-4 border ${size === 'large' ? 'col-span-2' : ''}`
+      className: `${getColorClasses(color)} rilo-kpi-strong rounded-[var(--radius-md)] p-4 border shadow-[var(--rilo-shadow-soft)] relative overflow-hidden ${size === 'large' ? 'col-span-2' : ''}`
     }, [
       React.createElement('div', {
+        key: 'glow',
+        className: 'pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(34,28,139,0.24),transparent)]'
+      }),
+      React.createElement('div', {
         key: 'title',
-        className: 'text-xs text-[var(--rilo-text-3)] mb-1'
+        className: 'pr-10 text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)] mb-3'
       }, title),
       React.createElement('div', {
         key: 'value',
-        className: `font-bold ${size === 'large' ? 'text-2xl' : 'text-lg'} text-[var(--rilo-text-1)]`
-      }, formatValue(value)),
-      change && React.createElement('div', {
+        className: `font-bold ${size === 'large' ? 'text-[2.1rem]' : 'text-[1.55rem]'} tracking-[-0.05em] text-[var(--rilo-text-1)] leading-[1.02]`
+      }, [
+        React.createElement('span', { key: 'main' }, formattedValue),
+        showSuffix && React.createElement('span', {
+          key: 'suffix',
+          className: 'ml-1.5 text-sm font-medium tracking-normal text-[var(--rilo-text-3)]'
+        }, suffix)
+      ]),
+      hasChange && React.createElement('div', {
         key: 'change',
-        className: `text-xs mt-1 ${change > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}`
-      }, `${change > 0 ? '+' : ''}${change.toFixed(1)}%`)
+        className: `mt-3 inline-flex min-h-[28px] items-center rounded-full px-2.5 text-xs font-medium ${changeTone}`
+      }, resolvedChangeLabel)
     ]);
   };
 
@@ -224,26 +250,27 @@ window.UIComponents = (function() {
   const Button = ({ children, onClick, variant = 'primary', size = 'normal', disabled = false, className = "" }) => {
     const getVariantClasses = (variant) => {
       const variants = {
-        primary: 'bg-[var(--rilo-accent)] hover:bg-[var(--rilo-accent-500)] text-white',
-        secondary: 'bg-[var(--rilo-text-2)] hover:bg-[var(--rilo-text-1)] text-[var(--rilo-text-1)]',
-        success: 'bg-[var(--rilo-sem-success)] hover:bg-[var(--rilo-sem-success)]/90 text-white',
-        danger: 'bg-[var(--rilo-sem-danger)] hover:bg-[var(--rilo-sem-danger)]/90 text-white',
-        outline: `border border-[var(--rilo-accent)] text-[var(--rilo-accent)] hover:bg-[var(--rilo-accent)]/10`
+        primary: 'border border-[rgba(19,16,89,0.20)] bg-[linear-gradient(180deg,#2d289f,#221c86)] text-[#f7f2ea] shadow-[0_12px_28px_rgba(34,28,139,0.18)] hover:-translate-y-px hover:shadow-[0_16px_32px_rgba(34,28,139,0.22)] active:translate-y-0 active:shadow-[0_10px_18px_rgba(34,28,139,0.18)]',
+        secondary: 'border border-[rgba(34,31,26,0.11)] bg-[var(--rilo-surface-card)] text-[var(--rilo-text-1)] shadow-[var(--rilo-shadow-soft)] hover:-translate-y-px hover:border-[var(--rilo-border-strong)] hover:bg-[var(--rilo-surface-muted)]',
+        success: 'border border-[rgba(47,125,103,0.18)] bg-[linear-gradient(180deg,#33866d,#2f7d67)] text-[#f7f2ea] shadow-[var(--rilo-shadow-soft)] hover:-translate-y-px',
+        danger: 'border border-[rgba(157,91,75,0.18)] bg-[linear-gradient(180deg,#ab6653,#9d5b4b)] text-[#f7f2ea] shadow-[var(--rilo-shadow-soft)] hover:-translate-y-px',
+        outline: 'rilo-btn-soft hover:-translate-y-px',
+        ghost: 'border border-transparent bg-transparent text-[var(--rilo-text-2)] hover:bg-[rgba(255,255,255,0.36)] hover:text-[var(--rilo-text-1)]'
       };
       return variants[variant] || variants.primary;
     };
 
     const getSizeClasses = (size) => {
       const sizes = {
-        small: 'px-3 py-1 text-sm',
-        normal: 'px-4 py-2',
-        large: 'px-6 py-3 text-lg'
+        small: 'min-h-[36px] px-3.5 py-1.5 text-sm',
+        normal: 'min-h-[42px] px-4.5 py-2.5 text-sm',
+        large: 'min-h-[48px] px-6 py-3 text-lg'
       };
       return sizes[size] || sizes.normal;
     };
 
     return React.createElement('button', {
-      className: `${getVariantClasses(variant)} ${getSizeClasses(size)} rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`,
+      className: `${getVariantClasses(variant)} ${getSizeClasses(size)} rounded-[14px] font-medium tracking-[0.01em] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${className}`,
       onClick: disabled ? null : onClick,
       disabled: disabled
     }, children);

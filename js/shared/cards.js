@@ -8,8 +8,11 @@
 
   // ChartCard: Simple container for a chart with title
   const ChartCard = ({ title, children }) =>
-    React.createElement('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] p-6' }, [
-      React.createElement('h3', { key: 'title', className: 'text-lg font-semibold mb-4 text-[var(--rilo-text-1)]' }, title),
+    React.createElement('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[rgba(34,31,26,0.10)] p-6 shadow-[var(--rilo-shadow-card)]' }, [
+      React.createElement('div', { key: 'header', className: 'mb-4 border-b border-[var(--line)] pb-4' }, [
+        React.createElement('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, 'Reading'),
+        React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, title)
+      ]),
       children
     ]);
   window.RiloUI.ChartCard = ChartCard;
@@ -23,7 +26,7 @@
       info: 'bg-[var(--rilo-sem-info)]/10 border-[var(--rilo-sem-info)] text-[var(--rilo-sem-info)]'
     };
     const colors = colorClasses ? colorClasses[alert.type] : defaultColors[alert.type] || defaultColors.info;
-    return React.createElement('div', { className: `border rounded-lg p-4 ${colors}` }, [
+    return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)] bg-[rgba(255,251,246,0.72)] ${colors}` }, [
       React.createElement('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
         React.createElement('span', { key: 'icon', className: 'text-lg' }, alert.icon),
         React.createElement('h5', { key: 'title', className: 'font-medium' }, alert.title)
@@ -54,7 +57,7 @@
     };
     const cls = colorClasses[mappedType];
 
-    return React.createElement('div', { className: `border rounded-lg p-4 ${cls}` }, [
+    return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)] bg-[rgba(255,251,246,0.72)] ${cls}` }, [
       React.createElement('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
         React.createElement('span', { key: 'icon', className: 'text-lg' }, insight.icon),
         React.createElement('h5', { key: 'title', className: 'font-medium' }, insight.title)
@@ -83,7 +86,7 @@
     };
 
     return React.createElement('div', {
-      className: `border rounded-lg p-4 ${priorityColors[recommendation.priority]}`
+      className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)] bg-[rgba(255,251,246,0.72)] ${priorityColors[recommendation.priority]}`
     }, [
       React.createElement('div', {
         key: 'header',
@@ -117,7 +120,7 @@
 
   const ScenarioCard = ({ scenario, currency }) => {
     return React.createElement('div', {
-      className: `bg-[var(--rilo-surface-1)] border border-[var(--rilo-border-deep)] rounded-lg p-4`
+      className: `rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)]`
     }, [
       // 卡片头部
       React.createElement('div', {

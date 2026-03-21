@@ -37,15 +37,20 @@
       --rilo-qingdai: #2F3A4A;
       --rilo-mist-blue: #AFC4DA;
 
-      /* === Shared Shell Tokens (impeccable visual plan) === */
-      /* Deep neutrals (for future dark mode) */
-      --rilo-bg-deep: #11100E;
-      --rilo-surface-1: #171513;
-      --rilo-surface-2: #1E1B18;
-      --rilo-border-deep: #2A2622;
-      --rilo-text-1: #ECE7E1;
-      --rilo-text-2: #B6B0A8;
-      --rilo-text-3: #8A847D;
+      /* === Shared Shell Tokens (aligned to v5 paper system) === */
+      --rilo-bg-deep: #f3ebdf;
+      --rilo-surface-1: rgba(255, 250, 245, 0.74);
+      --rilo-surface-2: rgba(245, 236, 224, 0.72);
+      --rilo-surface-3: rgba(233, 237, 243, 0.68);
+      --rilo-surface-panel: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(247,240,231,0.92));
+      --rilo-surface-card: linear-gradient(180deg, rgba(255,255,255,0.70), rgba(244,235,223,0.90));
+      --rilo-surface-muted: rgba(255, 251, 246, 0.72);
+      --rilo-surface-accent: linear-gradient(180deg, rgba(236,236,250,0.92), rgba(245,239,230,0.96));
+      --rilo-border-deep: rgba(34, 31, 26, 0.14);
+      --rilo-border-strong: rgba(34, 31, 26, 0.22);
+      --rilo-text-1: var(--ink-1);
+      --rilo-text-2: var(--ink-2);
+      --rilo-text-3: var(--ink-3);
 
       /* Jewel accents */
       --rilo-brand: #221C86;
@@ -56,15 +61,18 @@
       --rilo-jewel-ruby: #EF4444;
 
       /* Semantic colors (unified) */
-      --rilo-sem-success: var(--rilo-jewel-emerald);
-      --rilo-sem-warning: var(--rilo-jewel-citrine);
-      --rilo-sem-danger: var(--rilo-jewel-ruby);
-      --rilo-sem-info: var(--rilo-accent);
+      --rilo-sem-success: var(--emerald);
+      --rilo-sem-warning: var(--amber);
+      --rilo-sem-danger: var(--brick);
+      --rilo-sem-info: var(--rilo-accent-v5);
 
       /* Radius, shadow, spacing */
       --rilo-radius-card: 16px;
       --rilo-radius-control: 12px;
-      --rilo-shadow-card: 0 8px 24px rgba(0,0,0,0.25);
+      --rilo-shadow-card: 0 18px 44px rgba(85, 61, 28, 0.10);
+      --rilo-shadow-soft: 0 8px 22px rgba(85, 61, 28, 0.06);
+      --rilo-shadow-press: 0 12px 28px rgba(85, 61, 28, 0.12);
+      --rilo-shadow-shell: 0 28px 72px rgba(85, 61, 28, 0.14);
       --rilo-gap-page: 24px;
       --rilo-gap-form: 16px;
 
@@ -80,16 +88,345 @@
       --rilo-leading-ui: 1.58;
       --rilo-tracking-cn: 0.01em;
       --rilo-tracking-tight-cn: -0.012em;
+
+      /* === v5 Visual System: Paper + Ink + Jewel === */
+      /* Paper base (warm, matte) */
+      --paper-base: #f6f0e6;
+      --paper-warm: #efe5d7;
+      --paper-cool: #e9edf3;
+      --paper-line: #ddcfbe;
+      --paper-fold: #ccb9a2;
+
+      /* Ink (text hierarchy) */
+      --ink-1: #221f1a;
+      --ink-2: #5f564a;
+      --ink-3: #8c8275;
+
+      /* Accent (primary brand - 深蓝) */
+      --rilo-accent-v5: #221C8B;
+      --rilo-accent: var(--rilo-accent-v5);
+      --rilo-accent-500: #3932a5;
+      --rilo-accent-50: rgba(34, 28, 139, 0.08);
+
+      /* Semantic jewel accents (v5) */
+      --emerald: #2f7d67;
+      --amber: #b78128;
+      --brick: #9d5b4b;
+      --plum: #835b7d;
+
+      /* Derived soft variants */
+      --rilo-accent-soft-v5: rgba(34, 28, 139, 0.10);
+      --rilo-accent-mid-v5: rgba(34, 28, 139, 0.18);
+      --emerald-soft: rgba(47, 125, 103, 0.12);
+      --amber-soft: rgba(183, 129, 40, 0.12);
+      --brick-soft: rgba(157, 91, 75, 0.12);
+      --plum-soft: rgba(131, 91, 125, 0.12);
+
+      /* Lines */
+      --line: rgba(34, 31, 26, 0.13);
+      --line-strong: rgba(34, 31, 26, 0.22);
+
+      /* Shadows */
+      --shadow-v5: 0 26px 80px rgba(85, 61, 28, 0.12);
+
+      /* Radius scale (v5) */
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+
+      /* Spacing scale (v5) */
+      --space-1: 12px;
+      --space-2: 16px;
+      --space-3: 20px;
+      --space-4: 28px;
+      --space-5: 38px;
+      --space-6: 50px;
+      --control-height: 42px;
+      --control-height-sm: 36px;
+
+      /* Font stack (v5) */
+      --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Baskerville, Georgia, serif;
+      --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
     }
 
     body {
-      font-family: var(--rilo-font-cn);
-      line-height: var(--rilo-leading-copy);
-      letter-spacing: var(--rilo-tracking-cn);
-      text-rendering: optimizeLegibility;
+      font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.85;
+      letter-spacing: 0.02em;
+      background:
+        radial-gradient(circle at left top, rgba(34, 28, 139, 0.08), transparent 28%),
+        radial-gradient(circle at right 8%, rgba(183, 129, 40, 0.07), transparent 24%),
+        linear-gradient(180deg, #faf6ef 0%, var(--paper-base) 48%, #eee5d8 100%);
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+      color: var(--ink-1);
+      margin: 0;
     }
+
+    /* 纸张纹理叠加（可选，增强质感） */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.28;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(34, 31, 26, 0.017) 0,
+          rgba(34, 31, 26, 0.017) 1px,
+          transparent 1px,
+          transparent 7px
+        );
+      mix-blend-mode: multiply;
+      z-index: -1;
+    }
+
+    /* 主应用容器（v5 风格） */
+    #root > .app-container {
+      width: min(1520px, calc(100% - 28px));
+      margin: 18px auto 26px;
+      border-radius: var(--radius-xl, 30px);
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.16)),
+        linear-gradient(135deg, rgba(246,240,230,0.98), rgba(239,229,215,0.96) 56%, rgba(233,237,243,0.90));
+      box-shadow: var(--rilo-shadow-shell);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      min-height: calc(100vh - 48px);
+      position: relative;
+    }
+
+    /* === Ant Design 主题覆盖 === */
+    /* 按钮 */
+    .ant-btn {
+      border-radius: var(--radius-control, 12px) !important;
+      border: 1px solid var(--line) !important;
+      font-family: var(--font-sans) !important;
+      letter-spacing: var(--rilo-tracking-cn, 0.01em);
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+      box-shadow: none !important;
+    }
+
+    .ant-btn-primary {
+      background-color: var(--rilo-accent-v5, #221C8B) !important;
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      color: #fff !important;
+    }
+
+    .ant-btn-primary:hover,
+    .ant-btn-primary:focus {
+      background-color: rgba(34, 28, 139, 0.90) !important;
+      border-color: rgba(34, 28, 139, 0.90) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.15) !important;
+    }
+
+    .ant-btn-default:hover,
+    .ant-btn-default:focus {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.10) !important;
+    }
+
+    /* 输入框与数字输入 */
+    .ant-input,
+    .ant-input-number {
+      border-radius: var(--radius-control, 12px) !important;
+      border: 1px solid var(--line) !important;
+      font-family: var(--font-sans) !important;
+      letter-spacing: var(--rilo-tracking-cn, 0.01em);
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+      background: rgba(255,255,255,0.56) !important;
+      box-shadow: none !important;
+    }
+
+    .ant-input:focus,
+    .ant-input-number:focus {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.12) !important;
+    }
+
+    .ant-input-number-handler-wrap {
+      background: transparent !important;
+      border-left: 1px solid var(--line) !important;
+    }
+
+    /* 下拉选择 */
+    .ant-select {
+      font-family: var(--font-sans) !important;
+    }
+
+    .ant-select-selector {
+      border-radius: var(--radius-control, 12px) !important;
+      border: 1px solid var(--line) !important;
+      background: rgba(255,255,255,0.56) !important;
+      box-shadow: none !important;
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+    }
+
+    .ant-select-open .ant-select-selector,
+    .ant-select-focused .ant-select-selector {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.12) !important;
+    }
+
+    /* 卡片 */
+    .ant-card {
+      border-radius: var(--radius-lg, 22px) !important;
+      border: 1px solid var(--line) !important;
+      background: rgba(255, 255, 255, 0.60) !important;
+      box-shadow: var(--rilo-shadow-card, 0 8px 24px rgba(0,0,0,0.12)) !important;
+      overflow: hidden;
+    }
+
+    .ant-card-head {
+      border-bottom: 1px solid var(--line) !important;
+      padding: var(--space-2, 16px) var(--space-4, 28px) !important;
+      min-height: auto !important;
+    }
+
+    .ant-card-head-title {
+      font-family: var(--font-display) !important;
+      font-size: 1.125rem !important;
+      font-weight: 600;
+      color: var(--ink-1) !important;
+      letter-spacing: 0.02em;
+    }
+
+    .ant-card-body {
+      padding: var(--space-4, 28px) !important;
+    }
+
+    /* 滑块 (Slider) */
+    .ant-slider {
+      margin: 8px 0 !important;
+    }
+
+    .ant-slider-rail {
+      background-color: rgba(34, 31, 26, 0.1) !important;
+      height: 6px !important;
+      border-radius: 3px !important;
+    }
+
+    .ant-slider-track {
+      background-color: var(--rilo-accent-v5, #221C8B) !important;
+      height: 6px !important;
+      border-radius: 3px !important;
+    }
+
+    .ant-slider-handle {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 2px 6px rgba(34, 28, 139, 0.25) !important;
+      width: 18px !important;
+      height: 18px !important;
+      margin-top: -6px !important;
+    }
+
+    /* 折叠面板 */
+    .ant-collapse-header {
+      border-radius: var(--radius-md, 16px) !important;
+      background: rgba(255,255,255,0.40) !important;
+      border: 1px solid var(--line) !important;
+      padding: var(--space-2, 16px) var(--space-4, 28px) !important;
+      font-family: var(--font-sans) !important;
+    }
+
+    .ant-collapse-item {
+      border: none !important;
+      margin-bottom: 8px !important;
+      border-radius: var(--radius-md, 16px) !important;
+      overflow: hidden !important;
+    }
+
+    /* 标签页 */
+    .ant-tabs {
+      font-family: var(--font-sans) !important;
+    }
+
+    .ant-tabs-tab {
+      padding: 8px 16px !important;
+      font-size: 14px !important;
+      color: var(--ink-2) !important;
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+    }
+
+    .ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--rilo-accent-v5, #221C8B) !important;
+      font-weight: 600 !important;
+    }
+
+    .ant-tabs-ink-bar {
+      background-color: var(--rilo-accent-v5, #221C8B) !important;
+      height: 2px !important;
+      border-radius: 1px !important;
+    }
+
+    /* 表格 */
+    .ant-table {
+      font-family: var(--font-sans) !important;
+      border-radius: var(--radius-md, 16px) !important;
+      overflow: hidden !important;
+    }
+
+    .ant-table-thead > tr > th {
+      background: var(--paper-warm, #efe5d7) !important;
+      border-bottom: 1px solid var(--line) !important;
+      color: var(--ink-2) !important;
+      font-weight: 600 !important;
+      font-size: 12px !important;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid var(--line) !important;
+      color: var(--ink-1) !important;
+      background: rgba(255,255,255,0.48) !important;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: rgba(34, 28, 139, 0.04) !important;
+    }
+
+    /* 消息提示 */
+    .ant-message {
+      font-family: var(--font-sans) !important;
+    }
+
+    /* 全局滚动条美化（可选） */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--paper-base, #f6f0e6);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--ink-3);
+    }
+
+    /* 语义色工具类 */
+    .text-success { color: var(--emerald) !important; }
+    .text-warning { color: var(--amber) !important; }
+    .text-danger { color: var(--brick) !important; }
+    .text-info { color: var(--rilo-accent-v5, #221C8B) !important; }
+    .text-muted { color: var(--ink-3) !important; }
+    .text-secondary { color: var(--ink-2) !important; }
+
+    /* 背景容器（卡片内 white 混合） */
+    .bg-paper-base { background-color: var(--paper-base) !important; }
+    .bg-paper-warm { background-color: var(--paper-warm) !important; }
+    .bg-paper-cool { background-color: var(--paper-cool) !important; }
+    .bg-white-mix { background: rgba(255,255,255,0.60) !important; }
 
     .rilo-zh-page {
       line-height: var(--rilo-leading-copy);
@@ -265,6 +602,405 @@
     .field-label strong {
       line-height: 1.6;
     }
+
+    /* === v5: Tailwind utility overrides === */
+    /* 全局字体覆盖 */
+    body, .ant-typography, .ant-btn, .ant-input, .ant-select, .ant-card, .ant-table {
+      font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Tailwind utility overrides (v5 palette) */
+    .text-gray-500 { color: var(--ink-3) !important; }
+    .text-gray-600 { color: var(--ink-2) !important; }
+    .text-gray-800 { color: var(--ink-1) !important; }
+    .text-sm { font-size: 0.875rem; line-height: 1.85; }
+    .text-xs { font-size: 0.75rem; line-height: 1.85; color: var(--ink-3); }
+
+    .bg-white { background: var(--paper-warm) !important; }
+    .bg-gray-50 { background: var(--paper-base) !important; }
+    .bg-gray-100 { background: var(--paper-warm) !important; }
+
+    .border { border-color: var(--line) !important; }
+    .border-2 { border-color: var(--line-strong) !important; }
+
+    .rounded { border-radius: var(--radius-md) !important; }
+    .rounded-lg { border-radius: var(--radius-lg) !important; }
+    .rounded-xl { border-radius: var(--radius-xl) !important; }
+    .rounded-2xl { border-radius: calc(var(--radius-lg) * 1.2) !important; }
+
+    .shadow { box-shadow: var(--shadow-v5) !important; }
+    .shadow-lg { box-shadow: 0 10px 40px rgba(85, 61, 28, 0.18) !important; }
+
+    /* 卡片统一类（v5） */
+    .rilo-card {
+      background: var(--rilo-surface-card);
+      border: 1px solid rgba(34, 31, 26, 0.11);
+      border-radius: var(--radius-lg, 22px);
+      box-shadow: var(--rilo-shadow-card);
+      padding: var(--space-4, 28px);
+    }
+
+    .rilo-ledger-panel {
+      background: var(--rilo-surface-panel);
+      border: 1px solid rgba(34, 31, 26, 0.11);
+      border-radius: calc(var(--radius-lg) * 1.05);
+      box-shadow: var(--rilo-shadow-card);
+      position: relative;
+    }
+
+    .rilo-ledger-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 32%);
+      pointer-events: none;
+    }
+
+    .rilo-shell-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(22px, 2vw, 34px);
+      align-items: start;
+    }
+
+    .rilo-shell-main {
+      display: grid;
+      gap: clamp(22px, 2vw, 34px);
+    }
+
+    .rilo-shell-side {
+      min-width: 0;
+    }
+
+    .rilo-shell-side > * {
+      min-width: 0;
+    }
+
+    .rilo-inspector-panel {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(247,240,231,0.94)),
+        linear-gradient(135deg, rgba(233,237,243,0.32), transparent 58%);
+      border: 1px solid rgba(34, 31, 26, 0.12);
+      border-radius: calc(var(--radius-lg) * 1.04);
+      box-shadow: var(--rilo-shadow-card);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .rilo-inspector-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 56px;
+      background: linear-gradient(180deg, rgba(34, 28, 139, 0.07), transparent);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .rilo-inspector-header {
+      display: grid;
+      gap: 10px;
+      padding: 6px 4px 2px;
+    }
+
+    .rilo-inspector-kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-inspector-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .rilo-inspector-section {
+      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(244,235,223,0.92));
+      border: 1px solid rgba(34,31,26,0.10);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--rilo-shadow-soft);
+      overflow: hidden;
+    }
+
+    .rilo-inspector-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(244,235,223,0.82));
+    }
+
+    .rilo-inspector-section-body {
+      padding: 14px 16px 16px;
+      color: var(--rilo-text-2);
+    }
+
+    .rilo-explainer-card {
+      position: relative;
+      border: 1px solid rgba(34,31,26,0.10);
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(245,236,224,0.88));
+      box-shadow: var(--rilo-shadow-soft);
+      padding: 14px 15px;
+      overflow: hidden;
+    }
+
+    .rilo-explainer-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, rgba(34, 28, 139, 0.42), rgba(34, 28, 139, 0));
+    }
+
+    .rilo-explainer-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 8px;
+    }
+
+    .rilo-explainer-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--ink-1);
+    }
+
+    .rilo-explainer-copy {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      line-height: 1.82;
+      color: var(--ink-2);
+    }
+
+    .rilo-kpi-strong {
+      background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(244,235,223,0.96));
+      border: 1px solid rgba(34,31,26,0.12);
+      box-shadow: 0 16px 34px rgba(85, 61, 28, 0.10);
+    }
+
+    .rilo-card-hierarchy-high {
+      background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(239,229,215,0.94));
+      border-color: rgba(34,31,26,0.12) !important;
+      box-shadow: 0 22px 44px rgba(85, 61, 28, 0.11) !important;
+    }
+
+    .rilo-card-hierarchy-mid {
+      background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(244,235,223,0.90));
+      border-color: rgba(34,31,26,0.10) !important;
+      box-shadow: var(--rilo-shadow-soft) !important;
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    .rilo-control-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .rilo-control-field {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34,31,26,0.10);
+      background: rgba(255,255,255,0.38);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+
+    .rilo-btn-soft {
+      border: 1px solid rgba(34,31,26,0.12);
+      background: rgba(255,251,246,0.58);
+      color: var(--rilo-accent);
+      box-shadow: var(--rilo-shadow-soft);
+    }
+
+    .rilo-btn-soft:hover {
+      border-color: rgba(34,28,139,0.20);
+      background: rgba(236,236,250,0.68);
+    }
+
+    .rilo-btn-strong {
+      border: 1px solid rgba(19,16,89,0.20);
+      background: linear-gradient(180deg,#2d289f,#221c86);
+      color: #f7f2ea;
+      box-shadow: 0 12px 28px rgba(34,28,139,0.18);
+    }
+
+    .rilo-btn-strong:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(34,28,139,0.22);
+    }
+
+    @media (min-width: 1024px) {
+      .rilo-shell-grid {
+        grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.92fr);
+      }
+    }
+
+    .rilo-ledger-header {
+      display: grid;
+      gap: 20px;
+    }
+
+    .rilo-ledger-header-copy {
+      max-width: 780px;
+    }
+
+    .rilo-ledger-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-ledger-title {
+      margin-top: 12px;
+      font-family: var(--font-display), Georgia, serif;
+      font-size: clamp(2rem, 3vw, 3.15rem);
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      font-weight: 600;
+      color: var(--ink-1);
+    }
+
+    .rilo-ledger-subtitle {
+      margin-top: 12px;
+      max-width: 68ch;
+      font-size: 0.97rem;
+      line-height: 1.9;
+      color: var(--ink-2);
+    }
+
+    .rilo-ledger-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .rilo-ledger-metric {
+      min-height: 92px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: linear-gradient(180deg, rgba(255,255,255,0.56), rgba(248,242,235,0.86));
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.32);
+    }
+
+    .rilo-ledger-metric-label {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-ledger-metric-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink-1);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .rilo-ledger-metric-note {
+      font-size: 0.75rem;
+      color: var(--ink-2);
+    }
+
+    .rilo-ledger-band {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .rilo-ledger-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 14px;
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.44);
+      color: var(--ink-2);
+      font-size: 0.8rem;
+    }
+
+    .rilo-ledger-pill strong {
+      color: var(--ink-1);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .rilo-ledger-metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 标题字体（v5 衬线） */
+    h1, h2, h3, h4, h5, h6, .page-title, .section-title {
+      font-family: var(--font-display), Georgia, serif;
+      color: var(--ink-1);
+      letter-spacing: 0.02em;
+    }
+
+    .bg-success-light { background: var(--emerald-soft) !important; }
+    .bg-warning-light { background: var(--amber-soft) !important; }
+    .bg-danger-light { background: var(--brick-soft) !important; }
+
+    /* KPI 卡片样式（v5） */
+    .kpi-card {
+      background: var(--rilo-surface-card);
+      border: 1px solid rgba(34, 31, 26, 0.11);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--rilo-shadow-card);
+      padding: var(--space-4);
+      text-align: left;
+    }
+    .kpi-card .kpi-title {
+      font-size: 0.875rem;
+      color: var(--ink-2);
+      margin-bottom: var(--space-2);
+      font-weight: 500;
+    }
+    .kpi-card .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ink-1);
+      line-height: 1.2;
+    }
+    .kpi-card .kpi-suffix {
+      font-size: 0.875rem;
+      color: var(--ink-3);
+      margin-left: 2px;
+    }
+
+    /* Hover tooltip 术语提示 */
+    .term-hover {
+      border-bottom: 1px dotted var(--rilo-accent-v5);
+      cursor: help;
+    }
+
   </style>
 </head>
 <body>
@@ -424,8 +1160,8 @@
   <!-- 11. 概览页面 -->
   <script src="js/pages/overview-page.js" onerror="handleModuleError('OverviewPage', event)" onload="updateLoadingProgress()"></script>
   
-  <!-- 12. 设置页面 (v3.0 分类导航 + 无右侧 Inspector) -->
-  <script src="js/pages/settings-page-v3.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
+  <!-- 12. 设置页面 -->
+  <script src="js/pages/settings-page-v2.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
   
   <!-- 分析页面 -->
   <script src="js/pages/analysis-page.js" onerror="handleModuleError('AnalysisPage', event)" onload="updateLoadingProgress()"></script>

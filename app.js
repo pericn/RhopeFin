@@ -12,6 +12,13 @@
     const [error, setError] = React.useState(null);
     const [isDrawerOpen, setIsDrawerOpen] = React.useState(false); // 抽屉状态
     const [drawerTermKey, setDrawerTermKey] = React.useState(null);
+    const [drawerSection, setDrawerSection] = React.useState('glossary');
+    const [drawerContent, setDrawerContent] = React.useState({
+      title: '说明面板',
+      conclusion: null,
+      process: null,
+      glossaryTerms: {}
+    });
 
     // 初始化数据管理器和计算引擎
     const [dataManager] = React.useState(() => new window.DataManager());
@@ -47,23 +54,41 @@
 
     React.useEffect(() => {
       window.RiloUI = window.RiloUI || {};
-      window.RiloUI.openDefinitionsDrawer = (termKey = null) => {
+      window.RiloUI.inspectorMode = 'drawer';
+      window.RiloUI.setDefinitionsDrawerContent = (content = {}) => {
+        setDrawerContent(prev => ({
+          ...prev,
+          ...content,
+          glossaryTerms: Object.assign({}, prev.glossaryTerms || {}, content.glossaryTerms || {})
+        }));
+      };
+
+      window.RiloUI.openDefinitionsDrawer = (termKey = null, section = 'glossary') => {
         setDrawerTermKey(termKey);
+        setDrawerSection(section || 'glossary');
         setIsDrawerOpen(true);
       };
 
       return () => {
+        if (window.RiloUI?.setDefinitionsDrawerContent) {
+          delete window.RiloUI.setDefinitionsDrawerContent;
+        }
+
         if (window.RiloUI?.openDefinitionsDrawer) {
           delete window.RiloUI.openDefinitionsDrawer;
+        }
+
+        if (window.RiloUI) {
+          delete window.RiloUI.inspectorMode;
         }
       };
     }, []);
 
     // 页签配置
     const tabs = [
-      { id: 'settings', label: '参数配置', icon: '⚙️' },
-      { id: 'overview', label: '财务分析', icon: '📊' },
-      { id: 'analysis', label: '敏感度分析', icon: '📈' }
+      { key: 'settings', label: '参数配置', icon: '⚙️' },
+      { key: 'overview', label: '财务分析', icon: '📊' },
+      { key: 'analysis', label: '敏感度分析', icon: '📈' }
     ];
 
     // 初始化数据
@@ -206,7 +231,7 @@
     return window.UIComponents.createAntdApp(
       React.createElement('div', {
         key: 'app-wrapper',
-        className: 'min-h-screen bg-[var(--rilo-bg-deep)]'
+        className: 'app-container'
       }, [
         // 术语抽屉
         window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
@@ -216,56 +241,106 @@
             setIsDrawerOpen(false);
             setDrawerTermKey(null);
           },
-          glossaryTerms: window.RiloUI.termRegistry || {},
+          title: drawerContent.title || '计算面板',
+          activeSection: drawerSection,
+          onSectionChange: setDrawerSection,
+          conclusion: drawerContent.conclusion,
+          process: drawerContent.process,
+          glossaryTerms: Object.assign({}, window.RiloUI.termRegistry || {}, drawerContent.glossaryTerms || {}),
           selectedTerm: drawerTermKey
         }) : null,
 
         React.createElement('div', {
           key: 'container',
-          className: 'container mx-auto px-4 py-8'
+          className: 'rilo-app-shell'
         }, [
-          // 顶部标题栏
           React.createElement('div', {
-            key: 'header',
-            className: 'bg-[var(--rilo-surface-1)] rounded-2xl shadow mb-6 border border-[var(--rilo-border-deep)]'
+            key: 'sidebar',
+            className: 'rilo-app-sidebar'
           }, [
             React.createElement('div', {
-              key: 'header-content',
-              className: 'px-6 py-4'
+              key: 'brand',
+              className: 'rilo-app-brand'
             }, [
               React.createElement('div', {
-                key: 'title-row',
-                className: 'flex items-center justify-between mb-4'
+                key: 'eyebrow',
+                className: 'rilo-app-brand-kicker'
+              }, 'Rilo Analysis'),
+              React.createElement('h1', {
+                key: 'title',
+                className: 'rilo-app-brand-title'
+              }, data?.basic?.projectName || '宠物综合体经营测算'),
+              React.createElement('p', {
+                key: 'subtitle',
+                className: 'rilo-app-brand-copy'
+              }, '左侧切页，右侧只保留当前页面的指标、图表与明细入口。')
+            ]),
+            React.createElement('nav', {
+              key: 'nav',
+              className: 'rilo-app-nav',
+              'aria-label': '主导航'
+            }, tabs.map(tab => React.createElement('button', {
+              key: tab.key,
+              type: 'button',
+              className: `rilo-app-nav-item ${activeTab === tab.key ? 'is-active' : ''}`,
+              onClick: () => setActiveTab(tab.key)
+            }, [
+              React.createElement('span', { key: 'label', className: 'rilo-app-nav-label' }, tab.label),
+              React.createElement('span', { key: 'meta', className: 'rilo-app-nav-meta' }, tab.key === 'settings' ? '参数与输入' : tab.key === 'overview' ? '全局经营读数' : '单参数扰动')
+            ]))),
+            React.createElement('div', {
+              key: 'sidebar-footer',
+              className: 'rilo-app-sidebar-footer'
+            }, [
+              React.createElement('div', {
+                key: 'profit-status',
+                className: `rilo-app-status ${calculations?.profitability?.profit > 0 ? 'is-positive' : 'is-negative'}`
+              }, calculations?.profitability?.profit > 0 ? '✅ 当前模型为盈利状态' : '⚠️ 当前模型仍为亏损状态'),
+              React.createElement('button', {
+                key: 'glossary-btn',
+                type: 'button',
+                className: 'rilo-app-sidebar-link',
+                onClick: () => {
+                  setDrawerTermKey(null);
+                  setDrawerSection('glossary');
+                  setIsDrawerOpen(true);
+                }
+              }, '📖 打开术语说明')
+            ])
+          ]),
+
+          React.createElement('div', {
+            key: 'main',
+            className: 'rilo-app-main'
+          }, [
+            React.createElement('div', {
+              key: 'header',
+              className: 'rilo-app-header'
+            }, [
+              React.createElement('div', {
+                key: 'header-main',
+                className: 'rilo-app-header-main'
+              }),
+              React.createElement('div', {
+                key: 'header-row',
+                className: 'flex items-center justify-between gap-4'
               }, [
                 React.createElement('div', {
-                  key: 'title-section',
-                  className: 'flex items-center gap-4'
+                  key: 'title-stack',
+                  className: 'space-y-1'
                 }, [
-                  React.createElement('h1', {
+                  React.createElement('div', {
+                    key: 'current-tab',
+                    className: 'text-xs uppercase tracking-[0.24em] text-[var(--rilo-text-3)]'
+                  }, tabs.find(tab => tab.key === activeTab)?.label || '页面'),
+                  React.createElement('h2', {
                     key: 'title',
-                    className: 'text-2xl font-bold text-[var(--rilo-text-1)]'
-                  }, data?.basic?.projectName || 'Rilo Analysis - 宠物综合体经营测算'),
-                  React.createElement('button', {
-                    key: 'glossary-btn',
-                    className: 'px-3 py-1 text-sm rounded-full border border-[var(--rilo-border-deep)] text-[var(--rilo-text-2)] bg-[var(--rilo-surface-2)] hover:bg-[var(--rilo-border-deep)] hover:text-[var(--rilo-text-1)] transition-colors',
-                    onClick: () => {
-                      const inspectorApi = window.RiloUI?.activeInspectorApi;
-                      if (inspectorApi?.setActiveSection && inspectorApi?.setSelectedTerm) {
-                        inspectorApi.setActiveSection('glossary');
-                        inspectorApi.setSelectedTerm(null);
-                        setDrawerTermKey(null);
-                        setIsDrawerOpen(false);
-                        return;
-                      }
-
-                      setDrawerTermKey(null);
-                      setIsDrawerOpen(true);
-                    }
-                  }, '📖 术语'),
+                    className: 'text-2xl font-semibold text-[var(--rilo-text-1)]'
+                  }, data?.basic?.projectName || 'Rilo Analysis'),
                   React.createElement('p', {
                     key: 'subtitle',
                     className: 'text-sm text-[var(--rilo-text-2)]'
-                  }, 'v2.0 模块化版本 · 专业财务建模工具')
+                  }, '保持全局指标在上，业务细节下沉，术语与过程通过 Drawer 查看。')
                 ]),
                 React.createElement('div', {
                   key: 'status',
@@ -284,10 +359,9 @@
                 ])
               ]),
 
-              // 快捷操作
               React.createElement('div', {
                 key: 'quick-actions-row',
-                className: 'flex items-center justify-between border-t pt-4'
+                className: 'rilo-top-tools is-hidden flex items-center justify-between border-t pt-4'
               }, [
                 React.createElement('div', {
                   key: 'quick-actions',
@@ -365,37 +439,35 @@
                   onTabChange: setActiveTab
                 })
               ])
+            ]),
+
+            React.createElement('div', {
+              key: 'page-content',
+              className: 'rilo-app-content'
+            }, [
+              activeTab === 'settings' && React.createElement((window.SettingsPage?.SettingsPage || window.SettingsPage), {
+                key: 'settings',
+                data: data,
+                updateData: updateData,
+                formulaEngine: formulaEngine
+              }),
+
+              activeTab === 'overview' && React.createElement((window.OverviewPage?.OverviewPage || window.OverviewPage), {
+                key: 'overview',
+                data: data,
+                calculations: calculations,
+                formulaEngine: formulaEngine,
+                currency: data?.basic?.currency || '¥'
+              }),
+
+              activeTab === 'analysis' && React.createElement((window.AnalysisPage?.AnalysisPage || window.AnalysisPage), {
+                key: 'analysis',
+                data: data,
+                calculations: calculations,
+                formulaEngine: formulaEngine,
+                currency: data?.basic?.currency || '¥'
+              })
             ])
-          ]),
-
-          // 页面内容
-          React.createElement('div', {
-            key: 'page-content'
-          }, [
-            activeTab === 'settings' && React.createElement(window.SettingsPage.SettingsPage, {
-            key: 'settings',
-            data: data,
-            updateData: updateData,
-            formulaEngine: formulaEngine
-          }),
-
-          // 经营概览页
-          activeTab === 'overview' && React.createElement(window.OverviewPage.OverviewPage, {
-            key: 'overview',
-            data: data,
-            calculations: calculations,
-            formulaEngine: formulaEngine,
-            currency: data?.basic?.currency || '¥'
-          }),
-
-          // 敏感度分析页
-          activeTab === 'analysis' && React.createElement(window.AnalysisPage.AnalysisPage, {
-            key: 'analysis',
-            data: data,
-            calculations: calculations,
-            formulaEngine: formulaEngine,
-            currency: data?.basic?.currency || '¥'
-          })
           ])
         ])
       ])
@@ -525,9 +597,13 @@
     requireFn('UIComponents.Button', () => typeof window.UIComponents?.Button === 'function');
     requireFn('UIComponents.Tabs', () => typeof window.UIComponents?.Tabs === 'function');
     requireFn('UIComponents.Loading', () => typeof window.UIComponents?.Loading === 'function');
-    requireFn('SettingsPage.SettingsPage', () => typeof window.SettingsPage?.SettingsPage === 'function');
-    requireFn('OverviewPage.OverviewPage', () => typeof window.OverviewPage?.OverviewPage === 'function');
-    requireFn('AnalysisPage.AnalysisPage', () => typeof window.AnalysisPage?.AnalysisPage === 'function');
+
+    // 页面组件兼容两种导出：
+    // 1) window.XxxPage = { XxxPage }
+    // 2) window.XxxPage = function XxxPage() {}
+    requireFn('SettingsPage', () => typeof (window.SettingsPage?.SettingsPage || window.SettingsPage) === 'function');
+    requireFn('OverviewPage', () => typeof (window.OverviewPage?.OverviewPage || window.OverviewPage) === 'function');
+    requireFn('AnalysisPage', () => typeof (window.AnalysisPage?.AnalysisPage || window.AnalysisPage) === 'function');
 
     if (missingDependencies.length > 0 || missingExports.length > 0) {
       if (missingDependencies.length > 0) {

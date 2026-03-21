@@ -1,9 +1,8 @@
-// 参数设置页面 v2.1 - 统一"左主内容 + 右侧 InspectorPanel（结论/过程/术语）"布局
+// 参数设置页面 v2.1 - 统一"左主内容 + 右侧 InspectorPanel（概览/过程/术语）"布局
 window.SettingsPage = (function() {
 
   // 主设置页面组件
   const SettingsPage = ({ data, updateData, formulaEngine }) => {
-    const [showDrawer, setShowDrawer] = React.useState(false);
     // TODO(交互校验)：入住率控件需要 0-100 且保留 1 位小数；越界自动夹到 [0,100]
 
     // 基础计算结果（用于左侧"基础结果"区域）
@@ -25,16 +24,18 @@ window.SettingsPage = (function() {
       return `${(pb || 0).toFixed(1)} 年`;
     })();
 
+    // `netMargin` / `payback` 统一走 shared term-registry；这里只保留本页特有术语
     const glossaryTerms = {
-      fitout: { title: '装修标准', body: '每平米装修投入标准。影响初始投资与回本周期。' },
-      margin: { title: '净利润率', body: '净利润 ÷ 总收入。用于衡量整体经营效率。' },
-      payback: { title: '回本周期', body: '初始投资 ÷ 年净利润。若年净利润小于或等于 0，则视为暂时无法回本。' }
+      fitout: { title: '装修标准', body: '每平米装修投入标准。影响初始投资与回本周期。' }
     };
 
     const left = React.createElement('div', { className: 'space-y-5 lg:space-y-6 rilo-zh-page' }, [
       React.createElement(SettingsGlossaryHeader, {
         key: 'settings-glossary-header',
-        onOpenGlossaryFallback: () => setShowDrawer(true)
+        onOpenGlossaryFallback: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary'),
+        data,
+        calculations,
+        paybackLabel
       }),
 
       // 基础设置
@@ -81,7 +82,7 @@ window.SettingsPage = (function() {
             React.createElement('div', { key: 'h2', className: 'text-xs text-[var(--rilo-text-3)]' }, ''),
             React.createElement('div', { key: 'b1', className: 'text-xs text-white' }, [
               '净利润率：',
-              React.createElement(window.RiloUI?.Term || 'span', { key: 't1', termKey: 'margin' }, '净利润 ÷ 总收入')
+              React.createElement(window.RiloUI?.Term || 'span', { key: 't1', termKey: 'netMargin' }, '净利润 ÷ 总收入')
             ]),
             React.createElement('div', { key: 'b2', className: 'text-xs text-white' }, [
               '回本周期：',
@@ -130,7 +131,7 @@ window.SettingsPage = (function() {
       // 底部工具栏
       React.createElement('div', {
         key: 'bottom-toolbar',
-        className: 'mt-8 pt-6 border-t border-[var(--rilo-border-deep)]'
+        className: 'rilo-top-tools is-hidden mt-8 pt-6 border-t border-[var(--rilo-border-deep)]'
       }, [
         React.createElement(window.UIComponents.Row, {
           key: 'toolbar-row',
@@ -171,22 +172,10 @@ window.SettingsPage = (function() {
       ])
     ]);
 
-    const conclusion = React.createElement('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)] rilo-zh-page' }, [
-      React.createElement('div', { key: 'c1', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3.5' }, [
-        React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '怎么用这个页'),
-        React.createElement('div', { key: 'b', className: 'mt-1 text-[var(--rilo-text-2)] rilo-zh-subtle' }, '左侧填参数；右侧 Inspector 里看公式、过程与术语解释。默认把细节收起来，避免信息噪音。')
-      ]),
-      React.createElement('div', { key: 'c2', className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3.5' }, [
-        React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, '小建议'),
-        React.createElement('ul', { key: 'b', className: 'mt-1.5 list-disc pl-5 space-y-1.5 text-[var(--rilo-text-2)] rilo-zh-subtle' }, [
-          React.createElement('li', { key: 'i1' }, '先把"基础设置/面积/人力/租金"填准，再调收入结构。'),
-          React.createElement('li', { key: 'i2' }, '回本周期跑飞时，多半是净利润≤0 或 初始投资太高。')
-        ])
-      ])
-    ]);
+    const conclusion = null;
 
     const process = React.createElement('div', { className: 'space-y-3 rilo-zh-page' }, [
-      React.createElement('div', { key: 'p1', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '这里展示公式与中间计算值，默认折叠；需要核对时再展开。'),
+      React.createElement('div', { key: 'p1', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '这里展示公式与中间计算值，供核对参数口径与结果来源。'),
       React.createElement('div', { key: 'p2', className: 'bg-[var(--rilo-surface-2)] rounded-2xl p-4 border border-[var(--rilo-border-deep)]' }, [
         React.createElement('h3', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)] mb-2' }, '📊 计算公式与数据'),
         React.createElement(window.FormulaDisplay.FormulaDisplay, {
@@ -206,18 +195,10 @@ window.SettingsPage = (function() {
       glossaryTerms
     }) : left;
 
-    // 根渲染：主内容 + 抽屉
-    return React.createElement(React.Fragment, null,
-      mainContent,
-      !window.RiloUI?.TwoPaneLayout && window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
-        isOpen: showDrawer,
-        onClose: () => setShowDrawer(false),
-        glossaryTerms: Object.assign({}, glossaryTerms, window.RiloUI.termRegistry || {})
-      }) : null
-    );
+    return React.createElement(React.Fragment, null, mainContent);
   };
 
-  const SettingsGlossaryHeader = ({ onOpenGlossaryFallback }) => {
+  const SettingsGlossaryHeader = ({ onOpenGlossaryFallback, data, calculations, paybackLabel }) => {
     const useInspector = window.RiloUI?.useInspector;
     const inspector = useInspector ? useInspector() : null;
     const inspectorApi = inspector || window.RiloUI?.activeInspectorApi;
@@ -229,35 +210,79 @@ window.SettingsPage = (function() {
         return;
       }
 
-      if (onOpenGlossaryFallback) {
-        onOpenGlossaryFallback();
+      if (window.RiloUI?.openDefinitionsDrawer) {
+        window.RiloUI.openDefinitionsDrawer(null, 'glossary');
+        return;
       }
+
+      if (onOpenGlossaryFallback) onOpenGlossaryFallback();
     };
 
+    const currency = data?.basic?.currency || '¥';
+    const projectName = data?.basic?.projectName || 'Rilo Analysis';
+    const monthlyRent = Number(data?.basic?.rentMonthly || 0);
+    const fitout = Number(data?.investment?.fitoutStandard || 0);
+    const margin = calculations?.profitability?.margin || 0;
+
     return React.createElement('div', {
-      className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-5 py-4 md:px-6 md:py-5 rilo-zh-page'
+      className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[var(--rilo-border-deep)] px-5 py-5 md:px-6 md:py-6 rilo-zh-page'
     }, [
       React.createElement('div', {
         key: 'top',
-        className: 'flex flex-col gap-3 md:flex-row md:items-start md:justify-between'
+        className: 'rilo-ledger-header'
       }, [
-        React.createElement('div', { key: 'copy' }, [
-          React.createElement('h1', {
-            key: 'title',
-            className: 'text-2xl font-bold text-[var(--rilo-text-1)] rilo-zh-header'
-          }, '⚙️ 参数配置'),
-          React.createElement('p', {
-            key: 'hint',
-            className: 'mt-2 max-w-2xl text-sm text-[var(--rilo-text-3)] rilo-zh-subtle'
-          }, '提示：带浅蓝下划线的术语可悬停查看解释；点「查看更多」会切到右侧「术语」并定位对应条目。')
+        React.createElement('div', {
+          key: 'row',
+          className: 'flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between'
+        }, [
+          React.createElement('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
+            React.createElement('div', {
+              key: 'eyebrow',
+              className: 'rilo-ledger-eyebrow'
+            }, 'Settings'),
+            React.createElement('h1', {
+              key: 'title',
+              className: 'rilo-ledger-title rilo-zh-header'
+            }, '参数配置'),
+            React.createElement('p', {
+              key: 'hint',
+              className: 'rilo-ledger-subtitle rilo-zh-subtle'
+            }, '先校准基础盘子、租金与装修投入，再补充成本与收入参数。'),
+            React.createElement('p', {
+              key: 'hover-tutorial',
+              className: 'mt-2 text-sm text-[var(--rilo-accent)]/90'
+            }, 'Hover 教程：把鼠标移到 ADR / Occ / Rooms / Days 等浅蓝下划线术语上，可先看解释，再点“查看更多”打开术语抽屉。')
+          ]),
+          React.createElement(window.UIComponents.Button, {
+            key: 'terms-btn',
+            onClick: openGlossary,
+            variant: 'outline',
+            size: 'small',
+            className: 'self-start'
+          }, '📖 术语解释')
         ]),
-        React.createElement(window.UIComponents.Button, {
-          key: 'terms-btn',
-          onClick: openGlossary,
-          variant: 'outline',
-          size: 'small',
-          className: 'self-start'
-        }, '📖 术语解释')
+        React.createElement('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
+          React.createElement('div', { key: 'm1', className: 'rilo-ledger-metric' }, [
+            React.createElement('div', { key: 'label', className: 'rilo-ledger-metric-label' }, '项目'),
+            React.createElement('div', { key: 'value', className: 'rilo-ledger-metric-value' }, projectName),
+            React.createElement('div', { key: 'note', className: 'rilo-ledger-metric-note' }, `当前计价货币：${currency}`)
+          ]),
+          React.createElement('div', { key: 'm2', className: 'rilo-ledger-metric' }, [
+            React.createElement('div', { key: 'label', className: 'rilo-ledger-metric-label' }, '固定盘子'),
+            React.createElement('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${currency}${monthlyRent.toLocaleString()}/月`),
+            React.createElement('div', { key: 'note', className: 'rilo-ledger-metric-note' }, `装修标准 ${currency}${fitout.toLocaleString()}/㎡`)
+          ]),
+          React.createElement('div', { key: 'm3', className: 'rilo-ledger-metric' }, [
+            React.createElement('div', { key: 'label', className: 'rilo-ledger-metric-label' }, '结果预览'),
+            React.createElement('div', { key: 'value', className: 'rilo-ledger-metric-value' }, paybackLabel),
+            React.createElement('div', { key: 'note', className: 'rilo-ledger-metric-note' }, `净利润率 ${margin.toFixed(1)}%`)
+          ])
+        ]),
+        React.createElement('div', { key: 'band', className: 'rilo-ledger-band' }, [
+          React.createElement('span', { key: 'p1', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k' }, '分组'), ' 基础设置 / 投资 / 成本 / 收入']),
+          React.createElement('span', { key: 'p2', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k' }, '复核重点'), ' 租金、人力、装修单价']),
+          React.createElement('span', { key: 'p3', className: 'rilo-ledger-pill' }, [React.createElement('strong', { key: 'k' }, 'Drawer'), ' 术语与过程统一从右侧打开'])
+        ])
       ])
     ]);
   };

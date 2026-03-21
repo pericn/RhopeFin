@@ -40,34 +40,20 @@ window.OverviewPage = (function() {
   // 主概览页面组件（统一两栏：左主内容 + 右侧 InspectorPanel）
   const OverviewPage = ({ data, calculations, updateData, currency = "¥" }) => {
     const Term = window.RiloUI?.Term;
-    const [showDrawer, setShowDrawer] = React.useState(false);
     const resolvedCurrency = data?.basic?.currency || currency;
 
-    const glossaryTerms = {
-      cogs: { title: 'COGS / 业务成本', body: 'Cost of Goods Sold。直接随收入发生的成本（原材料、耗材、外包等），不含租金/人工等固定成本。' },
-      grossMargin: { title: '综合毛利率', body: '毛利润 ÷ 总收入。反映“卖出去的东西”本身赚不赚钱。' },
-      netMargin: { title: '净利润率', body: '净利润 ÷ 总收入。反映整体经营效率（扣除所有成本）。' },
-      payback: { title: '回本周期', body: '初始投资 ÷ 年净利润。若净利润≤0，则视为无法回本（Infinity）。' }
-    };
+    const glossaryTerms = {}; // 统一走 shared term-registry；本页不再覆写全局术语定义
 
-    // Build conclusion summary (for Inspector)
-    const conclusion = h('div', { className: 'space-y-2 text-sm' }, [
-      h('div', { key: 'profit' }, `净利润: ¥${calculations?.profitability?.profit ? (calculations.profitability.profit/10000).toFixed(2) : 0} 万元`),
-      h('div', { key: 'margin' }, `净利润率: ${calculations?.profitability?.margin?.toFixed(1) || 0}%`),
-      h('div', { key: 'payback' }, `回本周期: ${calculations?.profitability?.paybackYears === Infinity ? '无法回本' : (calculations.profitability.paybackYears || 0).toFixed(1)} 年`)
-    ]);
+    const conclusion = null;
 
     // Process section: detailed calculations
     const process = h(DetailedCalculationDisplay, { calculations, currency: resolvedCurrency });
 
     const left = h('div', { className: 'space-y-5 lg:space-y-6 rilo-zh-page' }, [
-      h(PageHeader, { key: 'page-header', onOpenGlossaryFallback: () => setShowDrawer(true) }),
-      h(DataActions, { key: 'data-actions', data, updateData, currency: resolvedCurrency }),
+      h(PageHeader, { key: 'page-header', onOpenGlossaryFallback: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary'), data, calculations, currency: resolvedCurrency }),
       h(KeyMetrics, { key: 'key-metrics', data, calculations, currency: resolvedCurrency, showDetails: false }),
       h(BusinessOverview, { key: 'business-overview', data, calculations, currency: resolvedCurrency }),
-      h(ScenarioQuickView, { key: 'scenario-view', calculations, currency: resolvedCurrency }),
-      h(AlertsAndInsights, { key: 'alerts', calculations, data, currency: resolvedCurrency }),
-      h(ComprehensiveRecommendations, { key: 'comprehensive-recommendations', calculations, currency: resolvedCurrency })
+      h(ScenarioQuickView, { key: 'scenario-view', calculations, currency: resolvedCurrency })
     ]);
 
     const mainContent = window.RiloUI?.TwoPaneLayout
@@ -81,22 +67,24 @@ window.OverviewPage = (function() {
         })
       : left; // 保持回退逻辑
 
-    return h(React.Fragment, null, [
-      mainContent,
-      !window.RiloUI?.TwoPaneLayout && window.RiloUI?.DefinitionsDrawer ? h(window.RiloUI.DefinitionsDrawer, {
-        key: 'overview-drawer',
-        isOpen: showDrawer,
-        onClose: () => setShowDrawer(false),
-        glossaryTerms: Object.assign({}, window.RiloUI.termRegistry || {}, glossaryTerms)
-      }) : null
-    ]);
+    return h(React.Fragment, null, [mainContent]);
   };
 
-  const PageHeader = ({ onOpenGlossaryFallback }) => {
+  const SectionHeader = ({ eyebrow, title, subtitle, aside }) =>
+    h('div', { className: 'flex flex-col gap-2 md:flex-row md:items-end md:justify-between' }, [
+      h('div', { key: 'copy', className: 'space-y-1' }, [
+        eyebrow && h('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, eyebrow),
+        h('h2', { key: 'title', className: 'text-lg font-semibold text-[var(--rilo-text-1)] rilo-zh-header' }, title),
+        subtitle && h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)] rilo-zh-subtle max-w-3xl' }, subtitle)
+      ]),
+      aside ? h('div', { key: 'aside', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle md:text-right' }, aside) : null
+    ]);
+
+  const PageHeader = ({ onOpenGlossaryFallback, data, calculations, currency = '¥' }) => {
     const Button = window.UIComponents?.Button || 'button';
     const buttonProps = Button === 'button'
       ? {
-          className: 'rounded-full border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-2 text-sm font-medium text-[var(--rilo-text-1)] hover:border-[var(--rilo-accent)] hover:text-[var(--rilo-accent)] whitespace-nowrap'
+          className: 'rilo-btn-soft rounded-[14px] px-4 py-2 text-sm font-medium whitespace-nowrap'
         }
       : {
           variant: 'outline',
@@ -116,19 +104,51 @@ window.OverviewPage = (function() {
       }
     };
 
-    return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-5 py-4 md:px-6 md:py-5 rilo-zh-page' }, [
-      h('div', { key: 'row', className: 'flex flex-col gap-3 md:flex-row md:items-start md:justify-between' }, [
-        h('div', { key: 'copy' }, [
-          h('h1', { key: 'title', className: 'text-3xl font-bold text-[var(--rilo-text-1)] rilo-zh-header' }, '📊 财务分析'),
-          h('p', { key: 'subtitle', className: 'mt-2 max-w-2xl text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, '先看关键结果，再通过参数设置调整变量。')
+    const Term = window.RiloUI?.Term;
+    const titleNode = (termKey, text) => Term ? h(Term, { termKey }, text) : text;
+    const profit = calculations?.profitability?.profit || 0;
+    const margin = calculations?.profitability?.margin || 0;
+    const payback = calculations?.profitability?.paybackYears;
+    const projectName = data?.basic?.projectName || 'Rilo Analysis';
+
+    return h('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[var(--rilo-border-deep)] px-5 py-5 md:px-6 md:py-6 rilo-zh-page' }, [
+      h('div', { key: 'row', className: 'rilo-ledger-header' }, [
+        h('div', { key: 'top', className: 'flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between' }, [
+          h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
+            h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Overview'),
+            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '财务分析'),
+            h('p', { key: 'subtitle', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '先对齐全局经营结果，再继续查看结构拆解与情景预览。')
+          ]),
+          h('div', { key: 'actions', className: 'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3' }, [
+            h('span', { key: 'glossary-entry', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle max-w-[22rem]' }, '带下划线术语可悬停查看；点按钮可直接打开术语抽屉。'),
+            h(Button, {
+              key: 'glossary-btn',
+              onClick: openGlossary,
+              ...buttonProps
+            }, '📖 术语解释')
+          ])
         ]),
-        h('div', { key: 'actions', className: 'flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3' }, [
-          h('span', { key: 'glossary-entry', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '术语解释可在参数设置页打开'),
-          onOpenGlossaryFallback && h(Button, {
-            key: 'glossary-btn',
-            onClick: openGlossary,
-            ...buttonProps
-          }, '📖 术语解释')
+        h('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
+          h('div', { key: 'm1', className: 'rilo-ledger-metric' }, [
+            h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('profit', '年净利润')),
+            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${currency}${profit.toLocaleString()}`),
+            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, '当前全局经营结果')
+          ]),
+          h('div', { key: 'm2', className: 'rilo-ledger-metric' }, [
+            h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('netMargin', '净利润率')),
+            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${margin.toFixed(1)}%`),
+            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, '基于全年营收与成本口径')
+          ]),
+          h('div', { key: 'm3', className: 'rilo-ledger-metric' }, [
+            h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('payback', '回本周期')),
+            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, payback === Infinity ? '暂时无法回本' : `${(payback || 0).toFixed(1)} 年`),
+            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, projectName)
+          ])
+        ]),
+        h('div', { key: 'band', className: 'rilo-ledger-band' }, [
+          h('span', { key: 'p1', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '项目'), ` ${projectName}`]),
+          h('span', { key: 'p2', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '货币'), ` ${currency}`]),
+          h('span', { key: 'p3', className: 'rilo-ledger-pill' }, [h('strong', { key: 'k' }, '下一步'), ' 继续查看结构分布与情景预览'])
         ])
       ])
     ]);
@@ -162,7 +182,7 @@ window.OverviewPage = (function() {
       });
     };
     
-    return h('div', { className: 'bg-[var(--rilo-surface-1)] rounded-2xl border border-[var(--rilo-border-deep)] shadow-sm p-4 lg:p-5 rilo-zh-page' }, [
+    return h('div', { className: 'rilo-ledger-panel rounded-2xl border border-[var(--rilo-border-deep)] shadow-sm p-4 lg:p-5 rilo-zh-page' }, [
       h('div', { key: 'actions', className: 'flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between' }, [
         h('div', { key: 'currency', className: 'flex items-center gap-3' }, [
           h('span', { key: 'label', className: 'text-sm text-[var(--rilo-text-3)] rilo-zh-subtle' }, '工具区'),
@@ -321,49 +341,47 @@ window.OverviewPage = (function() {
     const rentToSales = revenue?.total > 0 ? ((cost?.fixed?.rent || 0) / revenue.total) * 100 : 0;
     const titleNode = (termKey, text) => Term ? h(Term, { termKey }, text) : text;
     
-    const metrics = [
-      [// 主要指标（成本前置：确保总成本上主行）
-        { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'success', size: 'large' },
-        { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'danger' },
-        { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'info' : 'danger', size: 'large' },
-        { key: 'gross-margin', title: titleNode('grossMargin', '综合毛利率'), value: grossMargin.toFixed(1), suffix: '%', color: grossMargin > 0 ? 'info' : 'danger' }
-      ],
-      [// 运营指标（下沉 COGS，保持净利与净利率，并加入 RevPAR 次级位）
-        { key: 'cogs', title: '业务成本', value: cogs ? (cogs / 10000).toFixed(2) : 0, suffix: '万元', color: 'warning' },
-        { key: 'revpar', title: titleNode('revpar', '每间可售房晚收入'), value: revpar.toFixed(0), suffix: '元/间夜', color: 'info' },
-        { key: 'profit', title: titleNode('profit', '年净利润'), value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
-        { key: 'margin', title: titleNode('netMargin', '净利润率'), value: margin.toFixed(2), suffix: '%', color: margin > 0 ? 'success' : 'danger' }
-      ],
-      [// 投资指标（ROI 不进入主 KPI，保留回本周期）  
-        { key: 'investment', title: '初始投资', value: investment?.total ? (investment.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'info' },
-        { key: 'payback', title: titleNode('payback', '投资回本周期'), value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, 
-          color: paybackYears < 3 ? 'success' : paybackYears < 5 ? 'warning' : 'danger' },
-        { key: 'monthly-cashflow', title: '月度现金流', value: profit ? (profit / 12 / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
-        { key: 'ltv-cac', title: 'LTV:CAC', value: ltvCac === null ? '—' : ltvCac.toFixed(1), suffix: 'x', color: ltvCac !== null && ltvCac >= 3 ? 'success' : ltvCac !== null && ltvCac >= 1 ? 'warning' : 'danger' }
-      ]
-    ];
-
-    const phaseOneMetrics = [
-      { key: 'rent-to-sales', title: titleNode('rentToSales', '租金占收比'), value: rentToSales.toFixed(1), suffix: '%', color: rentToSales <= 15 ? 'success' : rentToSales <= 25 ? 'warning' : 'danger' },
-      { key: 'breakeven-occ', title: titleNode('breakevenOcc', '盈亏平衡入住率'), value: breakevenOcc === null ? '—' : breakevenOcc.toFixed(1), suffix: breakevenOcc === null ? '' : '%', color: breakevenOcc !== null && breakevenOcc <= 70 ? 'success' : breakevenOcc !== null && breakevenOcc <= 100 ? 'warning' : 'danger' },
-      { key: 'cm-per-room-night', title: titleNode('cmPerRoomNight', '每间夜贡献利润'), value: cmPerRoomNight.toFixed(0), suffix: '元/间夜', color: cmPerRoomNight >= 0 ? 'info' : 'danger' },
-      { key: 'acquisition-efficiency', title: titleNode('acquisitionEfficiency', '获客效率'), value: ltvCac === null ? '—' : ltvCac.toFixed(1), suffix: ltvCac === null ? '' : 'x', color: ltvCac !== null && ltvCac >= 3 ? 'success' : ltvCac !== null && ltvCac >= 1 ? 'warning' : 'danger' }
+    const metricGroups = [
+      {
+        key: 'primary',
+        eyebrow: 'Core KPI',
+        title: '全局关键指标',
+        subtitle: '顶部只保留全局经营读数；单业务拆分与效率指标下沉到后续详情区域。',
+        aside: 'ROI 与单业务 KPI 不进入顶部首屏。',
+        gridClassName: 'rilo-kpi-grid-tight grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3',
+        items: [
+          { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'success', size: 'large' },
+          { key: 'total-cost', title: '年总成本', value: cost?.total ? (cost.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'danger' },
+          { key: 'gross-profit', title: '毛利润', value: grossProfit ? (grossProfit / 10000).toFixed(2) : 0, suffix: '万元', color: grossProfit > 0 ? 'info' : 'danger' },
+          { key: 'profit', title: titleNode('profit', '年净利润'), value: profit ? (profit / 10000).toFixed(2) : 0, suffix: '万元', color: profit > 0 ? 'success' : 'danger' },
+          { key: 'margin', title: titleNode('netMargin', '净利润率'), value: margin.toFixed(1), suffix: '%', color: margin > 0 ? 'success' : 'danger' },
+          { key: 'payback', title: titleNode('payback', '回本周期'), value: paybackYears === Infinity ? '无法回本' : `${paybackYears.toFixed(1)}年`, color: paybackYears < 3 ? 'success' : paybackYears < 5 ? 'warning' : 'danger' }
+        ]
+      }
     ];
 
     return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
-      h('h2', { key: 'title', className: 'mb-5 text-lg font-semibold text-[var(--rilo-text-1)] rilo-zh-header' }, '📊 关键财务指标'),
-      h('div', { key: 'primary', className: 'rilo-kpi-grid-tight mb-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4' },
-        metrics[0].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h('div', { key: 'secondary', className: 'rilo-kpi-grid-tight mb-3 grid grid-cols-1 gap-3 md:grid-cols-3' },
-        metrics[1].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h('div', { key: 'tertiary', className: 'rilo-kpi-grid-tight mb-3 grid grid-cols-1 gap-3 md:grid-cols-4' },
-        metrics[2].map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
-      h('div', { key: 'phase-one-header', className: 'mb-3 mt-5 flex items-center justify-between gap-3' }, [
-        h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, 'Phase 1 扩展 KPI'),
-        h('span', { key: 'hint', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle' }, '补齐 Phase 1：租金效率、盈亏平衡、单间夜贡献、获客效率')
-      ]),
-      h('div', { key: 'phase-one-grid', className: 'rilo-kpi-grid-tight mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4' },
-        phaseOneMetrics.map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric }))),
+      h(SectionHeader, {
+        key: 'header',
+        eyebrow: 'Overview Metrics',
+        title: '关键财务指标',
+        subtitle: '顶部只保留全局经营读数；单业务指标与结构明细统一下沉到后续区域。',
+        aside: '首屏仅保留总盘指标。'
+      }),
+      ...metricGroups.map((group, index) =>
+        h('section', { key: group.key, className: index === 0 ? 'mt-5 space-y-3' : 'mt-6 space-y-3' }, [
+          h('div', { key: 'group-header', className: 'flex flex-col gap-1 md:flex-row md:items-end md:justify-between' }, [
+            h('div', { key: 'copy' }, [
+              h('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, group.eyebrow),
+              h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, group.title),
+              h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, group.subtitle)
+            ]),
+            group.aside ? h('div', { key: 'aside', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle md:max-w-xs md:text-right' }, group.aside) : null
+          ]),
+          h('div', { key: 'grid', className: group.gridClassName },
+            group.items.map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric })))
+        ])
+      ),
       showDetails && h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency }),
       h(StatusIndicator, { key: 'status', profit })
     ]);
@@ -378,16 +396,16 @@ window.OverviewPage = (function() {
     const health = comprehensive.healthScore || { score: 0, grade: '—', description: '暂无' };
     const guidance = comprehensive.investmentGuidance || {};
     const recommendationLabelMap = {
-      proceed: '建议推进',
-      hold: '建议观察',
-      reject: '建议谨慎 / 暂缓'
+      proceed: '推进',
+      hold: '观察',
+      reject: '暂缓'
     };
 
     return h('div', { className: 'space-y-5 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
       h('div', { key: 'header', className: 'flex flex-col gap-2 md:flex-row md:items-end md:justify-between' }, [
         h('div', { key: 'copy' }, [
-          h('h2', { key: 'title', className: 'text-xl font-semibold text-[var(--rilo-text-1)]' }, '🧭 综合建议'),
-          h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)]' }, '汇总健康度、投资建议、风险指标与优化动作，方便先看方向再下钻。')
+          h('h2', { key: 'title', className: 'text-xl font-semibold text-[var(--rilo-text-1)]' }, '🧭 综合状态'),
+          h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)]' }, '汇总健康度、关键判断、风险指标与结构信息。')
         ]),
         h('div', { key: 'score', className: 'rounded-2xl bg-[var(--rilo-surface-2)] px-4 py-3 text-right' }, [
           h('div', { key: 'label', className: 'text-xs uppercase tracking-wide text-[var(--rilo-text-3)]' }, '健康度评分'),
@@ -397,8 +415,8 @@ window.OverviewPage = (function() {
       ]),
       h('div', { key: 'grid', className: 'grid grid-cols-1 gap-4 lg:grid-cols-2' }, [
         h('div', { key: 'guidance', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
-          h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '投资建议'),
-          h('div', { key: 'recommendation', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, recommendationLabelMap[guidance.recommendation] || '建议补充数据'),
+          h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '综合判断'),
+          h('div', { key: 'recommendation', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, recommendationLabelMap[guidance.recommendation] || '待补充数据'),
           h('div', { key: 'confidence', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, `置信度：${guidance.confidenceLevel ?? 0}%`),
           h('ul', { key: 'reasons', className: 'mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--rilo-text-2)]' }, (guidance.reasons || []).map((reason, index) =>
             h('li', { key: `reason-${index}` }, reason)
@@ -429,7 +447,7 @@ window.OverviewPage = (function() {
         ])
       ]),
       h('div', { key: 'suggestions', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
-        h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '优化建议'),
+        h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '补充说明'),
         (comprehensive.improvementSuggestions || []).length > 0
           ? h('div', { key: 'items', className: 'mt-3 space-y-3' }, comprehensive.improvementSuggestions.map((suggestion, index) =>
               RecommendationCard
@@ -438,19 +456,19 @@ window.OverviewPage = (function() {
                     recommendation: {
                       priority: suggestion.priority || 'medium',
                       icon: '🛠️',
-                      title: suggestion.title || suggestion.category || '优化建议',
-                      content: suggestion.description || '建议结合右侧过程与术语继续核对。'
+                      title: suggestion.title || suggestion.category || '补充说明',
+                      content: suggestion.description || '可结合右侧过程与术语继续核对。'
                     }
                   })
                 : h('div', {
                     key: `suggestion-${index}`,
                     className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3'
                   }, [
-                    h('div', { key: 'title', className: 'font-semibold text-[var(--rilo-text-1)]' }, suggestion.title || suggestion.category || '优化建议'),
-                    h('div', { key: 'content', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, suggestion.description || '建议结合右侧过程与术语继续核对。')
+                    h('div', { key: 'title', className: 'font-semibold text-[var(--rilo-text-1)]' }, suggestion.title || suggestion.category || '补充说明'),
+                    h('div', { key: 'content', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, suggestion.description || '可结合右侧过程与术语继续核对。')
                   ])
             ))
-          : h('div', { key: 'empty', className: 'mt-3 text-sm text-[var(--rilo-text-3)]' }, '当前暂无额外优化建议。')
+          : h('div', { key: 'empty', className: 'mt-3 text-sm text-[var(--rilo-text-3)]' }, '当前暂无额外补充信息。')
       ]),
       window.ScenarioRecommendations?.ScenarioRecommendations
         ? h(window.ScenarioRecommendations.ScenarioRecommendations, {
@@ -466,18 +484,29 @@ window.OverviewPage = (function() {
   const BusinessOverview = ({ data, calculations, currency }) => {
     if (!calculations) return null;
     
-    return h('div', { className: 'grid grid-cols-1 gap-5 lg:grid-cols-2' }, [
-      h(window.RiloUI.ChartCard, { key: 'revenue', title: '💰 收入结构分析' },
-        h(window.ChartComponents.RevenueStructureChart, { calculations, currency })
-      ),
-      h(window.RiloUI.ChartCard, { key: 'cost', title: '💸 成本结构分析' },
-        h(window.ChartComponents.CostStructureChart, { calculations, currency })
-      ),
-      h(window.RiloUI.ChartCard, { key: 'breakeven', title: '⚖️ 盈亏平衡分析' },
-        window.ChartComponents.BreakevenSVGChart
-          ? h(window.ChartComponents.BreakevenSVGChart, { calculations, currency })
-          : h(window.ChartComponents.BreakevenChart, { calculations, currency })
-      )
+    return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
+      h(SectionHeader, {
+        key: 'header',
+        eyebrow: 'Business Overview',
+        title: '业务结构概览',
+        subtitle: '先对照收入与成本的构成，再看盈亏平衡点，判断问题出在结构还是规模。',
+        aside: '结构图保留现有能力，只收紧信息层级。'
+      }),
+      h('div', { key: 'grid', className: 'mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2' }, [
+        h(window.RiloUI.ChartCard, { key: 'revenue', title: '收入结构分析' },
+          h(window.ChartComponents.RevenueStructureChart, { calculations, currency })
+        ),
+        h(window.RiloUI.ChartCard, { key: 'cost', title: '成本结构分析' },
+          h(window.ChartComponents.CostStructureChart, { calculations, currency })
+        )
+      ]),
+      h('div', { key: 'breakeven-wrap', className: 'mt-5' }, [
+        h(window.RiloUI.ChartCard, { key: 'breakeven', title: '盈亏平衡分析' },
+          window.ChartComponents.BreakevenSVGChart
+            ? h(window.ChartComponents.BreakevenSVGChart, { calculations, currency })
+            : h(window.ChartComponents.BreakevenChart, { calculations, currency })
+        )
+      ])
     ]);
   };
 
@@ -499,8 +528,8 @@ window.OverviewPage = (function() {
     
     const alerts = [
       profit <= 0 && { type: 'error', title: '当前项目亏损', message: `当前配置下项目年亏损${currency}${Math.abs(profit).toLocaleString()}，需要优化收入或降低成本`, icon: '⚠️' },
-      margin > 0 && margin < 5 && { type: 'warning', title: '利润率偏低', message: `当前利润率仅${margin.toFixed(1)}%，建议提高毛利率或降低运营成本`, icon: '📉' },
-      conservativeProfit <= 0 && profit > 0 && { type: 'warning', title: '抗风险能力较弱', message: '保守情况下项目将出现亏损，建议增强风险抵御能力', icon: '🛡️' },
+      margin > 0 && margin < 5 && { type: 'warning', title: '利润率偏低', message: `当前利润率仅${margin.toFixed(1)}%，可继续关注毛利率与运营成本`, icon: '📉' },
+      conservativeProfit <= 0 && profit > 0 && { type: 'warning', title: '抗风险能力较弱', message: '保守情况下项目将出现亏损，需关注风险抵御能力', icon: '🛡️' },
       totalMemberPct > 100 && { type: 'error', title: '会员比例设置错误', message: `会员类型比例总和为${totalMemberPct}%，不能超过100%`, icon: '❌' }
     ].filter(Boolean);
     
@@ -511,12 +540,40 @@ window.OverviewPage = (function() {
     
     if (!alerts.length && !insights.length) return null;
     const colorClasses = { error: 'bg-red-50 border-red-200 text-red-800', warning: 'bg-yellow-50 border-yellow-200 text-yellow-800' };
+    const summary = [
+      alerts.length > 0 ? `${alerts.length} 条需优先处理` : null,
+      insights.length > 0 ? `${insights.length} 条可继续放大的积极信号` : null
+    ].filter(Boolean).join(' · ');
     
     return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
-      h('h3', { key: 'title', className: 'mb-4 text-lg font-semibold text-[var(--rilo-text-1)] rilo-zh-header' }, '💡 系统提醒与洞察'),
-      h('div', { key: 'content', className: 'space-y-4' }, [
-        alerts.length > 0 && h('div', { key: 'alerts', className: 'space-y-3' }, alerts.map((alert, i) => h(window.RiloUI.AlertCard, { key: i, alert, colorClasses }))),
-        insights.length > 0 && h('div', { key: 'insights', className: 'space-y-3' }, insights.map((insight, i) => h(window.RiloUI.InsightCard, { key: i, insight })))
+      h(SectionHeader, {
+        key: 'header',
+        eyebrow: 'Signals',
+        title: '系统信号',
+        subtitle: '集中显示当前模型中的风险信号与正向信号。',
+        aside: summary
+      }),
+      h('div', { key: 'content', className: 'mt-5 space-y-4' }, [
+        alerts.length > 0 && h('section', { key: 'alerts-group', className: 'space-y-3 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
+          h('div', { key: 'head', className: 'flex items-center justify-between gap-3' }, [
+            h('div', { key: 'copy' }, [
+              h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '风险信号'),
+              h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, '这些信号会影响利润表现、抗风险能力或输入有效性。')
+            ]),
+            h('span', { key: 'count', className: 'rounded-full bg-[var(--rilo-surface-1)] px-3 py-1 text-xs font-medium text-[var(--rilo-text-2)]' }, `${alerts.length} 条`)
+          ]),
+          h('div', { key: 'cards', className: 'space-y-3' }, alerts.map((alert, i) => h(window.RiloUI.AlertCard, { key: i, alert, colorClasses })))
+        ]),
+        insights.length > 0 && h('section', { key: 'insights-group', className: 'space-y-3 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
+          h('div', { key: 'head', className: 'flex items-center justify-between gap-3' }, [
+            h('div', { key: 'copy' }, [
+              h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '正向信号'),
+              h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, '这些信号表示当前模型下已有较好的经营表现。')
+            ]),
+            h('span', { key: 'count', className: 'rounded-full bg-[var(--rilo-surface-1)] px-3 py-1 text-xs font-medium text-[var(--rilo-text-2)]' }, `${insights.length} 条`)
+          ]),
+          h('div', { key: 'cards', className: 'space-y-3' }, insights.map((insight, i) => h(window.RiloUI.InsightCard, { key: i, insight })))
+        ])
       ])
     ]);
   };

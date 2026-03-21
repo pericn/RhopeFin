@@ -47,6 +47,12 @@
     };
 
     const openGlossary = () => {
+      if (window.RiloUI?.inspectorMode === 'drawer' && window.RiloUI?.openDefinitionsDrawer) {
+        window.RiloUI.openDefinitionsDrawer(termKey, 'glossary');
+        setOpen(false);
+        return;
+      }
+
       if (api?.setActiveSection && api?.setSelectedTerm) {
         api.setActiveSection('glossary');
         api.setSelectedTerm(termKey);
@@ -73,7 +79,7 @@
         tabIndex: 0,
         'aria-expanded': open,
         'aria-controls': popoverId,
-        className: 'underline decoration-sky-400 underline-offset-4 cursor-help text-sky-600 hover:text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-400/40 rounded-sm transition-colors',
+        className: 'underline decoration-[var(--rilo-accent)]/45 underline-offset-4 cursor-help text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20 rounded-sm transition-colors',
         onClick: () => setOpen((prev) => !prev),
         onKeyDown: (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
@@ -89,7 +95,7 @@
       open && React.createElement('div', {
         key: 'popover',
         id: popoverId,
-        className: 'absolute left-0 top-full z-30 mt-2 w-72 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-3 shadow-2xl'
+        className: 'absolute left-0 top-full z-30 mt-2 w-72 rounded-[var(--radius-lg)] border border-[var(--rilo-border-strong)] bg-[var(--rilo-surface-1)] p-3.5 shadow-[var(--rilo-shadow-card)] backdrop-blur-sm'
       }, [
         React.createElement('div', {
           key: 'title',
@@ -102,7 +108,7 @@
         React.createElement('button', {
           key: 'more',
           type: 'button',
-          className: 'mt-3 text-xs font-medium text-sky-600 hover:text-sky-700',
+          className: 'mt-3 text-xs font-medium text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)]',
           onClick: openGlossary
         }, '查看更多')
       ])
@@ -112,7 +118,7 @@
   const SectionButton = ({ active, onClick, children }) =>
     React.createElement('button', {
       onClick,
-      className: `px-3 py-1 rounded-full text-sm font-medium transition-colors ${active ? 'bg-[var(--rilo-accent)] text-white' : 'bg-[var(--rilo-surface-2)] text-[var(--rilo-text-2)] hover:bg-[var(--rilo-surface-1)] hover:text-[var(--rilo-text-1)]'}`
+      className: `min-h-[36px] px-3.5 py-1.5 rounded-[14px] text-sm font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 ${active ? 'rilo-btn-strong' : 'rilo-btn-soft hover:-translate-y-px text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]'}`
     }, children);
 
   const InspectorPanel = ({ title = 'Inspector', conclusion, process, glossary, glossaryTerms = {} }) => {
@@ -137,7 +143,7 @@
         React.createElement('div', {
           key,
           id: toGlossaryDomId(key),
-          className: `rounded-xl border p-3 ${selectedTerm === key ? 'border-[var(--rilo-accent)] bg-[var(--rilo-surface-2)]' : 'border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)]'}`
+          className: `rounded-[var(--radius-md)] border p-3.5 shadow-[var(--rilo-shadow-soft)] ${selectedTerm === key ? 'border-[var(--rilo-accent)] bg-[var(--rilo-accent-50)]' : 'border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)]'}`
         }, [
           React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, def.title || key),
           React.createElement('div', { key: 'b', className: 'text-sm text-[var(--rilo-text-2)] mt-1 leading-relaxed' }, def.body || def.definition || '')
@@ -154,10 +160,10 @@
     }, [selectedTerm, activeSection]);
 
     const Section = ({ id, label, children }) =>
-      React.createElement('div', { className: 'rounded-2xl bg-[var(--rilo-surface-1)] border border-[var(--rilo-border-deep)] overflow-hidden' }, [
+      React.createElement('div', { className: 'rilo-inspector-section' }, [
         React.createElement('div', {
           key: 'h',
-          className: 'px-4 py-3 flex items-center justify-between bg-[var(--rilo-surface-2)]'
+          className: 'rilo-inspector-section-header'
         }, [
           React.createElement('div', { key: 'l', className: 'font-semibold text-[var(--rilo-text-1)]' }, label),
           React.createElement('button', {
@@ -166,15 +172,16 @@
             onClick: () => setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
           }, collapsed[id] ? '展开' : '收起')
         ]),
-        !collapsed[id] && React.createElement('div', { key: 'b', className: 'px-4 pb-4 text-[var(--rilo-text-2)]' }, children)
+        !collapsed[id] && React.createElement('div', { key: 'b', className: 'rilo-inspector-section-body' }, children)
       ]);
 
     window.RiloUI.InspectorPanel = InspectorPanel;
 
-    return React.createElement('div', { className: 'sticky top-4 space-y-3 bg-[var(--rilo-surface-1)] p-4 rounded-2xl border border-[var(--rilo-border-deep)]' }, [
-      React.createElement('div', { key: 'title', className: 'px-1' }, [
+    return React.createElement('div', { className: 'rilo-inspector-panel' }, [
+      React.createElement('div', { key: 'title', className: 'rilo-inspector-header' }, [
+        React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, 'Inspector'),
         React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title),
-        React.createElement('div', { key: 'tabs', className: 'mt-2 flex gap-2 flex-wrap' }, [
+        React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
           React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
           React.createElement(SectionButton, { key: 'p', active: activeSection === 'process', onClick: () => setActiveSection('process') }, '过程'),
           React.createElement(SectionButton, { key: 'g', active: activeSection === 'glossary', onClick: () => setActiveSection('glossary') }, '术语')
@@ -188,16 +195,9 @@
   };
 
   const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
-    const [activeSection, setActiveSection] = React.useState('conclusion');
-    const [selectedTerm, setSelectedTerm] = React.useState(null);
-
     const api = React.useMemo(() => ({
-      activeSection,
-      setActiveSection,
-      selectedTerm,
-      setSelectedTerm,
       glossaryTerms: Object.assign({}, glossaryTerms || {})
-    }), [activeSection, glossaryTerms, selectedTerm]);
+    }), [glossaryTerms]);
 
     window.RiloUI.TwoPaneLayout = TwoPaneLayout;
     window.RiloUI.useInspector = useInspector;
@@ -205,29 +205,23 @@
     window.RiloUI.Term = Term;
 
     React.useEffect(() => {
-      window.RiloUI.activeInspectorApi = api;
-      return () => {
-        if (window.RiloUI.activeInspectorApi === api) {
-          window.RiloUI.activeInspectorApi = null;
-        }
-      };
-    }, [api]);
+      if (typeof window.RiloUI?.setDefinitionsDrawerContent === 'function') {
+        window.RiloUI.setDefinitionsDrawerContent({
+          title: inspectorTitle,
+          conclusion,
+          process,
+          glossary,
+          glossaryTerms: Object.assign({}, glossaryTerms || {})
+        });
+      }
+    }, [inspectorTitle, conclusion, process, glossary, glossaryTerms]);
 
     return React.createElement(InspectorContext.Provider, { value: api },
-      React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-12 gap-6' }, [
-        React.createElement('div', { key: 'left', className: 'lg:col-span-8 space-y-6' }, [
+      React.createElement('div', { className: 'rilo-shell-grid' }, [
+        React.createElement('div', { key: 'left', className: 'rilo-shell-main' }, [
           leftTitle && React.createElement('div', { key: 'lt', className: 'px-1' }, leftTitle),
           left
-        ]),
-        React.createElement('div', { key: 'right', className: 'lg:col-span-4' },
-          React.createElement(InspectorPanel, {
-            title: inspectorTitle,
-            conclusion,
-            process,
-            glossary,
-            glossaryTerms
-          })
-        )
+        ])
       ])
     );
   };
@@ -243,11 +237,11 @@
   const Card = ({ title, children, className = "", collapsible = false }) => {
     const [collapsed, setCollapsed] = React.useState(false);
     return React.createElement('div', {
-      className: `rounded-2xl bg-[var(--rilo-surface-1)] border border-[var(--rilo-border-deep)] shadow-sm overflow-hidden ${collapsible ? 'transition-all' : ''} ${className}`
+      className: `rilo-card rilo-card-hierarchy-mid overflow-hidden ${collapsible ? 'transition-all' : ''} ${className}`
     }, [
       title && React.createElement('div', {
         key: 'header',
-        className: 'px-4 py-3 flex items-center justify-between border-b border-[var(--rilo-border-deep)]'
+        className: 'px-4 py-3.5 flex items-center justify-between border-b border-[var(--line)] bg-[rgba(244,235,223,0.72)]'
       }, [
         React.createElement('h3', { key: 'title', className: 'font-semibold text-[var(--rilo-text-1)]' }, title),
         collapsible && React.createElement('button', {

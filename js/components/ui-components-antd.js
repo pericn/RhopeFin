@@ -349,11 +349,40 @@ window.UIComponents = (function() {
         // locale: antd.locale.zhCN, // 暂时禁用，需要正确的 v5 locale 导入方式
         theme: {
           token: {
-            // Use a single global accent token (defined in index.html :root)
-            colorPrimary: 'var(--rilo-accent)',
-            colorInfo: 'var(--rilo-accent)',
-            borderRadius: 8,
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+            // v5 视觉系统
+            colorPrimary: 'var(--rilo-accent-v5, #221C8B)',
+            colorInfo: 'var(--rilo-accent-v5, #221C8B)',
+            colorSuccess: 'var(--emerald, #2f7d67)',
+            colorWarning: 'var(--amber, #b78128)',
+            colorError: 'var(--brick, #9d5b4b)',
+            borderRadius: 12,
+            fontFamily: 'var(--font-sans, "Noto Sans SC", "PingFang SC", sans-serif)'
+          },
+          components: {
+            Button: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Input: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            InputNumber: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Select: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Card: {
+              borderRadiusLG: 22,
+              borderRadius: 16,
+              boxShadow: 'var(--shadow-v5, 0 8px 24px rgba(0,0,0,0.12))'
+            },
+            Tabs: {
+              borderRadius: 12
+            }
           }
         }
       }, children);

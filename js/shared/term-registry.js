@@ -33,23 +33,23 @@ window.RiloUI.getGlossaryEntries = function(...sources) {
 
 window.RiloUI.termRegistry = {
   'adr': {
-    title: 'ADR',
+    title: '平均房价（ADR）',
     definition: 'Average Daily Rate，平均房价。用于衡量每个已售房晚平均卖多少钱。'
   },
   'occ': {
-    title: 'Occ',
+    title: '入住率（Occ）',
     definition: 'Occupancy，入住率。实际售出房晚占可售房晚的比例，输入会被限制在 0–100%。'
   },
   'rooms': {
-    title: 'Rooms',
+    title: '可售房间数（Rooms）',
     definition: '可售房间数。用于估算寄养业务的最大供给能力。'
   },
   'days': {
-    title: 'Days',
+    title: '年营业天数（Days）',
     definition: '年营业天数。用于把日均经营能力换算成全年规模。'
   },
   'revpar': {
-    title: 'RevPAR',
+    title: '每间可售房收入（RevPAR）',
     definition: 'Revenue per Available Room，每间可售房晚收入，约等于 ADR × 入住率。'
   },
   'rentToSales': {
@@ -89,7 +89,7 @@ window.RiloUI.termRegistry = {
     definition: '固定其他条件，只改变一个参数，观察关键结果如何变化，用来识别最敏感的经营杠杆。'
   },
   'cogs': {
-    title: '业务成本 (COGS)',
+    title: '业务成本（COGS）',
     definition: 'Cost of Goods Sold。直接随收入发生的成本，不含租金、人工等固定成本。'
   }
 };

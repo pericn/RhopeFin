@@ -5,7 +5,12 @@
 ## 全局前置（依赖与约束）
 - 不移除任何现有计算能力；仅做视觉与结构层重构。
 - UI 文案统一中文；缩写仅在公式/代码层使用。
-- 定义说明采用右侧抽屉（轻量按钮触发），不常驻。
+- 整体壳层按新 prototype：**左侧导航 + 右侧内容区**。
+- 定义说明继续采用 **Drawer**；不要改成常驻 Inspector 侧栏。
+- 顶部工具区先隐藏，但代码保留，不做删除式重构。
+- 配色跟随 prototype 色板，保持克制统一，不做花哨发挥。
+- 顶部关键指标只保留**全局指标**；单业务指标下沉到详情区。
+- 页面默认不放结论/建议性内容，只展示指标数字、图表、明细入口。
 - HQ 费用口径按“总收入”计提，吻合决策日志。
 - 三页面统一骨架，但保留各自侧重：参数配置/概览/敏感度。
 
@@ -46,33 +51,35 @@
 
 ## 概览页（js/pages/overview-page.js）
 - 信息架构
-  - 左列：KeyMetrics → BusinessOverview（收入/成本结构图）→ ScenarioQuickView（轻量情景预览）→ AlertsAndInsights。
-  - 右侧 Inspector：conclusion（盈利状态/关键结论）+ process（DetailedCalculationDisplay）。
+  - 页面按 prototype 的主节奏组织右侧内容区。
+  - 顶部先放 **全局关键指标**，下方再放收入/成本结构、业务详情、情景内容。
+  - Inspector 保持 Drawer，仅承载术语/公式/明细，不在主屏常驻。
 - 指标与文案
-  - 成本必须可见：KeyMetrics 中保留 cost.total；不做极简只剩少量 KPI。
-  - 弱化投资回报率：ROI 仅在 process 区出现，不进入主 KPI。
-  - 新增“每间可售房晚收入（RevPAR 等价）”为次级结果位：`RevPAR = ADR × 入住率`（使用 `revenue.boarding.adr` 与 `revenue.boarding.occ`）。
+  - 顶部 KeyMetrics 只保留全局指标：如总营收、总成本、毛利润、净利润、净利率、回本周期。
+  - 单业务指标（例如寄养/零售/服务拆分）下沉到详情区，不进入顶部关键 KPI。
+  - 删除结论块、建议块、健康度评分、风险提示这类“报告式”内容。
+  - ROI 只在详情/公式层出现，不进入主 KPI。
 - 视觉与一致性
   - 统一 KPI 组件色阶：正向（teal/green/blue），负向（red）；单位统一（万元/%/年）。
-  - 货币选择器与导入/导出按钮放入 DataActions（右上或工具区）。
+  - 顶部工具区先隐藏，但保留代码，不做彻底删除。
 - 术语
   - 为 cogs/grossMargin/netMargin/payback 等提供 `glossaryTerms`，并可选通过 `RiloUI.Term` 包装。
-- 已落地
-  - RevPAR（每间可售房晚收入，ADR×入住率）已在 KeyMetrics 附近呈现。
 - 验证
-  - 边界：profit ≤0 提醒、margin <5% 告警、member 配比 >100% 报错路径已存在，复测。
+  - 检查顶部是否只剩全局指标；单业务指标是否已下沉；主页面是否已移除建议性文案。
 
 ---
 
 ## 敏感度分析页（js/pages/analysis-page.js）
 - 信息架构
-  - 左列：PageHeader → ControlPanel（参数/范围/指标）→ SensitivityChart → ScenarioTable。
-  - 右侧 Inspector：结论卡片（你在看什么/洞察）+ KeyMetrics（与所选参数关联）。
+  - 右侧内容区按 prototype 节奏组织：控制区 → 图表 → 明细表。
+  - Inspector 保持 Drawer，仅承载术语/公式/明细，不放“你该怎么理解”的结论文案。
 - 参数映射与生成逻辑
   - 校准 `getParamValue` 与 `createModifiedData` 的路径映射，确保每个参数单点变更能触发 calculator 重算。
   - 默认 Impact 指标：paybackYears；可切到 profitMargin/grossMargin。
 - 图表刻度与可读性
   - paybackYears 采用更敏感的缩放（现已 5 年基准）；百分比指标以绝对变化映射条宽；中心基准对齐。
+- 文案约束
+  - 不放洞察卡、建议卡、总结卡；Analysis 页面就是看参数变化和指标变化。
 - 术语
   - glossary 中加入 sensitivity/payback/margin 简释；统一中文。
 - 待办点（最小补丁）
