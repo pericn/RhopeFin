@@ -93,9 +93,21 @@ window.OverviewPage = (function() {
         h('div', { key: 'top', className: 'flex flex-col gap-3' }, [
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Overview'),
-            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '项目概况')
+            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '项目概况'),
+            h('p', {
+              key: 'hint',
+              className: 'rilo-ledger-subtitle rilo-zh-subtle'
+            }, '首屏只保留全局指标与结构图表；术语解释与计算证明统一收进二级入口。')
           ])
         ]),
+        h(window.UIComponents.Button, {
+          key: 'glossary-entry',
+          type: 'button',
+          variant: 'outline',
+          size: 'small',
+          className: 'self-start',
+          onClick: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary')
+        }, '术语解释'),
         h('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
           h('div', { key: 'm1', className: 'rilo-ledger-metric' }, [
             h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('profit', '年净利润')),
@@ -349,7 +361,18 @@ window.OverviewPage = (function() {
             group.items.map(metric => h(window.UIComponents.KPI, { key: metric.key, ...metric })))
         ])
       ),
-      showDetails && h(DetailedCalculationDisplay, { key: 'detailed-calc', calculations, currency }),
+      showDetails && h('details', {
+        key: 'advanced-calc',
+        className: 'mt-6 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] px-4 py-3'
+      }, [
+        h('summary', {
+          key: 'summary',
+          className: 'cursor-pointer list-none text-sm font-medium text-[var(--rilo-text-1)]'
+        }, '高级：详细计算过程'),
+        h('div', { key: 'body', className: 'mt-4' },
+          h(DetailedCalculationDisplay, { calculations, currency })
+        )
+      ]),
       h(StatusIndicator, { key: 'status', profit })
     ]);
   };

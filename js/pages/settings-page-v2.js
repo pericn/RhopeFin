@@ -188,7 +188,11 @@ window.SettingsPage = (function() {
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Settings'),
             h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '经营设置'),
-            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '左侧选择分组，右侧只编辑当前分组参数。')
+            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '左侧选择分组，右侧只编辑当前分组参数。'),
+            h('p', {
+              key: 'hover-tutorial',
+              className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle'
+            }, 'Hover 教程：将鼠标移到浅蓝下划线术语上可查看解释，点“查看更多”会打开术语面板。')
           ]),
           h(window.UIComponents.Button, {
             key: 'terms-btn',
@@ -196,7 +200,7 @@ window.SettingsPage = (function() {
             variant: 'outline',
             size: 'small',
             className: 'self-start'
-          }, '术语说明')
+          }, '术语解释')
         ]),
         h('div', { key: 'metrics', className: 'rilo-ledger-band' }, [
           h('span', { key: 'm1', className: 'rilo-ledger-pill' }, [h('strong', { key: 'label' }, '项目'), ` ${projectName}`]),

@@ -161,7 +161,7 @@
           setIsDrawerOpen(true);
         },
         ...pageActionButtonProps
-      }, '术语说明')
+      }, '术语解释')
     ];
 
     // 初始化数据

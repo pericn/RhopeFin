@@ -291,9 +291,21 @@ window.AnalysisPage = (function() {
         }, [
           React.createElement('div', { key: 'copy', className: 'rilo-ledger-header-copy text-left' }, [
             React.createElement('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Sensitivity Analysis'),
-            React.createElement('h1', { key: 'title', className: 'rilo-ledger-title' }, '敏感度分析')
+            React.createElement('h1', { key: 'title', className: 'rilo-ledger-title' }, '敏感度分析'),
+            React.createElement('p', {
+              key: 'hint',
+              className: 'rilo-ledger-subtitle rilo-zh-subtle'
+            }, '只改一个参数，看图表和核心指标怎样变化；术语解释与过程说明保留在二级入口。')
           ])
         ]),
+        React.createElement(window.UIComponents.Button, {
+          key: 'glossary-entry',
+          type: 'button',
+          variant: 'outline',
+          size: 'small',
+          className: 'self-start',
+          onClick: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary')
+        }, '术语解释'),
         React.createElement('div', { key: 'summary-strip', className: 'rilo-ledger-metrics' }, [
           React.createElement('div', { key: 's1', className: 'rilo-ledger-metric' }, [
             React.createElement('div', { key: 'l', className: 'rilo-ledger-metric-label' }, titleNode('profit', '年净利润')),

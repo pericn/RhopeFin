@@ -76,5 +76,5 @@
    - 在敏感度分析（Analysis）只改 1 个参数（如装修标准）+ 调整范围：图表/指标有响应变化
 
 4) **术语入口一致性（30 秒）**
-   - Settings 页点击顶部「术语解释」：右侧面板切到「术语」tab（不弹抽屉）
-   - Overview/Analysis 页点击顶部「术语解释」：优先切到右侧面板「术语」；仅在没有右侧面板时才打开抽屉（fallback）
+   - Settings 页点击顶部「术语解释」：打开 Drawer，并切到「术语」tab
+   - Overview/Analysis 页点击顶部「术语解释」：打开 Drawer，并切到「术语」tab
