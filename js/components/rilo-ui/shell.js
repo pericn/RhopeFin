@@ -13,6 +13,7 @@
 
   const Term = ({ termKey, children }) => {
     const api = useInspector();
+    const triggerRef = React.useRef(null);
     const term = React.useMemo(() => {
       if (!termKey) return null;
 
@@ -33,6 +34,7 @@
       };
     }, [api?.glossaryTerms, termKey]);
     const [open, setOpen] = React.useState(false);
+    const [popoverStyle, setPopoverStyle] = React.useState(null);
     const popoverId = React.useMemo(
       () => `term-popover-${encodeURIComponent(String(termKey || '').trim())}`,
       [termKey]
@@ -66,6 +68,48 @@
       }
     };
 
+    const updatePopoverStyle = React.useCallback(() => {
+      if (!triggerRef.current || typeof window === 'undefined') return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const width = Math.min(320, Math.max(240, window.innerWidth - 24));
+      const left = Math.min(Math.max(12, rect.left), Math.max(12, window.innerWidth - width - 12));
+      const top = Math.min(window.innerHeight - 20, rect.bottom + 10);
+      setPopoverStyle({ left: `${left}px`, top: `${top}px`, width: `${width}px` });
+    }, []);
+
+    React.useEffect(() => {
+      if (!open) return undefined;
+      updatePopoverStyle();
+      window.addEventListener('resize', updatePopoverStyle);
+      window.addEventListener('scroll', updatePopoverStyle, true);
+      return () => {
+        window.removeEventListener('resize', updatePopoverStyle);
+        window.removeEventListener('scroll', updatePopoverStyle, true);
+      };
+    }, [open, updatePopoverStyle]);
+
+    const popoverContent = open && React.createElement('div', {
+      key: 'popover',
+      id: popoverId,
+      className: 'fixed z-[1200] rounded-[var(--radius-lg)] border border-[var(--rilo-border-strong)] bg-[rgba(246,241,234,0.98)] p-3.5 text-left shadow-[0_18px_42px_rgba(34,31,26,0.18)] backdrop-blur-md',
+      style: popoverStyle || undefined
+    }, [
+      React.createElement('div', {
+        key: 'title',
+        className: 'text-sm font-semibold text-[var(--rilo-text-1)]'
+      }, term.title),
+      React.createElement('div', {
+        key: 'body',
+        className: 'mt-1 text-xs leading-5 text-[var(--rilo-text-2)]'
+      }, term.body),
+      React.createElement('button', {
+        key: 'more',
+        type: 'button',
+        className: 'mt-3 text-xs font-medium text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)]',
+        onClick: openGlossary
+      }, '查看更多')
+    ]);
+
     return React.createElement('span', {
       className: 'relative inline-flex items-center',
       onMouseEnter: () => setOpen(true),
@@ -75,6 +119,7 @@
     }, [
       React.createElement('span', {
         key: 'trigger',
+        ref: triggerRef,
         role: 'button',
         tabIndex: 0,
         'aria-expanded': open,
@@ -92,26 +137,7 @@
           }
         }
       }, children),
-      open && React.createElement('div', {
-        key: 'popover',
-        id: popoverId,
-        className: 'absolute left-0 top-full z-30 mt-2 w-72 rounded-[var(--radius-lg)] border border-[var(--rilo-border-strong)] bg-[var(--rilo-surface-1)] p-3.5 shadow-[var(--rilo-shadow-card)] backdrop-blur-sm'
-      }, [
-        React.createElement('div', {
-          key: 'title',
-          className: 'text-sm font-semibold text-[var(--rilo-text-1)]'
-        }, term.title),
-        React.createElement('div', {
-          key: 'body',
-          className: 'mt-1 text-xs leading-5 text-[var(--rilo-text-2)]'
-        }, term.body),
-        React.createElement('button', {
-          key: 'more',
-          type: 'button',
-          className: 'mt-3 text-xs font-medium text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)]',
-          onClick: openGlossary
-        }, '查看更多')
-      ])
+      popoverContent && ReactDOM.createPortal(popoverContent, document.body)
     ]);
   };
 

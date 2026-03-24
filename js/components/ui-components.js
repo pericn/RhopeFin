@@ -365,27 +365,50 @@ window.UIComponents = (function() {
   // 工具提示组件
   const Tooltip = ({ children, content, position = 'top' }) => {
     const [isVisible, setIsVisible] = React.useState(false);
+    const triggerRef = React.useRef(null);
+    const [tooltipStyle, setTooltipStyle] = React.useState(null);
 
-    const getPositionClasses = (position) => {
-      const positions = {
-        top: 'bottom-full left-1/2 transform -translate-x-1/2 mb-2',
-        bottom: 'top-full left-1/2 transform -translate-x-1/2 mt-2',
-        left: 'right-full top-1/2 transform -translate-y-1/2 mr-2',
-        right: 'left-full top-1/2 transform -translate-y-1/2 ml-2'
+    const updateTooltipStyle = React.useCallback(() => {
+      if (!triggerRef.current || typeof window === 'undefined') return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const width = Math.min(280, Math.max(200, window.innerWidth - 24));
+      const baseLeft = rect.left + (rect.width / 2) - (width / 2);
+      const left = Math.min(Math.max(12, baseLeft), Math.max(12, window.innerWidth - width - 12));
+      const top = position === 'bottom'
+        ? rect.bottom + 10
+        : rect.top - 10;
+      const translatedTop = position === 'bottom'
+        ? top
+        : Math.max(12, top - 44);
+      setTooltipStyle({ left: `${left}px`, top: `${translatedTop}px`, width: `${width}px` });
+    }, [position]);
+
+    React.useEffect(() => {
+      if (!isVisible) return undefined;
+      updateTooltipStyle();
+      window.addEventListener('resize', updateTooltipStyle);
+      window.addEventListener('scroll', updateTooltipStyle, true);
+      return () => {
+        window.removeEventListener('resize', updateTooltipStyle);
+        window.removeEventListener('scroll', updateTooltipStyle, true);
       };
-      return positions[position] || positions.top;
-    };
+    }, [isVisible, updateTooltipStyle]);
+
+    const tooltipContent = isVisible && React.createElement('div', {
+      key: 'tooltip',
+      className: 'fixed z-[1200] rounded-lg border border-[rgba(34,31,26,0.14)] bg-[rgba(34,31,26,0.96)] px-3 py-2 text-sm text-[rgba(247,242,234,0.96)] shadow-[0_16px_36px_rgba(34,31,26,0.28)]',
+      style: tooltipStyle || undefined
+    }, content);
 
     return React.createElement('div', {
+      ref: triggerRef,
       className: 'relative inline-block',
       onMouseEnter: () => setIsVisible(true),
       onMouseLeave: () => setIsVisible(false)
     }, [
       children,
-      isVisible && React.createElement('div', {
-        key: 'tooltip',
-        className: `absolute z-10 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg ${getPositionClasses(position)}`
-      }, content)
+      // BUGFIX-4: Tooltip 改为 fixed + portal，避免 hover 浮层被父容器 overflow 裁切且背景发虚。
+      tooltipContent && ReactDOM.createPortal(tooltipContent, document.body)
     ]);
   };
 
