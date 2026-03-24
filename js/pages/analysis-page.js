@@ -103,6 +103,22 @@ window.AnalysisPage = (function() {
     payback: Infinity
   });
 
+  const toSafeMetricNumber = (value, fallback = 0) => {
+    if (value === Infinity) return Infinity;
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : fallback;
+  };
+
+  const normalizeScenarioMetrics = (scenario, fallbackMetrics = {}) => ({
+    name: scenario?.name || '基准',
+    change: toSafeMetricNumber(scenario?.change, 0),
+    // BUGFIX-1: 标准化敏感度图表输入，避免字符串/undefined 指标把条状图宽度算成 NaN 后直接不渲染。
+    profit: toSafeMetricNumber(scenario?.profit, fallbackMetrics.profit ?? 0),
+    margin: toSafeMetricNumber(scenario?.margin, fallbackMetrics.margin ?? 0),
+    grossMargin: toSafeMetricNumber(scenario?.grossMargin, fallbackMetrics.grossMargin ?? 0),
+    payback: scenario?.payback === Infinity ? Infinity : toSafeMetricNumber(scenario?.payback, fallbackMetrics.payback ?? Infinity)
+  });
+
   const hasRenderableScenarioData = (scenarios = []) => scenarios.some((item) =>
     Math.abs(Number(item?.profit || 0)) > 0 ||
     Math.abs(Number(item?.margin || 0)) > 0 ||
@@ -185,14 +201,14 @@ window.AnalysisPage = (function() {
     try {
       return variations.map((pctChange, index) => {
         const metrics = recalc(adjustParam(data, pctChange));
-        return {
+        return normalizeScenarioMetrics({
           name: labels[index],
           change: pctChange,
-          profit: Number(metrics?.profit ?? baseline.profit) || 0,
-          margin: Number(metrics?.margin ?? baseline.margin) || 0,
-          grossMargin: Number(metrics?.grossMargin ?? baseline.grossMargin) || 0,
-          payback: metrics?.payback ?? baseline.payback
-        };
+          profit: metrics?.profit,
+          margin: metrics?.margin,
+          grossMargin: metrics?.grossMargin,
+          payback: metrics?.payback
+        }, baseline);
       });
     } catch (error) {
       console.error('Sensitivity scenario build failed:', error);
@@ -528,7 +544,10 @@ window.AnalysisPage = (function() {
 
     const paramLabel = getParamLabel(selectedParam, data);
     const metricLabel = getMetricLabel(impactMetric);
-    const metricValues = scenarios.map(item => getImpactValue(item, impactMetric));
+    const metricValues = scenarios.map(item => getImpactValue(item, impactMetric)).map((value) => {
+      if (value === Infinity) return Infinity;
+      return toSafeMetricNumber(value, 0);
+    });
 
     const finiteValues = metricValues.filter(value => value !== Infinity && Number.isFinite(value));
     const maxAbs = finiteValues.length > 0 ? Math.max(...finiteValues.map(value => Math.abs(value))) : 1;
