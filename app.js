@@ -622,21 +622,27 @@
       retryCount++;
       if (retryCount >= maxRetries) {
         // 超过重试次数，显示错误
-        document.getElementById('root').innerHTML = `
-          <div class="min-h-screen bg-red-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-              <div class="text-6xl mb-4">⚠️</div>
-              <h2 class="text-xl font-bold text-red-600 mb-4">模块加载失败</h2>
-              <p class="text-gray-600 mb-6">部分必需的模块未能正确加载，请检查网络连接或刷新页面重试。</p>
-              <button 
-                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                onclick="window.location.reload()"
-              >
-                🔄 重新加载
-              </button>
-            </div>
-          </div>
-        `;
+        document.getElementById('root').textContent = '';
+        const err = document.createElement('div');
+        err.style.cssText = 'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:#fef2f2;';
+        const card = document.createElement('div');
+        card.style.cssText = 'background:white;border-radius:1rem;box-shadow:xl;padding:2rem;max-width:28rem;text-align:center;';
+        const icon = document.createElement('div');
+        icon.style.cssText = 'font-size:3rem;margin-bottom:1rem;';
+        icon.textContent = '⚠️';
+        const title = document.createElement('h2');
+        title.style.cssText = 'font-size:1.25rem;font-weight:700;color:#dc2626;margin-bottom:1rem;';
+        title.textContent = '模块加载失败';
+        const msg = document.createElement('p');
+        msg.style.cssText = 'color:#525252;margin-bottom:1.5rem;';
+        msg.textContent = '部分必需的模块未能正确加载，请检查网络连接或刷新页面重试。';
+        const btn = document.createElement('button');
+        btn.style.cssText = 'padding:0.5rem 1rem;background:#dc2626;color:white;border-radius:0.5rem;border:none;cursor:pointer;font-size:1rem;';
+        btn.textContent = '🔄 重新加载';
+        btn.onclick = function() { window.location.reload(); };
+        card.append(icon, title, msg, btn);
+        err.append(card);
+        document.getElementById('root').appendChild(err);
         return;
       }
       // 延迟重试，等待更多模块加载

@@ -210,11 +210,11 @@ window.CostSettings = (function() {
     }, [
       React.createElement('div', {
         key: 'title',
-        className: 'text-xs font-medium text-gray-500 mb-1'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
       }, '成本预测'),
       React.createElement('div', {
         key: 'daily',
-        className: 'text-sm text-gray-600 mb-1'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
         }, [
         React.createElement('span', {
           key: 'daily-label'
@@ -226,7 +226,7 @@ window.CostSettings = (function() {
       ]),
       React.createElement('div', {
         key: 'annual',
-        className: 'text-sm text-gray-600'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: ''
       }, [
         React.createElement('span', {
           key: 'annual-label'
@@ -314,11 +314,11 @@ window.CostSettings = (function() {
     }, [
       React.createElement('div', {
         key: 'title',
-        className: 'text-xs font-medium text-gray-500 mb-1'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
       }, '成本预测'),
       React.createElement('div', {
       key: 'daily',
-      className: 'text-sm text-gray-600 mb-1'
+      style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
     }, [
       React.createElement('span', {
         key: 'daily-label'
@@ -330,7 +330,7 @@ window.CostSettings = (function() {
     ]),
       React.createElement('div', {
         key: 'annual',
-        className: 'text-sm text-gray-600'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: ''
       }, [
         React.createElement('span', {
           key: 'annual-label'
@@ -358,7 +358,7 @@ window.CostSettings = (function() {
     return React.createElement(window.UIComponents.Section, {
       title: '💸 自定义成本'
     }, React.createElement('div', {
-      className: 'text-gray-500 text-center p-4'
+      style={{color:'var(--rilo-text-3)'}} className: 'text-center p-4'
     }, '自定义成本模块加载中...'));
   };
 

@@ -95,7 +95,7 @@ window.RevenueSettings = (function() {
         }),
         config.suffix && React.createElement('span', {
           key: 'suffix',
-          className: 'absolute right-3 top-2 text-gray-400 text-sm'
+          style={{color:'var(--rilo-text-3)'}} className: 'className: '-light text-sm'
         }, config.suffix)
       ])
     ]);
@@ -338,7 +338,7 @@ window.RevenueSettings = (function() {
     return React.createElement('div', null, [
       React.createElement('div', {
         key: 'title',
-        className: 'text-sm font-medium text-gray-700 mb-3'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-3'
       }, '会员类型分布'),
       React.createElement(FieldGrid, {
         key: 'inputs'
@@ -369,7 +369,7 @@ window.RevenueSettings = (function() {
       ]),
       React.createElement('div', {
         key: 'total',
-        className: 'text-xs text-gray-500 mt-2'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mt-2'
       }, `总计: ${(data?.revenue?.member?.basePct || 0) + (data?.revenue?.member?.proPct || 0) + (data?.revenue?.member?.vipPct || 0)}% (应为100%)`)
     ]);
   };
@@ -385,7 +385,7 @@ window.RevenueSettings = (function() {
     return React.createElement('div', null, [
       React.createElement('div', {
         key: 'title',
-        className: 'text-sm font-medium text-gray-700 mb-3'
+        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-3'
       }, '会员年费设置'),
       React.createElement(FieldGrid, {
         key: 'inputs'
