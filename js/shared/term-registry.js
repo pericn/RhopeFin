@@ -45,7 +45,7 @@ window.RiloUI.termRegistry = {
     definition: '可售房间数。用于估算寄养业务的最大供给能力。'
   },
   'days': {
-    title: '年营业天数（Days）',
+    title: '年营业天数',
     definition: '年营业天数。用于把日均经营能力换算成全年规模。'
   },
   'revpar': {

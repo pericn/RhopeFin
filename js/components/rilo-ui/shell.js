@@ -125,6 +125,14 @@
     const { activeSection, setActiveSection, selectedTerm } = useInspector();
     const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
 
+    const fallbackConclusion = React.createElement('div', {
+      className: 'text-sm text-[var(--rilo-text-3)] py-1'
+    }, '当前页没有额外结论卡片，可先查看左侧主内容与术语说明。');
+
+    const fallbackProcess = React.createElement('div', {
+      className: 'text-sm text-[var(--rilo-text-3)] py-1'
+    }, '当前页没有额外过程说明，可在左侧模块中直接核对计算结果。');
+
     React.useEffect(() => {
       setCollapsed(prev => ({ ...prev, [activeSection]: false }));
     }, [activeSection]);
@@ -137,7 +145,11 @@
       const entries = window.RiloUI?.getGlossaryEntries
         ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
         : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}));
-      if (entries.length === 0) return glossary || null;
+      if (entries.length === 0) {
+        return glossary || React.createElement('div', {
+          className: 'text-sm text-[var(--rilo-text-3)] py-1'
+        }, '暂无术语说明。');
+      }
 
       return React.createElement('div', { className: 'space-y-3' }, entries.map(([key, def]) =>
         React.createElement('div', {
@@ -179,7 +191,7 @@
 
     return React.createElement('div', { className: 'rilo-inspector-panel' }, [
       React.createElement('div', { key: 'title', className: 'rilo-inspector-header' }, [
-        React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, 'Reference'),
+        React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, '参考'),
         React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title),
         React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
           React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
@@ -188,16 +200,27 @@
         ])
       ]),
 
-      React.createElement(Section, { key: 'sec-c', id: 'conclusion', label: '结论' }, conclusion),
-      React.createElement(Section, { key: 'sec-p', id: 'process', label: '过程' }, process),
+      React.createElement(Section, { key: 'sec-c', id: 'conclusion', label: '结论' }, conclusion || fallbackConclusion),
+      React.createElement(Section, { key: 'sec-p', id: 'process', label: '过程' }, process || fallbackProcess),
       React.createElement(Section, { key: 'sec-g', id: 'glossary', label: '术语' }, renderGlossary())
     ]);
   };
 
   const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
+    const [activeSection, setActiveSection] = React.useState('conclusion');
+    const [selectedTerm, setSelectedTerm] = React.useState(null);
+    const mergedGlossaryTerms = React.useMemo(
+      () => Object.assign({}, glossaryTerms || {}),
+      [glossaryTerms]
+    );
+
     const api = React.useMemo(() => ({
-      glossaryTerms: Object.assign({}, glossaryTerms || {})
-    }), [glossaryTerms]);
+      activeSection,
+      setActiveSection,
+      selectedTerm,
+      setSelectedTerm,
+      glossaryTerms: mergedGlossaryTerms
+    }), [activeSection, mergedGlossaryTerms, selectedTerm]);
 
     window.RiloUI.TwoPaneLayout = TwoPaneLayout;
     window.RiloUI.useInspector = useInspector;
@@ -216,12 +239,31 @@
       }
     }, [inspectorTitle, conclusion, process, glossary, glossaryTerms]);
 
+    React.useEffect(() => {
+      window.RiloUI.activeInspectorApi = api;
+
+      return () => {
+        if (window.RiloUI?.activeInspectorApi === api) {
+          delete window.RiloUI.activeInspectorApi;
+        }
+      };
+    }, [api]);
+
     return React.createElement(InspectorContext.Provider, { value: api },
       React.createElement('div', { className: 'rilo-shell-grid' }, [
         React.createElement('div', { key: 'left', className: 'rilo-shell-main' }, [
           leftTitle && React.createElement('div', { key: 'lt', className: 'px-1' }, leftTitle),
           left
-        ])
+        ]),
+        React.createElement('aside', { key: 'side', className: 'rilo-shell-side' },
+          React.createElement(InspectorPanel, {
+            title: inspectorTitle,
+            conclusion,
+            process,
+            glossary,
+            glossaryTerms: mergedGlossaryTerms
+          })
+        )
       ])
     );
   };

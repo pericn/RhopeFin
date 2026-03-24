@@ -188,10 +188,10 @@ window.UIComponents = (function() {
   const KPI = ({ title, value, color = "info", size = "normal", change = null, changeLabel = null, format = null, suffix = "" }) => {
     const getColorClasses = (color) => {
       const colors = {
-        success: 'bg-[rgba(243,248,243,0.88)] text-[var(--rilo-sem-success)] border-[rgba(118,139,118,0.16)]',
-        danger: 'bg-[rgba(248,242,241,0.88)] text-[var(--rilo-sem-danger)] border-[rgba(141,117,111,0.16)]',
-        warning: 'bg-[rgba(247,244,238,0.88)] text-[var(--rilo-sem-warning)] border-[rgba(143,129,104,0.16)]',
-        info: 'bg-[rgba(241,244,247,0.88)] text-[var(--rilo-sem-info)] border-[rgba(86,101,125,0.16)]'
+        success: 'bg-[var(--rilo-value-success-soft)] text-[var(--rilo-value-success)] border-[var(--rilo-value-success-border)]',
+        danger: 'bg-[var(--rilo-value-danger-soft)] text-[var(--rilo-value-danger)] border-[var(--rilo-value-danger-border)]',
+        warning: 'bg-[var(--rilo-value-warning-soft)] text-[var(--rilo-value-warning)] border-[var(--rilo-value-warning-border)]',
+        info: 'bg-[var(--rilo-value-info-soft)] text-[var(--rilo-value-info)] border-[var(--rilo-value-info-border)]'
       };
       return colors[color] || colors.info;
     };
@@ -211,9 +211,9 @@ window.UIComponents = (function() {
     const showSuffix = suffix && typeof formattedValue === 'string' && !formattedValue.includes(suffix);
     const hasChange = changeLabel !== null || change !== null;
     const changeTone = change > 0
-      ? 'bg-[var(--emerald-soft)] text-[var(--rilo-sem-success)]'
+      ? 'bg-[var(--rilo-value-success-soft)] text-[var(--rilo-value-success)]'
       : change < 0
-        ? 'bg-[var(--brick-soft)] text-[var(--rilo-sem-danger)]'
+        ? 'bg-[var(--rilo-value-danger-soft)] text-[var(--rilo-value-danger)]'
         : 'bg-[rgba(34,31,26,0.08)] text-[var(--rilo-text-2)]';
     const resolvedChangeLabel = changeLabel || (change !== null
       ? `${change > 0 ? '+' : ''}${change.toFixed(1)}%`
@@ -224,7 +224,7 @@ window.UIComponents = (function() {
     }, [
       React.createElement('div', {
         key: 'glow',
-        className: 'pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(34,28,139,0.24),transparent)]'
+        className: 'pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(109,121,136,0.18),transparent)]'
       }),
       React.createElement('div', {
         key: 'title',

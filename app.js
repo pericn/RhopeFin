@@ -2,6 +2,55 @@
 (function() {
   'use strict';
 
+  class PageContentBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error) {
+      return {
+        hasError: true,
+        error
+      };
+    }
+
+    componentDidCatch(error, info) {
+      console.error('Page content render failed:', error, info);
+    }
+
+    componentDidUpdate(prevProps) {
+      if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+        this.setState({ hasError: false, error: null });
+      }
+    }
+
+    render() {
+      if (this.state.hasError) {
+        return React.createElement('div', {
+          className: 'rounded-[var(--radius-lg)] border border-[var(--brick-soft)] bg-[var(--rilo-surface-1)] p-6'
+        }, [
+          React.createElement('div', {
+            key: 'title',
+            className: 'text-base font-semibold text-[var(--rilo-text-1)]'
+          }, '当前页面未能正常加载'),
+          React.createElement('div', {
+            key: 'body',
+            className: 'mt-2 text-sm leading-7 text-[var(--rilo-text-2)]'
+          }, this.state.error?.toString() || '未知错误'),
+          React.createElement(window.UIComponents?.Button || 'button', {
+            key: 'retry',
+            type: 'button',
+            onClick: () => this.setState({ hasError: false, error: null }),
+            className: 'mt-4'
+          }, '重试当前页面')
+        ]);
+      }
+
+      return this.props.children;
+    }
+  }
+
 
   // 主应用组件
   const App = () => {
@@ -86,58 +135,70 @@
 
     // 页签配置
     const tabs = [
-      { key: 'overview', label: '项目概况', detail: '默认落点' },
-      { key: 'settings', label: '经营设置', detail: '输入与校准' },
-      { key: 'analysis', label: '敏感度分析', detail: '参数扰动' }
+      { key: 'overview', label: '项目概况' },
+      { key: 'settings', label: '经营设置' },
+      { key: 'analysis', label: '敏感度分析' }
     ];
 
-    const pageActionButtonProps = {
-      variant: 'outline',
-      size: 'small'
-    };
-
-    const settingsPageActions = [
+    const settingsPageActions = activeTab === 'settings' ? React.createElement('div', {
+      key: 'settings-actions',
+      className: 'mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-3'
+    }, [
       React.createElement(window.UIComponents.Button, {
         key: 'preset',
         onClick: () => {
-          const presetData = dataManager.getPresetData();
-          const preservedProjectName = data?.basic?.projectName;
-          if (preservedProjectName && preservedProjectName !== 'Rilo Analysis 示例') {
-            presetData.basic.projectName = preservedProjectName;
-          }
-          setData(presetData);
-          updateData(presetData);
+          const presetData = dataManager.applyPreset();
+          const currentProjectName = data?.basic?.projectName;
+          const initialProjectName = dataManager.getInitialData().basic.projectName;
+          const shouldPreserveProjectName = currentProjectName &&
+            currentProjectName !== initialProjectName &&
+            currentProjectName !== presetData?.basic?.projectName;
+
+          const finalData = shouldPreserveProjectName ? {
+            ...presetData,
+            basic: {
+              ...presetData.basic,
+              projectName: currentProjectName
+            }
+          } : presetData;
+          setData(finalData);
+          updateData(finalData);
         },
-        ...pageActionButtonProps
+        variant: 'secondary',
+        size: 'small'
       }, '示例参数'),
       React.createElement(window.UIComponents.Button, {
         key: 'export',
         onClick: () => dataManager.exportData(data),
-        ...pageActionButtonProps
+        variant: 'outline',
+        size: 'small'
       }, '导出数据'),
-      React.createElement('div', {
-        key: 'import-wrapper',
-        className: 'relative'
+      React.createElement('label', {
+        key: 'import',
+        className: 'relative inline-flex'
       }, [
         React.createElement('input', {
           key: 'import-input',
           type: 'file',
           accept: '.json',
           onChange: (event) => {
-            const file = event.target.files[0];
-            if (file && dataManager) {
-              dataManager.importData(file, (error, importedData) => {
-                alert(error ? '导入失败: ' + error.message : '数据导入成功！');
-                if (!error) updateData(importedData);
-                event.target.value = '';
-              });
-            }
+            const file = event.target.files?.[0];
+            if (!file) return;
+            dataManager.importData(file, (importError, importedData) => {
+              alert(importError ? `导入失败: ${importError.message}` : '数据导入成功！');
+              if (!importError) {
+                setData(importedData);
+                updateData(importedData);
+              }
+              event.target.value = '';
+            });
           },
           className: 'absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0'
         }),
         React.createElement(window.UIComponents.Button, {
           key: 'import-button',
-          ...pageActionButtonProps,
+          variant: 'outline',
+          size: 'small',
           className: 'pointer-events-none'
         }, '导入数据')
       ]),
@@ -145,24 +206,15 @@
         key: 'clear',
         onClick: () => {
           if (confirm('确认清除所有保存的数据？')) {
-            const clearedData = dataManager.clearStorage();
-            setData(clearedData);
-            updateData(clearedData);
+            const cleared = dataManager.clearStorage();
+            setData(cleared);
+            updateData(cleared);
           }
         },
-        danger: true,
-        ...pageActionButtonProps
-      }, '清除数据'),
-      React.createElement(window.UIComponents.Button, {
-        key: 'glossary',
-        onClick: () => {
-          setDrawerTermKey(null);
-          setDrawerSection('glossary');
-          setIsDrawerOpen(true);
-        },
-        ...pageActionButtonProps
-      }, '术语解释')
-    ];
+        variant: 'danger',
+        size: 'small'
+      }, '清除数据')
+    ]) : null;
 
     // 初始化数据
     React.useEffect(() => {
@@ -338,7 +390,7 @@
               React.createElement('div', {
                 key: 'eyebrow',
                 className: 'rilo-app-brand-kicker'
-              }, 'Rilo Analysis'),
+              }, '经营测算'),
               React.createElement('h1', {
                 key: 'title',
                 className: 'rilo-app-brand-title'
@@ -346,24 +398,7 @@
               React.createElement('p', {
                 key: 'subtitle',
                 className: 'rilo-app-brand-copy'
-              }, 'V5 frame, calm operating model workspace')
-            ]),
-            React.createElement('div', {
-              key: 'sidebar-actions',
-              className: 'rilo-app-sidebar-actions'
-            }, [
-              React.createElement('span', {
-                key: 'icon-slot',
-                className: 'rilo-app-icon-slot',
-                'aria-hidden': 'true'
-              }),
-              React.createElement(window.UIComponents.Button, {
-                key: 'reload-analysis',
-                onClick: () => window.location.reload(),
-                variant: 'outline',
-                size: 'small',
-                className: 'justify-center'
-              }, '重新加载分析')
+              }, '宠物综合体项目的经营测算与复核工作台')
             ]),
             React.createElement('div', {
               key: 'nav-section-title',
@@ -381,7 +416,6 @@
             }, [
               React.createElement('span', { key: 'index', className: 'rilo-app-nav-index' }, tab.key === 'overview' ? '01' : tab.key === 'settings' ? '02' : '03'),
               React.createElement('span', { key: 'label', className: 'rilo-app-nav-label' }, tab.label),
-              React.createElement('span', { key: 'meta', className: 'rilo-app-nav-meta' }, tab.detail),
               React.createElement('span', { key: 'dot', className: 'rilo-app-nav-dot' })
             ]))),
           ]),
@@ -390,11 +424,11 @@
             key: 'main',
             className: 'rilo-app-main'
           }, [
-            activeTab === 'settings' && React.createElement('div', {
-              key: 'settings-actions',
-              className: 'mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-3'
-            }, settingsPageActions),
-            React.createElement('div', {
+            settingsPageActions,
+            React.createElement(PageContentBoundary, {
+              key: 'page-boundary',
+              resetKey: activeTab
+            }, React.createElement('div', {
               key: 'page-content',
               className: 'rilo-app-content'
             }, [
@@ -420,7 +454,7 @@
                 formulaEngine: formulaEngine,
                 currency: data?.basic?.currency || '¥'
               })
-            ])
+            ]))
           ])
         ])
       ])

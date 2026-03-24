@@ -38,14 +38,14 @@
       --rilo-mist-blue: #AFC4DA;
 
       /* === Shared Shell Tokens (aligned to v5 paper system) === */
-      --rilo-bg-deep: #f3ebdf;
-      --rilo-surface-1: rgba(255, 250, 245, 0.74);
-      --rilo-surface-2: rgba(245, 236, 224, 0.72);
-      --rilo-surface-3: rgba(233, 237, 243, 0.68);
-      --rilo-surface-panel: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(247,240,231,0.92));
-      --rilo-surface-card: linear-gradient(180deg, rgba(255,255,255,0.70), rgba(244,235,223,0.90));
-      --rilo-surface-muted: rgba(255, 251, 246, 0.72);
-      --rilo-surface-accent: linear-gradient(180deg, rgba(236,236,250,0.92), rgba(245,239,230,0.96));
+      --rilo-bg-deep: #ede6dc;
+      --rilo-surface-1: rgba(249, 245, 239, 0.88);
+      --rilo-surface-2: rgba(241, 236, 228, 0.90);
+      --rilo-surface-3: rgba(234, 236, 238, 0.86);
+      --rilo-surface-panel: rgba(247, 242, 235, 0.94);
+      --rilo-surface-card: rgba(245, 240, 233, 0.96);
+      --rilo-surface-muted: rgba(248, 244, 238, 0.88);
+      --rilo-surface-accent: rgba(238, 239, 242, 0.94);
       --rilo-border-deep: rgba(34, 31, 26, 0.14);
       --rilo-border-strong: rgba(34, 31, 26, 0.22);
       --rilo-text-1: var(--ink-1);
@@ -69,10 +69,10 @@
       /* Radius, shadow, spacing */
       --rilo-radius-card: 16px;
       --rilo-radius-control: 12px;
-      --rilo-shadow-card: 0 10px 24px rgba(85, 61, 28, 0.06);
-      --rilo-shadow-soft: 0 4px 12px rgba(85, 61, 28, 0.04);
-      --rilo-shadow-press: 0 8px 20px rgba(85, 61, 28, 0.08);
-      --rilo-shadow-shell: 0 18px 48px rgba(85, 61, 28, 0.09);
+      --rilo-shadow-card: 0 6px 16px rgba(85, 61, 28, 0.04);
+      --rilo-shadow-soft: 0 2px 6px rgba(85, 61, 28, 0.022);
+      --rilo-shadow-press: 0 6px 14px rgba(85, 61, 28, 0.06);
+      --rilo-shadow-shell: 0 16px 34px rgba(85, 61, 28, 0.055);
       --rilo-gap-page: 24px;
       --rilo-gap-form: 16px;
 
@@ -91,11 +91,11 @@
 
       /* === v5 Visual System: Paper + Ink + Jewel === */
       /* Paper base (warm, matte) */
-      --paper-base: #f4efe8;
-      --paper-warm: #ece5dc;
-      --paper-cool: #e7eaee;
-      --paper-line: #d8cec1;
-      --paper-fold: #c7baab;
+      --paper-base: #f0ebe4;
+      --paper-warm: #e8e0d6;
+      --paper-cool: #e3e6e8;
+      --paper-line: #d2c8ba;
+      --paper-fold: #c1b4a5;
 
       /* Ink (text hierarchy) */
       --ink-1: #2c333b;
@@ -103,22 +103,22 @@
       --ink-3: #87909b;
 
       /* Accent (primary brand - 深蓝) */
-      --rilo-accent-v5: #56657d;
+      --rilo-accent-v5: #667180;
       --rilo-accent: var(--rilo-accent-v5);
-      --rilo-accent-500: #657690;
-      --rilo-accent-50: rgba(86, 101, 125, 0.08);
+      --rilo-accent-500: #748092;
+      --rilo-accent-50: rgba(102, 113, 128, 0.07);
 
       /* Semantic jewel accents (V5-only, capped at 4 coordinated colors) */
-      --emerald: #768b76;
-      --amber: #8f8168;
-      --brick: #8d756f;
+      --emerald: #7a8978;
+      --amber: #8b7e6a;
+      --brick: #877069;
 
       /* Derived soft variants */
-      --rilo-accent-soft-v5: rgba(86, 101, 125, 0.10);
-      --rilo-accent-mid-v5: rgba(86, 101, 125, 0.18);
-      --emerald-soft: rgba(118, 139, 118, 0.12);
-      --amber-soft: rgba(143, 129, 104, 0.12);
-      --brick-soft: rgba(141, 117, 111, 0.12);
+      --rilo-accent-soft-v5: rgba(102, 113, 128, 0.08);
+      --rilo-accent-mid-v5: rgba(102, 113, 128, 0.14);
+      --emerald-soft: rgba(122, 137, 120, 0.10);
+      --amber-soft: rgba(139, 126, 106, 0.10);
+      --brick-soft: rgba(135, 112, 105, 0.10);
 
       /* Lines */
       --line: rgba(34, 31, 26, 0.13);
@@ -143,9 +143,22 @@
       --control-height-sm: 36px;
 
       /* Font stack (v5) */
-      --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Baskerville, Georgia, serif;
+      --font-display: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
       --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       --font-mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      --font-display-weight: 650;
+      --rilo-value-info: #6d7988;
+      --rilo-value-success: #798776;
+      --rilo-value-warning: #8a7d6b;
+      --rilo-value-danger: #8a756d;
+      --rilo-value-info-soft: rgba(109, 121, 136, 0.10);
+      --rilo-value-success-soft: rgba(121, 135, 118, 0.10);
+      --rilo-value-warning-soft: rgba(138, 125, 107, 0.10);
+      --rilo-value-danger-soft: rgba(138, 117, 109, 0.10);
+      --rilo-value-info-border: rgba(109, 121, 136, 0.18);
+      --rilo-value-success-border: rgba(121, 135, 118, 0.18);
+      --rilo-value-warning-border: rgba(138, 125, 107, 0.18);
+      --rilo-value-danger-border: rgba(138, 117, 109, 0.18);
     }
 
     body {
@@ -153,9 +166,9 @@
       line-height: 1.85;
       letter-spacing: 0.02em;
       background:
-        radial-gradient(circle at left top, rgba(86, 101, 125, 0.05), transparent 26%),
-        radial-gradient(circle at right 8%, rgba(143, 129, 104, 0.05), transparent 22%),
-        linear-gradient(180deg, #f7f3ec 0%, var(--paper-base) 52%, #ede5da 100%);
+        radial-gradient(circle at left top, rgba(102, 113, 128, 0.024), transparent 22%),
+        radial-gradient(circle at right 10%, rgba(139, 126, 106, 0.022), transparent 18%),
+        linear-gradient(180deg, #f4f0ea 0%, var(--paper-base) 52%, #e8e0d4 100%);
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
       min-height: 100vh;
@@ -169,7 +182,7 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.28;
+      opacity: 0.12;
       background:
         repeating-linear-gradient(
           0deg,
@@ -188,9 +201,7 @@
       margin: 18px auto 26px;
       border-radius: var(--radius-xl, 30px);
       overflow: hidden;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,255,255,0.20)),
-        linear-gradient(135deg, rgba(244,239,232,0.98), rgba(238,231,221,0.96) 58%, rgba(232,235,239,0.84));
+      background: rgba(244, 239, 232, 0.94);
       box-shadow: var(--rilo-shadow-shell);
       border: 1px solid rgba(34, 31, 26, 0.10);
       min-height: calc(100vh - 48px);
@@ -413,10 +424,10 @@
     }
 
     /* 语义色工具类 */
-    .text-success { color: var(--emerald) !important; }
-    .text-warning { color: var(--amber) !important; }
-    .text-danger { color: var(--brick) !important; }
-    .text-info { color: var(--rilo-accent-v5, #221C8B) !important; }
+    .text-success { color: var(--rilo-value-success) !important; }
+    .text-warning { color: var(--rilo-value-warning) !important; }
+    .text-danger { color: var(--rilo-value-danger) !important; }
+    .text-info { color: var(--rilo-value-info) !important; }
     .text-muted { color: var(--ink-3) !important; }
     .text-secondary { color: var(--ink-2) !important; }
 
@@ -517,7 +528,7 @@
     .settings-editor {
       border: 1px solid rgba(34, 31, 26, 0.10);
       border-radius: var(--radius-lg);
-      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(242,236,229,0.92));
+      background: rgba(245, 240, 233, 0.98);
       box-shadow: var(--rilo-shadow-soft);
     }
 
@@ -550,7 +561,7 @@
       padding: 12px 13px;
       border-radius: var(--radius-md);
       border: 1px solid rgba(34, 31, 26, 0.10);
-      background: rgba(255,255,255,0.36);
+      background: rgba(250, 247, 242, 0.94);
       color: inherit;
       text-align: left;
       transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
@@ -563,8 +574,8 @@
     }
 
     .cat-item.active {
-      border-color: rgba(86, 101, 125, 0.22);
-      background: linear-gradient(90deg, rgba(86, 101, 125, 0.08), rgba(255,255,255,0.5));
+      border-color: rgba(102, 113, 128, 0.18);
+      background: rgba(237, 239, 242, 0.92);
       box-shadow: inset 3px 0 0 var(--rilo-accent);
     }
 
@@ -582,7 +593,7 @@
 
     .cat-item-label {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: var(--font-display-weight);
       color: var(--ink-1);
     }
 
@@ -627,6 +638,25 @@
       gap: 18px;
     }
 
+    .settings-basic-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 16px;
+      align-items: start;
+    }
+
+    .settings-basic-grid--compact .ant-space {
+      min-width: 0;
+    }
+
+    .settings-field-copy {
+      max-width: 42rem;
+    }
+
+    .settings-header-note {
+      max-width: 44rem;
+    }
+
     .settings-outcome-strip {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -665,7 +695,8 @@
     /* 响应式调整 */
     @media (max-width: 768px) {
       .settings-layout,
-      .settings-outcome-strip {
+      .settings-outcome-strip,
+      .settings-basic-grid {
         grid-template-columns: 1fr;
       }
 
@@ -725,10 +756,10 @@
     }
 
     .rilo-ledger-panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(243,237,230,0.92));
+      background: rgba(246, 241, 234, 0.94);
       border: 1px solid rgba(34, 31, 26, 0.1);
       border-radius: calc(var(--radius-lg) * 1.05);
-      box-shadow: var(--rilo-shadow-card);
+      box-shadow: var(--rilo-shadow-soft);
       position: relative;
     }
 
@@ -737,7 +768,7 @@
       position: absolute;
       inset: 0;
       border-radius: inherit;
-      background: linear-gradient(180deg, rgba(255,255,255,0.34), transparent 32%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 30%);
       pointer-events: none;
     }
 
@@ -767,9 +798,7 @@
       display: grid;
       gap: 14px;
       padding: 14px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(246,240,232,0.92)),
-        linear-gradient(135deg, rgba(233,237,243,0.18), transparent 58%);
+      background: rgba(244, 239, 232, 0.96);
       border: 1px solid rgba(34, 31, 26, 0.12);
       border-radius: calc(var(--radius-lg) * 1.04);
       box-shadow: var(--rilo-shadow-card);
@@ -782,7 +811,7 @@
       position: absolute;
       inset: 0 0 auto 0;
       height: 56px;
-      background: linear-gradient(180deg, rgba(34, 28, 139, 0.07), transparent);
+      background: linear-gradient(180deg, rgba(102, 113, 128, 0.028), transparent);
       pointer-events: none;
       z-index: -1;
     }
@@ -807,7 +836,7 @@
     }
 
     .rilo-inspector-section {
-      background: linear-gradient(180deg, rgba(255,255,255,0.7), rgba(244,237,229,0.9));
+      background: rgba(247, 243, 237, 0.96);
       border: 1px solid rgba(34,31,26,0.10);
       border-radius: var(--radius-lg);
       box-shadow: var(--rilo-shadow-soft);
@@ -821,7 +850,7 @@
       gap: 12px;
       padding: 14px 16px;
       border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(244,235,223,0.82));
+      background: rgba(241, 236, 229, 0.96);
     }
 
     .rilo-inspector-section-body {
@@ -833,7 +862,7 @@
       position: relative;
       border: 1px solid rgba(34,31,26,0.10);
       border-radius: var(--radius-md);
-      background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(245,237,229,0.84));
+      background: rgba(248, 244, 238, 0.96);
       padding: 14px 15px;
       overflow: hidden;
     }
@@ -842,8 +871,8 @@
       content: "";
       position: absolute;
       inset: 0 auto 0 0;
-      width: 4px;
-      background: linear-gradient(180deg, rgba(34, 28, 139, 0.42), rgba(34, 28, 139, 0));
+      width: 3px;
+      background: linear-gradient(180deg, rgba(102, 113, 128, 0.18), rgba(102, 113, 128, 0));
     }
 
     .rilo-explainer-label {
@@ -869,18 +898,18 @@
     }
 
     .rilo-kpi-strong {
-      background: rgba(255,255,255,0.66);
-      border: 1px solid rgba(34,31,26,0.11);
+      background: rgba(251, 248, 243, 0.84);
+      border: 1px solid rgba(34,31,26,0.09);
     }
 
     .rilo-card-hierarchy-high {
-      background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(240,233,223,0.9));
+      background: rgba(246, 241, 234, 0.97);
       border-color: rgba(34,31,26,0.12) !important;
       box-shadow: var(--rilo-shadow-card) !important;
     }
 
     .rilo-card-hierarchy-mid {
-      background: linear-gradient(180deg, rgba(255,255,255,0.66), rgba(244,237,229,0.86));
+      background: rgba(248, 244, 238, 0.95);
       border-color: rgba(34,31,26,0.10) !important;
       box-shadow: var(--rilo-shadow-soft) !important;
     }
@@ -912,20 +941,20 @@
     }
 
     .rilo-btn-soft:hover {
-      border-color: rgba(34,28,139,0.20);
-      background: rgba(236,236,250,0.68);
+      border-color: rgba(86,101,125,0.18);
+      background: rgba(255,255,255,0.62);
     }
 
     .rilo-btn-strong {
-      border: 1px solid rgba(19,16,89,0.20);
-      background: linear-gradient(180deg,#2d289f,#221c86);
+      border: 1px solid rgba(86,101,125,0.22);
+      background: linear-gradient(180deg, rgba(101,118,144,0.98), rgba(86,101,125,0.98));
       color: #f7f2ea;
-      box-shadow: 0 12px 28px rgba(34,28,139,0.18);
+      box-shadow: 0 10px 24px rgba(86,101,125,0.16);
     }
 
     .rilo-btn-strong:hover {
       transform: translateY(-1px);
-      box-shadow: 0 16px 32px rgba(34,28,139,0.22);
+      box-shadow: 0 14px 28px rgba(86,101,125,0.18);
     }
 
     .rilo-app-shell {
@@ -976,9 +1005,10 @@
     .rilo-app-brand-title {
       margin: 0;
       font-family: var(--font-display), Georgia, serif;
-      font-size: 1.8rem;
-      line-height: 1.08;
-      letter-spacing: -0.03em;
+      font-size: 1.45rem;
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      font-weight: var(--font-display-weight);
       color: var(--ink-1);
     }
 
@@ -1126,7 +1156,7 @@
 
     @media (min-width: 1024px) {
       .rilo-shell-grid {
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(292px, 336px);
       }
     }
 
@@ -1169,10 +1199,10 @@
     .rilo-ledger-title {
       margin-top: 12px;
       font-family: var(--font-display), Georgia, serif;
-      font-size: clamp(2rem, 3vw, 3.15rem);
-      line-height: 1.04;
-      letter-spacing: -0.04em;
-      font-weight: 600;
+      font-size: clamp(1.7rem, 2.3vw, 2.45rem);
+      line-height: 1.16;
+      letter-spacing: -0.012em;
+      font-weight: var(--font-display-weight);
       color: var(--ink-1);
     }
 
@@ -1195,12 +1225,12 @@
       padding: 14px 16px;
       border-radius: var(--radius-md);
       border: 1px solid rgba(34, 31, 26, 0.10);
-      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(247,242,236,0.82));
+      background: rgba(250, 247, 242, 0.84);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 8px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.32);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
     }
 
     .rilo-ledger-metric-label {
@@ -1255,16 +1285,23 @@
       }
     }
 
-    /* 标题字体（v5 衬线） */
-    h1, h2, h3, h4, h5, h6, .page-title, .section-title {
+    .rilo-display-serif {
       font-family: var(--font-display), Georgia, serif;
+      font-weight: var(--font-display-weight);
+      letter-spacing: 0.01em;
       color: var(--ink-1);
-      letter-spacing: 0.02em;
     }
 
-    .bg-success-light { background: var(--emerald-soft) !important; }
-    .bg-warning-light { background: var(--amber-soft) !important; }
-    .bg-danger-light { background: var(--brick-soft) !important; }
+    .rilo-section-title {
+      font-family: var(--font-display), Georgia, serif;
+      font-weight: 620;
+      letter-spacing: -0.01em;
+      color: var(--ink-1);
+    }
+
+    .bg-success-light { background: var(--rilo-value-success-soft) !important; }
+    .bg-warning-light { background: var(--rilo-value-warning-soft) !important; }
+    .bg-danger-light { background: var(--rilo-value-danger-soft) !important; }
 
     /* KPI 卡片样式（v5） */
     .kpi-card {

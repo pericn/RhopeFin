@@ -160,24 +160,48 @@ window.UIComponents = (function() {
   // 关键指标组件 - 使用 Ant Design Statistic
   const KPI = ({ title, value, prefix = "", suffix = "", trend = null, color = "default", className = "" }) => {
     const colorMap = {
-      'success': '#52c41a',
-      'danger': '#ff4d4f',
-      'warning': '#faad14',
-      'info': '#1890ff',
-      'default': '#000000'
+      'success': 'var(--rilo-value-success)',
+      'danger': 'var(--rilo-value-danger)',
+      'warning': 'var(--rilo-value-warning)',
+      'info': 'var(--rilo-value-info)',
+      'default': 'var(--rilo-text-1)'
+    };
+
+    const surfaceMap = {
+      'success': 'rgba(244, 247, 242, 0.9)',
+      'danger': 'rgba(248, 243, 242, 0.9)',
+      'warning': 'rgba(247, 244, 239, 0.9)',
+      'info': 'rgba(242, 245, 247, 0.9)',
+      'default': 'rgba(247, 243, 237, 0.9)'
     };
 
     return React.createElement(Card, {
       className: className,
-      style: { textAlign: 'center' }
+      style: {
+        textAlign: 'left',
+        background: surfaceMap[color] || surfaceMap.default,
+        borderColor: 'rgba(34, 31, 26, 0.08)',
+        boxShadow: 'var(--rilo-shadow-soft)'
+      }
     }, [
       React.createElement(Statistic, {
         key: 'statistic',
-        title: title,
+        title: React.createElement('span', {
+          style: {
+            color: 'var(--rilo-text-3)',
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase'
+          }
+        }, title),
         value: value,
         prefix: prefix,
         suffix: suffix,
-        valueStyle: { color: colorMap[color] }
+        valueStyle: {
+          color: colorMap[color],
+          fontWeight: 650,
+          letterSpacing: '-0.03em'
+        }
       }),
       
       trend && React.createElement(Space, {
@@ -186,7 +210,9 @@ window.UIComponents = (function() {
       }, [
         React.createElement('span', {
           key: 'trend-icon',
-          style: { color: trend > 0 ? '#52c41a' : trend < 0 ? '#ff4d4f' : '#999' }
+          style: {
+            color: trend > 0 ? 'var(--rilo-value-success)' : trend < 0 ? 'var(--rilo-value-danger)' : 'var(--rilo-text-3)'
+          }
         }, trend > 0 ? '↗' : trend < 0 ? '↘' : '→'),
         React.createElement(Text, {
           key: 'trend-text',

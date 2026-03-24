@@ -28,16 +28,18 @@ window.AnalysisPage = (function() {
   };
 
   const formatMetricValue = (metricKey, value, currency = '¥') => {
+    const numericValue = Number(value);
+
     if (metricKey === 'paybackYears') {
-      return value === Infinity ? '无法回本' : `${Number(value || 0).toFixed(1)}年`;
+      return value === Infinity || !Number.isFinite(numericValue) ? '无法回本' : `${numericValue.toFixed(1)}年`;
     }
     if (metricKey === 'netMargin' || metricKey === 'grossMargin') {
-      return `${Number(value || 0).toFixed(1)}%`;
+      return `${(Number.isFinite(numericValue) ? numericValue : 0).toFixed(1)}%`;
     }
     if (metricKey === 'profit') {
-      return `${currency}${(Number(value || 0) / 10000).toFixed(1)}万`;
+      return `${currency}${((Number.isFinite(numericValue) ? numericValue : 0) / 10000).toFixed(1)}万`;
     }
-    return `${Number(value || 0).toFixed(1)}`;
+    return `${(Number.isFinite(numericValue) ? numericValue : 0).toFixed(1)}`;
   };
 
   const getImpactValue = (scenario, impactMetric) => {
@@ -92,9 +94,31 @@ window.AnalysisPage = (function() {
     React.createElement('div', { key: 'copy', className: 'rilo-explainer-copy' }, copy)
   ]);
 
+  const createFallbackScenario = (name, change = 0) => ({
+    name,
+    change,
+    profit: 0,
+    margin: 0,
+    grossMargin: 0,
+    payback: Infinity
+  });
+
+  const hasRenderableScenarioData = (scenarios = []) => scenarios.some((item) =>
+    Math.abs(Number(item?.profit || 0)) > 0 ||
+    Math.abs(Number(item?.margin || 0)) > 0 ||
+    Math.abs(Number(item?.grossMargin || 0)) > 0 ||
+    Number.isFinite(item?.payback)
+  );
+
   const buildSensitivityScenarios = ({ data, calculations, formulaEngine, selectedParam, paramRange }) => {
     const variations = [-paramRange, 0, paramRange];
-    const labels = ['保守', '当前情况', '优化'];
+    const labels = ['下调', '基准', '上调'];
+    const baseline = {
+      profit: calculations?.profitability?.profit ?? 0,
+      margin: calculations?.profitability?.margin ?? 0,
+      grossMargin: calculations?.profitability?.grossMargin ?? 0,
+      payback: calculations?.profitability?.paybackYears ?? Infinity
+    };
 
     const adjustParam = (baseData, pctChange) => {
       const adjusted = JSON.parse(JSON.stringify(baseData || {}));
@@ -140,66 +164,84 @@ window.AnalysisPage = (function() {
     };
 
     const recalc = (inputData) => {
-      if (window.MainCalculator && formulaEngine) {
+      if (window.MainCalculator && formulaEngine && inputData) {
         try {
           const calculator = new window.MainCalculator(formulaEngine);
           const result = calculator.calculate(inputData);
           return {
-            profit: result?.profitability?.profit ?? 0,
-            margin: result?.profitability?.margin ?? 0,
-            grossMargin: result?.profitability?.grossMargin ?? 0,
-            payback: result?.profitability?.paybackYears ?? Infinity
+            profit: result?.profitability?.profit ?? baseline.profit,
+            margin: result?.profitability?.margin ?? baseline.margin,
+            grossMargin: result?.profitability?.grossMargin ?? baseline.grossMargin,
+            payback: result?.profitability?.paybackYears ?? baseline.payback
           };
         } catch (error) {
           console.warn('Sensitivity recalc failed, falling back to baseline', error);
         }
       }
 
-      return {
-        profit: calculations?.profitability?.profit ?? 0,
-        margin: calculations?.profitability?.margin ?? 0,
-        grossMargin: calculations?.profitability?.grossMargin ?? 0,
-        payback: calculations?.profitability?.paybackYears ?? Infinity
-      };
+      return baseline;
     };
 
-    return variations.map((pctChange, index) => {
-      const metrics = recalc(adjustParam(data, pctChange));
-      return {
-        name: labels[index],
-        change: pctChange,
-        profit: metrics.profit,
-        margin: metrics.margin,
-        grossMargin: metrics.grossMargin,
-        payback: metrics.payback
-      };
-    });
+    try {
+      return variations.map((pctChange, index) => {
+        const metrics = recalc(adjustParam(data, pctChange));
+        return {
+          name: labels[index],
+          change: pctChange,
+          profit: Number(metrics?.profit ?? baseline.profit) || 0,
+          margin: Number(metrics?.margin ?? baseline.margin) || 0,
+          grossMargin: Number(metrics?.grossMargin ?? baseline.grossMargin) || 0,
+          payback: metrics?.payback ?? baseline.payback
+        };
+      });
+    } catch (error) {
+      console.error('Sensitivity scenario build failed:', error);
+      return [
+        createFallbackScenario(labels[0], variations[0]),
+        { ...createFallbackScenario(labels[1], variations[1]), ...baseline },
+        createFallbackScenario(labels[2], variations[2])
+      ];
+    }
   };
 
   const AnalysisPage = ({ data, calculations, formulaEngine, currency = '¥' }) => {
     const Term = window.RiloUI?.Term;
-    const KPI = window.UIComponents?.KPI;
     const [selectedParam, setSelectedParam] = React.useState('fitoutStandard');
     const [paramRange, setParamRange] = React.useState(20);
     const [impactMetric, setImpactMetric] = React.useState('paybackYears');
+    const profitability = calculations?.profitability || {};
+    const hasFiniteMetricValue = (value) => Number.isFinite(Number(value));
+    const hasCalculationData = Boolean(
+      calculations && (
+        hasFiniteMetricValue(profitability?.profit) ||
+        hasFiniteMetricValue(profitability?.margin) ||
+        hasFiniteMetricValue(profitability?.grossMargin) ||
+        hasFiniteMetricValue(profitability?.paybackYears)
+      )
+    );
 
     const glossaryTerms = {
-      margin: { title: '利润率/毛利率', body: '利润率看整体经营效率；毛利率看“卖出去的东西”本身赚不赚钱。' }
+      margin: { title: '利润率/毛利率', body: '利润率看整体经营效率；毛利率看“卖出去的东西”本身赚不赚钱。' },
+      sensitivity: { title: '敏感度分析', body: '保持其他假设不变，只扰动单一参数，判断结果会被拉动多大。' }
     };
 
-    const scenarios = React.useMemo(() => buildSensitivityScenarios({
-      data,
-      calculations,
-      formulaEngine,
-      selectedParam,
-      paramRange
-    }), [data, calculations, formulaEngine, selectedParam, paramRange]);
+    const scenarios = React.useMemo(() => {
+      const nextScenarios = buildSensitivityScenarios({
+        data,
+        calculations,
+        formulaEngine,
+        selectedParam,
+        paramRange
+      });
 
-    const currentScenario = scenarios[1];
-    const conservativeScenario = scenarios[0];
-    const optimisticScenario = scenarios[2];
-
-    const conclusion = null;
+      return Array.isArray(nextScenarios) && nextScenarios.length === 3
+        ? nextScenarios
+        : [
+            createFallbackScenario('下调', -paramRange),
+            createFallbackScenario('基准', 0),
+            createFallbackScenario('上调', paramRange)
+          ];
+    }, [data, calculations, formulaEngine, selectedParam, paramRange]);
 
     const process = React.createElement('div', { className: 'space-y-3 text-sm text-[var(--rilo-text-2)] rilo-zh-page' }, [
       React.createElement('div', { key: 'summary', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4' }, [
@@ -209,7 +251,11 @@ window.AnalysisPage = (function() {
           React.createElement('div', { key: 'r' }, `范围：±${paramRange}%`),
           React.createElement('div', { key: 'm' }, `指标：${getMetricLabel(impactMetric)}`)
         ])
-      ])
+      ]),
+      !hasCalculationData && React.createElement('div', {
+        key: 'empty-note',
+        className: 'rounded-2xl border border-dashed border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4 text-[var(--rilo-text-3)]'
+      }, '缺少完整计算结果时，页面会先显示安全占位值，避免敏感度分析直接报错。')
     ]);
 
     const left = React.createElement('div', { className: 'space-y-6 rilo-zh-page' }, [
@@ -265,7 +311,7 @@ window.AnalysisPage = (function() {
           leftTitle: null,
           left,
           inspectorTitle: '计算面板',
-          conclusion,
+          conclusion: null,
           process,
           glossaryTerms
         })
@@ -273,6 +319,13 @@ window.AnalysisPage = (function() {
 
     return React.createElement(React.Fragment, null, [mainContent]);
   };
+
+  const EmptyPanel = ({ title, copy }) => React.createElement('div', {
+    className: 'rounded-[var(--radius-lg)] border border-dashed border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 text-sm leading-7 text-[var(--rilo-text-2)]'
+  }, [
+    React.createElement('div', { key: 'title', className: 'font-semibold text-[var(--rilo-text-1)]' }, title),
+    React.createElement('div', { key: 'copy', className: 'mt-2' }, copy)
+  ]);
 
   const PageHeader = ({ data, selectedParam, paramRange, impactMetric, calculations, currency, scenarios }) => {
     const profit = calculations?.profitability?.profit || 0;
@@ -289,38 +342,30 @@ window.AnalysisPage = (function() {
           key: 'top-row',
           className: 'flex flex-col gap-3'
         }, [
-          React.createElement('div', { key: 'copy', className: 'rilo-ledger-header-copy text-left' }, [
-            React.createElement('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, 'Sensitivity Analysis'),
+            React.createElement('div', { key: 'copy', className: 'rilo-ledger-header-copy text-left' }, [
+            React.createElement('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '单参复核'),
             React.createElement('h1', { key: 'title', className: 'rilo-ledger-title' }, '敏感度分析'),
             React.createElement('p', {
               key: 'hint',
               className: 'rilo-ledger-subtitle rilo-zh-subtle'
-            }, '只改一个参数，看图表和核心指标怎样变化；术语解释与过程说明保留在二级入口。')
+            }, '固定其他条件，展示单一参数扰动后的三档重算结果。')
           ])
         ]),
-        React.createElement(window.UIComponents.Button, {
-          key: 'glossary-entry',
-          type: 'button',
-          variant: 'outline',
-          size: 'small',
-          className: 'self-start',
-          onClick: () => window.RiloUI?.openDefinitionsDrawer?.(null, 'glossary')
-        }, '术语解释'),
         React.createElement('div', { key: 'summary-strip', className: 'rilo-ledger-metrics' }, [
           React.createElement('div', { key: 's1', className: 'rilo-ledger-metric' }, [
             React.createElement('div', { key: 'l', className: 'rilo-ledger-metric-label' }, titleNode('profit', '年净利润')),
             React.createElement('div', { key: 'v', className: 'rilo-ledger-metric-value' }, formatMetricValue('profit', profit, currency)),
-            React.createElement('div', { key: 'n', className: 'rilo-ledger-metric-note' }, '当前全局口径')
+            React.createElement('div', { key: 'n', className: 'rilo-ledger-metric-note' }, '当前口径')
           ]),
           React.createElement('div', { key: 's2', className: 'rilo-ledger-metric' }, [
             React.createElement('div', { key: 'l', className: 'rilo-ledger-metric-label' }, titleNode('netMargin', '净利润率')),
             React.createElement('div', { key: 'v', className: 'rilo-ledger-metric-value' }, formatMetricValue('netMargin', margin, currency)),
-            React.createElement('div', { key: 'n', className: 'rilo-ledger-metric-note' }, '基于当前全年营收与成本')
+            React.createElement('div', { key: 'n', className: 'rilo-ledger-metric-note' }, '全年营收与成本')
           ]),
           React.createElement('div', { key: 's3', className: 'rilo-ledger-metric' }, [
             React.createElement('div', { key: 'l', className: 'rilo-ledger-metric-label' }, titleNode('payback', '回本周期')),
             React.createElement('div', { key: 'v', className: 'rilo-ledger-metric-value' }, Number.isFinite(payback) ? `${payback.toFixed(1)}年` : '暂时无法回本'),
-            React.createElement('div', { key: 'n', className: 'rilo-ledger-metric-note' }, '当前全局口径')
+            React.createElement('div', { key: 'n', className: 'rilo-ledger-metric-note' }, '当前口径')
           ])
         ]),
         React.createElement('div', { key: 'band', className: 'rilo-ledger-band' }, [
@@ -348,10 +393,9 @@ window.AnalysisPage = (function() {
     return React.createElement('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
-          React.createElement('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, 'Control Deck'),
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '控制面板')
         ]),
-        React.createElement('p', { key: 'hint', className: 'max-w-xl text-sm text-[var(--rilo-text-2)]' }, '选择参数、设置扰动范围，再切换观察指标。')
+        React.createElement('p', { key: 'hint', className: 'max-w-xl text-sm text-[var(--rilo-text-2)]' }, '选择参数与观察指标。')
       ]),
       React.createElement('div', { key: 'controls', className: 'grid grid-cols-1 gap-6 md:grid-cols-3' }, [
         React.createElement('div', { key: 'param-select', className: 'rilo-control-field' }, [
@@ -389,6 +433,15 @@ window.AnalysisPage = (function() {
   };
 
   const SensitivitySnapshot = ({ data, selectedParam, impactMetric, currency, scenarios }) => {
+    const hasScenarioData = hasRenderableScenarioData(scenarios);
+
+    if (!hasScenarioData) {
+      return React.createElement(EmptyPanel, {
+        title: '结果快照待生成',
+        copy: '补齐经营设置后，这里会展示下调、基准、上调三档结果。'
+      });
+    }
+
     const currentValue = getImpactValue(scenarios[1], impactMetric);
     const downsideValue = getImpactValue(scenarios[0], impactMetric);
     const upsideValue = getImpactValue(scenarios[2], impactMetric);
@@ -403,7 +456,7 @@ window.AnalysisPage = (function() {
     const insightCards = [
       {
         key: 'downside',
-        title: '保守档',
+        title: '下调档',
         value: formatMetricValue(impactMetric, downsideValue, currency),
         note: `${getParamLabel(selectedParam, data)} -${Math.abs(scenarios[0].change)}%`,
         color: cardTone(downsideDelta, impactMetric),
@@ -419,7 +472,7 @@ window.AnalysisPage = (function() {
       },
       {
         key: 'upside',
-        title: '优化档',
+        title: '上调档',
         value: formatMetricValue(impactMetric, upsideValue, currency),
         note: `${getParamLabel(selectedParam, data)} +${scenarios[2].change}%`,
         color: cardTone(upsideDelta, impactMetric),
@@ -433,10 +486,9 @@ window.AnalysisPage = (function() {
     return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
-        React.createElement('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, 'Scenario Snapshot'),
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '三档结果快照')
         ]),
-        React.createElement('div', { key: 'note', className: 'max-w-xl text-sm text-[var(--rilo-text-2)]' }, `${getParamLabel(selectedParam, data)} 在 ±${Math.abs(scenarios[2].change)}% 扰动下，对 ${getMetricLabel(impactMetric)} 的影响如下。`)
+        React.createElement('div', { key: 'note', className: 'max-w-xl text-sm text-[var(--rilo-text-2)]' }, `${getParamLabel(selectedParam, data)} 在 ±${Math.abs(scenarios[2].change)}% 扰动下的结果对比。`)
       ]),
       React.createElement('div', { key: 'grid', className: 'grid grid-cols-1 gap-3 md:grid-cols-3' },
         insightCards.map(card => {
@@ -465,6 +517,15 @@ window.AnalysisPage = (function() {
   };
 
   const SensitivityChart = ({ data, selectedParam, paramRange, impactMetric, currency, scenarios }) => {
+    const hasScenarioData = hasRenderableScenarioData(scenarios);
+
+    if (!hasScenarioData) {
+      return React.createElement(EmptyPanel, {
+        title: '敏感度图表待生成',
+        copy: '当前没有足够的测算结果可画图，先到经营设置页补齐关键参数。'
+      });
+    }
+
     const paramLabel = getParamLabel(selectedParam, data);
     const metricLabel = getMetricLabel(impactMetric);
     const metricValues = scenarios.map(item => getImpactValue(item, impactMetric));
@@ -479,7 +540,6 @@ window.AnalysisPage = (function() {
     return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
-          React.createElement('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, 'Impact Reading'),
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '敏感度图表')
         ]),
         React.createElement('div', { key: 'note', className: 'text-sm text-[var(--rilo-text-2)]' }, `${paramLabel} · ${metricLabel}`)
@@ -503,10 +563,10 @@ window.AnalysisPage = (function() {
           React.createElement('div', { key: 'bars', className: 'space-y-4' }, scenarios.map((item, index) => {
             const metricValue = getImpactValue(item, impactMetric);
             const tone = index === 1
-              ? 'bg-[linear-gradient(90deg,rgba(34,28,139,0.92),rgba(88,82,192,0.78))]'
+              ? 'bg-[linear-gradient(90deg,rgba(86,101,125,0.92),rgba(121,136,159,0.74))]'
               : index === 0
-                ? 'bg-[linear-gradient(90deg,rgba(157,91,75,0.86),rgba(194,124,105,0.74))]'
-                : 'bg-[linear-gradient(90deg,rgba(47,125,103,0.86),rgba(98,170,145,0.74))]';
+                ? 'bg-[linear-gradient(90deg,rgba(141,117,111,0.84),rgba(174,149,143,0.72))]'
+                : 'bg-[linear-gradient(90deg,rgba(118,139,118,0.84),rgba(151,170,151,0.72))]';
             return React.createElement('div', { key: item.name }, [
               React.createElement('div', { key: 'row-top', className: 'mb-1.5 flex items-center justify-between text-sm' }, [
                 React.createElement('span', { key: 'label', className: 'text-[var(--rilo-text-1)]' }, `${item.name} · ${item.change > 0 ? `+${item.change}%` : `${item.change}%`}`),
@@ -518,11 +578,11 @@ window.AnalysisPage = (function() {
             ]);
           })),
           React.createElement('div', { key: 'reading', className: 'rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--rilo-surface-card)] p-4' }, [
-            React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, '怎么读这张图'),
+            React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)] rilo-section-title' }, '图表说明'),
             React.createElement('ul', { key: 'list', className: 'mt-3 space-y-2 text-sm leading-6 text-[var(--rilo-text-2)]' }, [
-              React.createElement('li', { key: 'i1' }, '条形长度直接取三档真实重算结果，不再只是占位预览。'),
-              React.createElement('li', { key: 'i2' }, '先比较保守档与当前档的落差，这代表项目面对不利波动时的容错。'),
-              React.createElement('li', { key: 'i3' }, '再比较优化档的改善幅度，判断这个杠杆是否值得投入管理动作。')
+              React.createElement('li', { key: 'i1' }, '条形长度对应三档真实重算结果。'),
+              React.createElement('li', { key: 'i2' }, '下调档与基准档的差值用于查看负向扰动幅度。'),
+              React.createElement('li', { key: 'i3' }, '上调档与基准档的差值用于查看正向扰动幅度。')
             ])
           ])
         ])
@@ -531,14 +591,22 @@ window.AnalysisPage = (function() {
   };
 
   const ScenarioTable = ({ data, selectedParam, impactMetric, currency, scenarios }) => {
+    const hasScenarioData = hasRenderableScenarioData(scenarios);
+
+    if (!hasScenarioData) {
+      return React.createElement(EmptyPanel, {
+        title: '情景对比待生成',
+        copy: '没有有效结果时先显示占位说明，避免表格区域出现空白。'
+      });
+    }
+
     const Term = window.RiloUI?.Term;
     const titleNode = (termKey, text) => Term ? React.createElement(Term, { termKey }, text) : text;
 
     return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
-          React.createElement('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, 'Scenario Compare'),
-          React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '情景对比')
+          React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)] rilo-section-title' }, '情景对比')
         ]),
         React.createElement('div', { key: 'note', className: 'text-sm text-[var(--rilo-text-2)]' }, `${getParamLabel(selectedParam, data)} · 三档快速复核 · 当前焦点 ${getMetricLabel(impactMetric)}`)
       ]),

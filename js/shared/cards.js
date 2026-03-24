@@ -50,10 +50,10 @@
     const mappedType = typeMap[insight.type] || 'info';
 
     const colorClasses = {
-      positive: 'bg-[var(--rilo-sem-success)]/10 border-[var(--rilo-sem-success)] text-[var(--rilo-sem-success)]',
-      warning: 'bg-[var(--rilo-sem-warning)]/10 border-[var(--rilo-sem-warning)] text-[var(--rilo-sem-warning)]',
-      negative: 'bg-[var(--rilo-sem-danger)]/10 border-[var(--rilo-sem-danger)] text-[var(--rilo-sem-danger)]',
-      info: 'bg-[var(--rilo-sem-info)]/10 border-[var(--rilo-sem-info)] text-[var(--rilo-sem-info)]'
+      positive: 'bg-[var(--rilo-value-success-soft)] border-[var(--rilo-value-success-border)] text-[var(--rilo-value-success)]',
+      warning: 'bg-[var(--rilo-value-warning-soft)] border-[var(--rilo-value-warning-border)] text-[var(--rilo-value-warning)]',
+      negative: 'bg-[var(--rilo-value-danger-soft)] border-[var(--rilo-value-danger-border)] text-[var(--rilo-value-danger)]',
+      info: 'bg-[var(--rilo-value-info-soft)] border-[var(--rilo-value-info-border)] text-[var(--rilo-value-info)]'
     };
     const cls = colorClasses[mappedType];
 
@@ -75,9 +75,9 @@
       low: 'bg-[var(--rilo-sem-info)]/10 border-[var(--rilo-sem-info)] text-[var(--rilo-sem-info)]'
     };
     const priorityBadgeClass = {
-      high: 'bg-[var(--rilo-sem-danger)] text-white',
-      medium: 'bg-[var(--rilo-sem-warning)] text-white',
-      low: 'bg-[var(--rilo-sem-info)] text-white'
+      high: 'bg-[var(--rilo-value-danger)] text-[#f7f2ea]',
+      medium: 'bg-[var(--rilo-value-warning)] text-[#f7f2ea]',
+      low: 'bg-[var(--rilo-value-info)] text-[#f7f2ea]'
     };
     const priorityLabel = {
       high: '高优先级',
@@ -141,7 +141,7 @@
           label: '年收入',
           value: scenario.data.revenue || 0,
           currency: currency,
-          valueClass: 'font-bold text-[var(--rilo-sem-success)]'
+          valueClass: 'font-bold text-[var(--rilo-value-success)]'
         }),
 
         React.createElement(MetricRow, {
@@ -162,7 +162,7 @@
           label: '净利润',
           value: scenario.data.profit || 0,
           currency: currency,
-          valueClass: `font-bold ${(scenario.data.profit || 0) > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}`
+          valueClass: `font-bold ${(scenario.data.profit || 0) > 0 ? 'text-[var(--rilo-value-success)]' : 'text-[var(--rilo-value-danger)]'}`
         }),
 
         React.createElement('div', {
@@ -172,7 +172,7 @@
           React.createElement('span', { key: 'label', className: 'text-sm' }, '利润率'),
           React.createElement('span', {
             key: 'value',
-            className: `font-bold ${(scenario.data.margin || 0) > 0 ? 'text-[var(--rilo-sem-success)]' : 'text-[var(--rilo-sem-danger)]'}`
+            className: `font-bold ${(scenario.data.margin || 0) > 0 ? 'text-[var(--rilo-value-success)]' : 'text-[var(--rilo-value-danger)]'}`
           }, `${(scenario.data.margin || 0).toFixed(1)}%`)
         ]),
 
@@ -196,10 +196,10 @@
             key: 'indicator',
             className: `px-3 py-1 rounded-full text-xs font-medium ${
               (scenario.data.profit || 0) > 0
-                ? 'bg-[var(--rilo-sem-success)] text-white'
-                : 'bg-[var(--rilo-sem-danger)] text-white'
+                ? 'bg-[var(--rilo-value-success)] text-[#f7f2ea]'
+                : 'bg-[var(--rilo-value-danger)] text-[#f7f2ea]'
             }`
-          }, (scenario.data.profit || 0) > 0 ? '✅ 盈利' : '❌ 亏损')
+          }, (scenario.data.profit || 0) > 0 ? '净利润为正' : '净利润为负')
         ])
       ])
     ]);

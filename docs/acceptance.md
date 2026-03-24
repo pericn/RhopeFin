@@ -4,8 +4,17 @@
 
 ## A. 自动化测试
 - [ ] 最小烟测：`./scripts/smoke.sh` → 输出 "smoke ok"
+- [ ] 视觉验收采集：`bash scripts/visual-acceptance.sh` → 输出 `artifacts/visual/current/`
 - [ ] Review gate：`scripts/review_codex.sh worktree` → 输出单一 VERDICT/CONFIDENCE/FINDINGS，且 verdict 为 correct
 - [ ] `npm test`：若存在 package.json / 测试脚本时执行；若不存在则标记 N/A 并记录原因
+
+## A1. 视觉验收最小脚手架
+- 固定预览命令：`python3 -m http.server 4173`
+- 固定预览 URL：`http://127.0.0.1:4173/index.html`
+- 固定页面顺序：`overview -> settings -> analysis -> glossary-drawer`
+- 固定截图输出：`artifacts/visual/current/{desktop,mobile}/`
+- 控制台与页面错误输出：`artifacts/visual/current/logs/console-errors.json` 与 `artifacts/visual/current/logs/page-errors.json`
+- 浏览器只负责采集；最终判读仍由人工基于截图与日志完成
 
 ## B. 启动与基础可用性
 - [ ] 浏览器直接打开 `index.html` 可以正常渲染
@@ -17,7 +26,7 @@
 ### C0. Hover 可见性（必须）
 - [ ] Settings 页面基础设置/寄养收入设置中：ADR / Occ / Rooms / Days 等术语以**浅蓝下划线**展示
 - [ ] 鼠标悬停下划线术语：出现解释 Popover
-- [ ] Popover 内点击“查看更多”：右侧面板切到 Definitions，并自动定位/高亮对应条目
+- [ ] Popover 内点击“查看更多”：打开 Drawer 并切到「术语」tab，自动定位/高亮对应条目
 - [ ] Settings 标题下方能看到一行「Hover 教程」提示
 
 ### C1. Inspector / Drawer（三层）
@@ -27,8 +36,8 @@
 - [ ] 切到「术语」可看到术语解释（ADR/Occ/RevPAR/Rooms/Days 等）
 
 ### C2. 指标解释入口一致性
-- [ ] 在 Settings 点击顶部“术语解释”按钮：打开 Drawer 并切到「术语」tab
-- [ ] 在 Overview/Analysis 点击顶部“术语解释”按钮：打开 Drawer 并切到「术语」tab
+- [ ] Settings / Overview / Analysis 顶部不再出现“术语解释”按钮
+- [ ] 通过术语 Hover 的“查看更多”或脚本/API 触发：Drawer 打开并切到「术语」tab
 
 ### C3. 寄养关键功能回归
 - [ ] 入住率输入为双通道（Slider + 数字输入），范围 0–100，保留 1 位小数，粘贴清洗可用
@@ -69,12 +78,12 @@
 
 2) **再定位驱动（60 秒）**
    - 在 Overview 找到关键驱动：营收/成本/毛利润 + Rooms/Days/ADR/Occ
-   - 鼠标悬停带浅蓝下划线的中文指标名：能弹出解释；点「查看更多」能跳到右侧「术语」并定位
+   - 鼠标悬停带浅蓝下划线的中文指标名：能弹出解释；点「查看更多」能打开 Drawer 的「术语」tab 并定位
 
 3) **最后看诊断（60 秒）**
    - 在 Overview 打开折叠区「高级：详细计算过程」：能看到详细拆解
    - 在敏感度分析（Analysis）只改 1 个参数（如装修标准）+ 调整范围：图表/指标有响应变化
 
 4) **术语入口一致性（30 秒）**
-   - Settings 页点击顶部「术语解释」：打开 Drawer，并切到「术语」tab
-   - Overview/Analysis 页点击顶部「术语解释」：打开 Drawer，并切到「术语」tab
+   - 在 Settings / Overview / Analysis 任一页面悬停浅蓝下划线术语：会出现 Popover
+   - 点击 Popover 的「查看更多」：打开 Drawer，并切到「术语」tab

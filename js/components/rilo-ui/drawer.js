@@ -21,22 +21,33 @@
     glossaryTerms = {},
     selectedTerm = null
   }) => {
-    if (!isOpen) return null;
-
     const [localSection, setLocalSection] = React.useState(activeSection || 'glossary');
 
     React.useEffect(() => {
       setLocalSection(activeSection || 'glossary');
     }, [activeSection]);
 
+    React.useEffect(() => {
+      if (!isOpen) return undefined;
+
+      const previousOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      return () => {
+        document.body.style.overflow = previousOverflow;
+      };
+    }, [isOpen]);
+
     // ESC 键关闭
     React.useEffect(() => {
+      if (!isOpen) return undefined;
+
       const handleEsc = (e) => {
         if (e.key === 'Escape') onClose();
       };
       document.addEventListener('keydown', handleEsc);
       return () => document.removeEventListener('keydown', handleEsc);
-    }, [onClose]);
+    }, [isOpen, onClose]);
 
     // 点击遮罩关闭
     const handleBackdropClick = (e) => {
@@ -44,8 +55,8 @@
     };
 
     const entries = window.RiloUI?.getGlossaryEntries
-      ? window.RiloUI.getGlossaryEntries(glossaryTerms)
-      : Object.entries(glossaryTerms);
+      ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
+      : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}));
 
     const currentSection = localSection || 'glossary';
     const switchSection = (nextSection) => {
@@ -54,13 +65,15 @@
     };
 
     React.useEffect(() => {
-      if (!selectedTerm) return;
+      if (!isOpen || currentSection !== 'glossary' || !selectedTerm) return;
 
       const el = document.getElementById(toDrawerGlossaryDomId(selectedTerm));
       if (el && typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ block: 'nearest' });
       }
-    }, [selectedTerm]);
+    }, [selectedTerm, currentSection, isOpen]);
+
+    if (!isOpen) return null;
 
     const sectionButton = (sectionKey, label) => React.createElement('button', {
       key: sectionKey,
@@ -77,9 +90,11 @@
             className: `mb-6 rounded-2xl pb-6 border-b border-[var(--rilo-border-deep)] last:border-0 ${selectedTerm === key ? 'bg-[var(--rilo-surface-2)] px-3 pt-3' : ''}`
           }, [
             React.createElement('h3', {
+              key: 'title',
               className: 'text-base font-semibold text-[var(--rilo-accent)] mb-2'
             }, def.title || key),
             React.createElement('p', {
+              key: 'body',
               className: 'text-sm text-[var(--rilo-text-2)] leading-relaxed'
             }, def.body || def.definition || '')
           ])
@@ -91,15 +106,18 @@
     const sectionContent = {
       conclusion: conclusion || React.createElement('div', {
         className: 'text-sm text-[var(--rilo-text-3)] py-6'
-      }, '当前页不展示额外概览内容。'),
+      }, '当前页没有额外结论卡片，可先查看左侧主内容。'),
       process: process || React.createElement('div', {
         className: 'text-sm text-[var(--rilo-text-3)] py-6'
-      }, '当前页暂无额外过程信息。'),
+      }, '当前页暂无额外过程说明，可先查看左侧结果区。'),
       glossary: React.createElement(React.Fragment, null, glossaryDom)
     };
 
     return React.createElement('div', {
-      className: 'fixed inset-0 z-50 flex justify-end'
+      className: 'fixed inset-0 z-50 flex justify-end',
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-label': title
     }, [
       // 遮罩层
       React.createElement('div', {
@@ -140,7 +158,7 @@
 
         // 抽屉内容
         React.createElement('div', {
-          className: 'p-6 overflow-y-auto h-[calc(100%-80px)]'
+          className: 'p-6 overflow-y-auto h-[calc(100%-110px)]'
         }, sectionContent[currentSection] || sectionContent.glossary)
       ])
     ]);
