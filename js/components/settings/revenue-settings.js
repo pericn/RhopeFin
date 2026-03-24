@@ -95,7 +95,7 @@ window.RevenueSettings = (function() {
         }),
         config.suffix && React.createElement('span', {
           key: 'suffix',
-          style={{color:'var(--rilo-text-3)'}} className: 'className: '-light text-sm'
+          className: 'pointer-events-none absolute right-3 top-2 text-sm text-[var(--rilo-text-3)]'
         }, config.suffix)
       ])
     ]);
@@ -152,6 +152,7 @@ window.RevenueSettings = (function() {
   ])));
 
   const RevenueSettings = ({ data, updateData, formulaEngine }) => {
+    const [activeTab, setActiveTab] = React.useState('member');
     const updateField = (path, value) => {
       if (window.dataManager) {
         const newData = window.dataManager.updateDataPath(data, path, value);
@@ -198,56 +199,86 @@ window.RevenueSettings = (function() {
     };
 
     const revenueData = calculateRevenueData();
+    const tabItems = [
+      { id: 'member', label: '会员' },
+      { id: 'boarding', label: '寄养' },
+      { id: 'services', label: '服务' },
+      { id: 'custom', label: '自定义' }
+    ];
+    const tabPanels = {
+      member: React.createElement(MemberRevenueSettings, {
+        key: 'member-revenue',
+        data,
+        updateField,
+        revenueData
+      }),
+      boarding: React.createElement(BoardingRevenueSettings, {
+        key: 'boarding-revenue',
+        data,
+        updateField,
+        revenueData
+      }),
+      services: React.createElement(React.Fragment, { key: 'service-panels' }, [
+        React.createElement(MedicalRevenueSettings, {
+          key: 'medical-revenue',
+          data,
+          updateField,
+          revenueData
+        }),
+        React.createElement(RetailRevenueSettings, {
+          key: 'retail-revenue',
+          data,
+          updateField,
+          revenueData
+        }),
+        React.createElement(CafeRevenueSettings, {
+          key: 'cafe-revenue',
+          data,
+          updateField,
+          revenueData
+        })
+      ]),
+      custom: React.createElement(window.UIComponents.Section, {
+        key: 'custom-revenue',
+        title: '💰 自定义收入'
+      }, React.createElement(window.CustomModules.CustomRevenueManager, {
+        data,
+        updateData,
+        formulaEngine
+      }))
+    };
 
     return React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'large',
       style: { width: '100%' }
     }, [
-      React.createElement(MemberRevenueSettings, {
-        key: 'member-revenue',
-        data: data,
-        updateField: updateField,
-        revenueData: revenueData
-      }),
-
-      React.createElement(BoardingRevenueSettings, {
-        key: 'boarding-revenue',
-        data: data,
-        updateField: updateField,
-        revenueData: revenueData
-      }),
-
-      React.createElement(MedicalRevenueSettings, {
-        key: 'medical-revenue',
-        data: data,
-        updateField: updateField,
-        revenueData: revenueData
-      }),
-
-      React.createElement(RetailRevenueSettings, {
-        key: 'retail-revenue',
-        data: data,
-        updateField: updateField,
-        revenueData: revenueData
-      }),
-
-      React.createElement(CafeRevenueSettings, {
-        key: 'cafe-revenue',
-        data: data,
-        updateField: updateField,
-        revenueData: revenueData
-      }),
-
-      // 自定义收入模块
-      React.createElement(window.UIComponents.Section, {
-        key: 'custom-revenue',
-        title: '💰 自定义收入'
-      }, React.createElement(window.CustomModules.CustomRevenueManager, {
-        data: data,
-        updateData: updateData,
-        formulaEngine: formulaEngine
-      }))
+      React.createElement(Subsection, {
+        key: 'revenue-overview',
+        title: '收入总览',
+        hint: '先看年度结构，再进入单板块调整假设。'
+      }, React.createElement(RevenueReadout, {
+        items: [
+          { label: '总日均收入', value: `¥${Math.round(revenueData.totalDaily || 0).toLocaleString()}` },
+          { label: '总年度收入', value: `${(revenueData.totalRevenue / 10000).toFixed(2)} 万元` },
+          { label: '寄养占比', value: `${revenueData.totalRevenue > 0 ? ((revenueData.boardingRevenue / revenueData.totalRevenue) * 100).toFixed(1) : '0.0'}%`, note: '快速判断房量逻辑是否过重' }
+        ]
+      })),
+      window.UIComponents.Tabs
+        ? React.createElement('div', { key: 'revenue-tabs' }, [
+            // BUGFIX-5: 收入设置拆成 Tabs，避免不同收入维度在同一长页面里堆叠失控。
+            React.createElement(window.UIComponents.Tabs, {
+              key: 'tabs',
+              tabs: tabItems,
+              activeTab,
+              onTabChange: setActiveTab
+            }),
+            React.createElement('div', {
+              key: 'tab-panel',
+              className: 'mt-4'
+            }, tabPanels[activeTab] || tabPanels.member)
+          ])
+        : tabPanels.member
     ]);
   };
 
@@ -338,7 +369,7 @@ window.RevenueSettings = (function() {
     return React.createElement('div', null, [
       React.createElement('div', {
         key: 'title',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-3'
+        className: 'mb-3 text-sm text-[var(--rilo-text-3)]'
       }, '会员类型分布'),
       React.createElement(FieldGrid, {
         key: 'inputs'
@@ -369,7 +400,7 @@ window.RevenueSettings = (function() {
       ]),
       React.createElement('div', {
         key: 'total',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mt-2'
+        className: 'mt-2 text-sm text-[var(--rilo-text-3)]'
       }, `总计: ${(data?.revenue?.member?.basePct || 0) + (data?.revenue?.member?.proPct || 0) + (data?.revenue?.member?.vipPct || 0)}% (应为100%)`)
     ]);
   };
@@ -385,7 +416,7 @@ window.RevenueSettings = (function() {
     return React.createElement('div', null, [
       React.createElement('div', {
         key: 'title',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-3'
+        className: 'mb-3 text-sm text-[var(--rilo-text-3)]'
       }, '会员年费设置'),
       React.createElement(FieldGrid, {
         key: 'inputs'
