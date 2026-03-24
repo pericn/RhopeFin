@@ -18,6 +18,8 @@ window.UIComponents = (function() {
   const {
     Input: AntInput,
     InputNumber,
+    Select: AntSelect,
+    Slider: AntSlider,
     Button: AntButton,
     Card,
     Tabs,
@@ -73,6 +75,7 @@ window.UIComponents = (function() {
       
       type === 'number' ? React.createElement(InputNumber, {
         key: 'input',
+        className: 'rilo-token-control',
         value: value,
         onChange: onChange,
         step: step,
@@ -82,6 +85,7 @@ window.UIComponents = (function() {
         status: required && !value ? 'error' : undefined
       }) : React.createElement(AntInput, {
         key: 'input',
+        className: 'rilo-token-control',
         value: value,
         onChange: (e) => onChange(e.target.value),
         suffix: suffix,
@@ -96,6 +100,57 @@ window.UIComponents = (function() {
       }, hint)
     ]);
   };
+
+  const SelectComponent = ({ label, value, onChange, options = [], hint = "", width = "100%", placeholder = "" }) => React.createElement(Space, {
+    direction: 'vertical',
+    size: 4,
+    style: { width }
+  }, [
+    label && React.createElement(Text, {
+      key: 'label',
+      strong: true
+    }, label),
+    // BUGFIX-6: 为 Settings 暴露统一 token 化的 Select/Slider 封装，保证与 InputNumber 共用同一套视觉基线。
+    React.createElement(AntSelect, {
+      key: 'select',
+      className: 'rilo-token-control',
+      value,
+      onChange,
+      placeholder,
+      style: { width: '100%' },
+      options
+    }),
+    hint && React.createElement(Text, {
+      key: 'hint',
+      type: 'secondary',
+      style: { fontSize: 12 }
+    }, hint)
+  ]);
+
+  const SliderComponent = ({ label, value = 0, onChange, min = 0, max = 100, step = 1, hint = "", width = "100%" }) => React.createElement(Space, {
+    direction: 'vertical',
+    size: 6,
+    style: { width }
+  }, [
+    label && React.createElement(Text, {
+      key: 'label',
+      strong: true
+    }, label),
+    React.createElement(AntSlider, {
+      key: 'slider',
+      className: 'rilo-token-slider',
+      value,
+      onChange,
+      min,
+      max,
+      step
+    }),
+    hint && React.createElement(Text, {
+      key: 'hint',
+      type: 'secondary',
+      style: { fontSize: 12 }
+    }, hint)
+  ]);
 
   // 文本域组件 - 包装 Ant Design Input.TextArea
   const TextArea = ({ label, value, onChange, placeholder = "", rows = 3 }) => {
@@ -345,6 +400,8 @@ window.UIComponents = (function() {
   // 导出所有组件
   return {
     Input,
+    Select: SelectComponent,
+    Slider: SliderComponent,
     TextArea,
     Button,
     Section,
@@ -395,11 +452,20 @@ window.UIComponents = (function() {
             },
             InputNumber: {
               borderRadius: 12,
-              borderWidth: 1
+              borderWidth: 1,
+              controlWidth: '100%'
             },
             Select: {
               borderRadius: 12,
               borderWidth: 1
+            },
+            Slider: {
+              trackBg: 'var(--rilo-accent-v5, #56657d)',
+              trackHoverBg: 'var(--rilo-accent-v5, #56657d)',
+              railBg: 'rgba(34, 31, 26, 0.10)',
+              railHoverBg: 'rgba(34, 31, 26, 0.14)',
+              handleColor: 'var(--rilo-accent-v5, #56657d)',
+              handleActiveColor: 'var(--rilo-accent-v5, #56657d)'
             },
             Card: {
               borderRadiusLG: 22,

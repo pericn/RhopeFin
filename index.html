@@ -240,6 +240,7 @@
     /* 输入框与数字输入 */
     .ant-input,
     .ant-input-number {
+      min-height: 44px;
       border-radius: var(--radius-control, 12px) !important;
       border: 1px solid var(--line) !important;
       font-family: var(--font-sans) !important;
@@ -247,6 +248,14 @@
       transition: all 0.2s var(--rilo-motion-ease) !important;
       background: rgba(255,255,255,0.56) !important;
       box-shadow: none !important;
+    }
+
+    .ant-input-number-input,
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      font-size: 14px !important;
+      line-height: 1.6 !important;
+      color: var(--ink-1) !important;
     }
 
     .ant-input:focus,
@@ -266,11 +275,17 @@
     }
 
     .ant-select-selector {
+      min-height: 44px !important;
+      padding-inline: 12px !important;
       border-radius: var(--radius-control, 12px) !important;
       border: 1px solid var(--line) !important;
       background: rgba(255,255,255,0.56) !important;
       box-shadow: none !important;
       transition: all 0.2s var(--rilo-motion-ease) !important;
+    }
+
+    .ant-select-selection-wrap {
+      align-items: center !important;
     }
 
     .ant-select-open .ant-select-selector,
@@ -308,7 +323,7 @@
 
     /* 滑块 (Slider) */
     .ant-slider {
-      margin: 8px 0 !important;
+      margin: 10px 0 6px !important;
     }
 
     .ant-slider-rail {
@@ -329,6 +344,13 @@
       width: 18px !important;
       height: 18px !important;
       margin-top: -6px !important;
+    }
+
+    .rilo-token-control.ant-input-number,
+    .rilo-token-control .ant-select-selector,
+    .rilo-token-slider {
+      /* BUGFIX-6: 统一 Settings 控件的尺寸、背景与焦点层级，让 InputNumber / Select / Slider 回到 design token 基线。 */
+      box-shadow: var(--rilo-shadow-soft) !important;
     }
 
     /* 折叠面板 */
