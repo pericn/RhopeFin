@@ -124,6 +124,22 @@
   const InspectorPanel = ({ title = '参考面板', conclusion, process, glossary, glossaryTerms = {} }) => {
     const { activeSection, setActiveSection, selectedTerm } = useInspector();
     const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
+    const sectionIds = React.useMemo(() => ['conclusion', 'process', 'glossary'], []);
+    const allCollapsed = sectionIds.every((sectionId) => collapsed[sectionId]);
+    const collapseAll = React.useCallback(() => {
+      // BUGFIX-2: 提供 Inspector 整体收起/展开能力，避免用户只能逐段点开或点收。
+      setCollapsed({ conclusion: true, process: true, glossary: true });
+    }, []);
+    const expandAll = React.useCallback(() => {
+      setCollapsed({ conclusion: false, process: false, glossary: false });
+    }, []);
+    const toggleAll = React.useCallback(() => {
+      if (allCollapsed) {
+        expandAll();
+        return;
+      }
+      collapseAll();
+    }, [allCollapsed, collapseAll, expandAll]);
 
     const fallbackConclusion = React.createElement('div', {
       className: 'text-sm text-[var(--rilo-text-3)] py-1'
@@ -193,6 +209,14 @@
       React.createElement('div', { key: 'title', className: 'rilo-inspector-header' }, [
         React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, '参考'),
         React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title),
+        React.createElement('div', { key: 'panel-actions', className: 'flex flex-wrap gap-2' }, [
+          React.createElement('button', {
+            key: 'toggle-all',
+            type: 'button',
+            className: 'min-h-[34px] px-3 py-1.5 rounded-[14px] text-xs font-medium border rilo-btn-soft text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]',
+            onClick: toggleAll
+          }, allCollapsed ? '全部展开' : '全部收起')
+        ]),
         React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
           React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
           React.createElement(SectionButton, { key: 'p', active: activeSection === 'process', onClick: () => setActiveSection('process') }, '过程'),
