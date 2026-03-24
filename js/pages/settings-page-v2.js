@@ -55,7 +55,7 @@ window.SettingsPage = (function() {
       h(SettingsGlossaryHeader, {
         key: 'settings-header'
       }),
-      h('div', { key: 'settings-layout', className: 'settings-layout settings-layout--reset' }, [
+      h('div', { key: 'settings-layout', className: 'settings-layout settings-layout--reset settings-layout--adaptive' }, [
         h('aside', { key: 'settings-sidebar', className: 'settings-sidebar' }, [
           h('div', { key: 'sidebar-card', className: 'settings-sidebar-card' }, [
             h('div', { key: 'sidebar-title', className: 'settings-sidebar-title' }, '参数分组'),

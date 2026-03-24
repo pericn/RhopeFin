@@ -540,6 +540,10 @@
       min-height: 0;
     }
 
+    .settings-layout--adaptive {
+      container-type: inline-size;
+    }
+
     .settings-sidebar,
     .settings-editor {
       min-width: 0;
@@ -640,6 +644,12 @@
       gap: 16px;
     }
 
+    .settings-editor .ant-space,
+    .settings-editor .ant-space-item {
+      min-width: 0;
+      width: 100%;
+    }
+
     .settings-editor-header {
       display: grid;
       gap: 6px;
@@ -676,6 +686,22 @@
 
     .settings-header-note {
       max-width: 44rem;
+    }
+
+    @container (max-width: 960px) {
+      .settings-layout--adaptive {
+        /* BUGFIX-7: 按 Settings 实际可用宽度自适应布局，Inspector 打开时自动改单栏，避免控件被横向挤压。 */
+        grid-template-columns: 1fr;
+      }
+
+      .settings-layout--adaptive .settings-sidebar-card {
+        position: static;
+      }
+
+      .settings-layout--adaptive .settings-basic-grid,
+      .settings-layout--adaptive .settings-outcome-strip {
+        grid-template-columns: 1fr;
+      }
     }
 
     .settings-outcome-strip {
