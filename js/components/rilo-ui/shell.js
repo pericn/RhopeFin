@@ -124,6 +124,11 @@
   const InspectorPanel = ({ title = '参考面板', conclusion, process, glossary, glossaryTerms = {} }) => {
     const { activeSection, setActiveSection, selectedTerm } = useInspector();
     const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
+    const glossaryEntries = React.useMemo(() => (
+      window.RiloUI?.getGlossaryEntries
+        ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
+        : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}))
+    ), [glossaryTerms]);
     const sectionIds = React.useMemo(() => ['conclusion', 'process', 'glossary'], []);
     const allCollapsed = sectionIds.every((sectionId) => collapsed[sectionId]);
     const collapseAll = React.useCallback(() => {
@@ -154,20 +159,20 @@
     }, [activeSection]);
 
     React.useEffect(() => {
-      if (selectedTerm) setActiveSection('glossary');
-    }, [selectedTerm]);
+      if (selectedTerm && activeSection !== 'glossary') {
+        setActiveSection('glossary');
+      }
+    }, [activeSection, selectedTerm, setActiveSection]);
 
-    const renderGlossary = () => {
-      const entries = window.RiloUI?.getGlossaryEntries
-        ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
-        : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}));
-      if (entries.length === 0) {
+    const glossaryContent = React.useMemo(() => {
+      if (glossaryEntries.length === 0) {
         return glossary || React.createElement('div', {
           className: 'text-sm text-[var(--rilo-text-3)] py-1'
         }, '暂无术语说明。');
       }
 
-      return React.createElement('div', { className: 'space-y-3' }, entries.map(([key, def]) =>
+      // BUGFIX-3: 术语区内容改为记忆化渲染，减少 Inspector 展开时重复创建大量节点造成的卡顿。
+      return React.createElement('div', { className: 'space-y-3' }, glossaryEntries.map(([key, def]) =>
         React.createElement('div', {
           key,
           id: toGlossaryDomId(key),
@@ -177,14 +182,18 @@
           React.createElement('div', { key: 'b', className: 'text-sm text-[var(--rilo-text-2)] mt-1 leading-relaxed' }, def.body || def.definition || '')
         ])
       ));
-    };
+    }, [glossary, glossaryEntries, selectedTerm]);
 
     React.useEffect(() => {
       if (!selectedTerm) return;
       const el = document.getElementById(toGlossaryDomId(selectedTerm));
       if (el && typeof el.scrollIntoView === 'function') {
-        el.scrollIntoView({ block: 'nearest' });
+        const frameId = window.requestAnimationFrame(() => {
+          el.scrollIntoView({ block: 'nearest' });
+        });
+        return () => window.cancelAnimationFrame(frameId);
       }
+      return undefined;
     }, [selectedTerm, activeSection]);
 
     const Section = ({ id, label, children }) =>
@@ -226,7 +235,7 @@
 
       React.createElement(Section, { key: 'sec-c', id: 'conclusion', label: '结论' }, conclusion || fallbackConclusion),
       React.createElement(Section, { key: 'sec-p', id: 'process', label: '过程' }, process || fallbackProcess),
-      React.createElement(Section, { key: 'sec-g', id: 'glossary', label: '术语' }, renderGlossary())
+      React.createElement(Section, { key: 'sec-g', id: 'glossary', label: '术语' }, glossaryContent)
     ]);
   };
 
