@@ -89,7 +89,7 @@ window.CostCalculator = (function() {
     calculateCOGS(data, revenue) {
       if (!data?.cost?.margins) {
         return {
-          members: 0, boarding: 0, medical: 0, retail: 0, cafe: 0,
+          member: 0, boarding: 0, medical: 0, retail: 0, cafe: 0,
           custom: 0, total: 0, margins: {}
         };
       }
@@ -244,7 +244,7 @@ window.CostCalculator = (function() {
     // 获取变动成本公式显示
     getVariableCostFormulas(data) {
       return {
-        members: {
+        member: {
           title: '会员变动成本',
           formula: '会员收入 × (100% - 毛利率%)',
           calculation: `收入 × (100% - ${data.cost?.margins?.members || 0}%)`
@@ -265,7 +265,7 @@ window.CostCalculator = (function() {
     // 获取业务成本(COGS)公式显示
     getCOGSFormulas(data) {
       return {
-        members: {
+        member: {
           title: '会员业务成本',
           formula: '会员收入 × (100 - 会员毛利率) / 100',
           calculation: `¥{memberRevenue} × (100 - ${data?.cost?.margins?.members || 0}%) / 100`
