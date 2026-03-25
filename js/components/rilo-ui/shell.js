@@ -124,7 +124,7 @@
         tabIndex: 0,
         'aria-expanded': open,
         'aria-controls': popoverId,
-        className: 'underline decoration-[var(--rilo-accent)]/45 underline-offset-4 cursor-help text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20 rounded-sm transition-colors',
+        className: 'underline decoration-dashed decoration-[var(--rilo-accent)]/20 underline-offset-8 cursor-help text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/20 rounded-sm transition-colors',
         onClick: () => setOpen((prev) => !prev),
         onKeyDown: (event) => {
           if (event.key === 'Enter' || event.key === ' ') {

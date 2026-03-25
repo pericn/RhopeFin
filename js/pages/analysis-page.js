@@ -588,7 +588,11 @@ window.AnalysisPage = (function() {
                 : 'bg-[#768b76]';
             return React.createElement('div', { key: item.name }, [
               React.createElement('div', { key: 'row-top', className: 'mb-1.5 flex items-center justify-between text-sm' }, [
-                React.createElement('span', { key: 'label', className: 'text-[var(--rilo-text-1)]' }, `${item.name} · ${item.change > 0 ? `+${item.change}%` : `${item.change}%`}`),
+                React.createElement('span', { key: 'label', className: 'text-[var(--rilo-text-1)]' }, item.name),
+                React.createElement('span', {
+                  key: 'change',
+                  className: `ml-1.5 text-xs font-mono ${item.change > 0 ? 'text-[var(--rilo-accent-600)]' : item.change < 0 ? 'text-[var(--rilo-accent-700)]' : 'text-[var(--rilo-text-3)]'}`
+                }, `${item.change > 0 ? '+' : ''}${item.change}%`),
                 React.createElement('span', { key: 'axis', className: 'text-[var(--rilo-text-3)]' }, formatMetricValue(impactMetric, metricValue, currency))
               ]),
               React.createElement('div', { key: 'track', className: 'h-3 overflow-hidden rounded-full bg-[rgba(34,31,26,0.08)]' },
@@ -645,7 +649,28 @@ window.AnalysisPage = (function() {
               key: item.name,
               className: index === 1 ? 'bg-[var(--rilo-accent-50)]' : 'border-b border-[rgba(34,31,26,0.06)] last:border-b-0'
             }, [
-              React.createElement('td', { key: 'name', className: 'py-3 font-medium text-[var(--rilo-text-1)]' }, `${item.name} (${item.change > 0 ? `+${item.change}%` : `${item.change}%`})`),
+              React.createElement('td', { key: 'name', className: 'py-3' }, [
+                // 情景名称 + 变化幅度彩色 badge
+                index === 1
+                  ? React.createElement('span', { key: 'base', className: 'inline-flex items-center gap-1.5 rounded-full bg-[var(--rilo-accent)]/15 px-2.5 py-0.5 text-xs font-medium text-[var(--rilo-accent)]' }, [
+                      React.createElement('span', { key: 'dot', className: 'h-1.5 w-1.5 rounded-full bg-[var(--rilo-accent)]' }),
+                      `${item.name}`
+                    ])
+                  : index === 0
+                    ? React.createElement('span', { key: 'down', className: 'inline-flex items-center gap-1.5 rounded-full bg-[var(--rilo-accent)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--rilo-accent-700)]' }, [
+                        React.createElement('span', { key: 'dot', className: 'h-1.5 w-1.5 rounded-full bg-[var(--rilo-accent-700)]' }),
+                        `${item.name}`
+                      ])
+                    : React.createElement('span', { key: 'up', className: 'inline-flex items-center gap-1.5 rounded-full bg-[var(--rilo-accent)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--rilo-accent-600)]' }, [
+                        React.createElement('span', { key: 'dot', className: 'h-1.5 w-1.5 rounded-full bg-[var(--rilo-accent-600)]' }),
+                        `${item.name}`
+                      ]),
+                // 变化幅度
+                React.createElement('span', {
+                  key: 'change',
+                  className: `ml-2 text-xs font-mono ${item.change > 0 ? 'text-[var(--rilo-accent-600)]' : item.change < 0 ? 'text-[var(--rilo-accent-700)]' : 'text-[var(--rilo-text-3)]'}`
+                }, `${item.change > 0 ? '+' : ''}${item.change}%`)
+              ]),
               React.createElement('td', { key: 'profit', className: 'text-right text-[var(--rilo-text-1)]' }, formatMetricValue('profit', item.profit, currency)),
               React.createElement('td', { key: 'margin', className: 'text-right text-[var(--rilo-text-1)]' }, formatMetricValue('netMargin', item.margin, currency)),
               React.createElement('td', { key: 'gross', className: 'text-right text-[var(--rilo-text-1)]' }, formatMetricValue('grossMargin', item.grossMargin, currency)),
