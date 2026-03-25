@@ -106,7 +106,7 @@
     const sectionContent = {
       conclusion: conclusion || React.createElement('div', {
         className: 'text-sm text-[var(--rilo-text-3)] py-6'
-      }, '当前页没有额外结论卡片，可先查看左侧主内容。'),
+      }, '暂无相关结论'),
       process: process || React.createElement('div', {
         className: 'text-sm text-[var(--rilo-text-3)] py-6'
       }, '当前页暂无额外过程说明，可先查看左侧结果区。'),

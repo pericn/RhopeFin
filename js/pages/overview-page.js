@@ -108,12 +108,12 @@ window.OverviewPage = (function() {
           h('div', { key: 'm2', className: 'rilo-ledger-metric' }, [
             h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('netMargin', '净利润率')),
             h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${margin.toFixed(1)}%`),
-            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, '基于全年营收与成本口径')
+            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, null)
           ]),
           h('div', { key: 'm3', className: 'rilo-ledger-metric' }, [
             h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('payback', '回本周期')),
             h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, payback === Infinity ? '暂时无法回本' : `${(payback || 0).toFixed(1)} 年`),
-            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, '按当前利润口径测算')
+            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, null)
           ])
         ])
       ])
@@ -323,7 +323,7 @@ window.OverviewPage = (function() {
         eyebrow: 'Overview Metrics',
         title: '关键财务指标',
         subtitle: '顶部只保留全局经营读数；单业务指标与结构明细统一下沉到后续区域。',
-        aside: '首屏仅保留总盘指标。'
+        aside: null
       }),
       ...metricGroups.map((group, index) =>
         h('section', { key: group.key, className: index === 0 ? 'mt-5 space-y-3' : 'mt-6 space-y-3' }, [
@@ -457,7 +457,7 @@ window.OverviewPage = (function() {
         eyebrow: 'Business Overview',
         title: '业务结构概览',
         subtitle: '先对照收入与成本的构成，再看盈亏平衡点，判断问题出在结构还是规模。',
-        aside: '结构图保留现有能力，只收紧信息层级。'
+        aside: null
       }),
       h('div', { key: 'grid', className: 'mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2' }, [
         h(window.RiloUI.ChartCard, { key: 'revenue', title: '收入结构分析' },

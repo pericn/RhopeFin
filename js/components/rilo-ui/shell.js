@@ -91,7 +91,7 @@
     const popoverContent = open && React.createElement('div', {
       key: 'popover',
       id: popoverId,
-      className: 'fixed z-[1200] rounded-[var(--radius-lg)] border border-[var(--rilo-border-strong)] bg-[rgba(246,241,234,0.98)] p-3.5 text-left shadow-[0_18px_42px_rgba(34,31,26,0.18)] backdrop-blur-md',
+      className: 'fixed z-[1200] rounded-[var(--radius-lg)] border border-[var(--rilo-border-strong)] bg-white p-3.5 text-left shadow-[0_18px_42px_rgba(34,31,26,0.18)] backdrop-blur-md',
       style: popoverStyle || undefined
     }, [
       React.createElement('div', {
@@ -174,11 +174,11 @@
 
     const fallbackConclusion = React.createElement('div', {
       className: 'text-sm text-[var(--rilo-text-3)] py-1'
-    }, '当前页没有额外结论卡片，可先查看左侧主内容与术语说明。');
+    }, '暂无相关结论');
 
     const fallbackProcess = React.createElement('div', {
       className: 'text-sm text-[var(--rilo-text-3)] py-1'
-    }, '当前页没有额外过程说明，可在左侧模块中直接核对计算结果。');
+    }, '暂无相关说明');
 
     React.useEffect(() => {
       setCollapsed(prev => ({ ...prev, [activeSection]: false }));
