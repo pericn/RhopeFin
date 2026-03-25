@@ -3,9 +3,9 @@
 > 目标：保证“重构不减功能”，并让关键路径可被重复验证。
 
 ## A. 自动化测试
-- [ ] 最小烟测：`./scripts/smoke.sh` → 输出 "smoke ok"
+- [x] 最小烟测：`./scripts/smoke.sh` → 输出 "smoke ok"
 - [ ] 视觉验收采集：`bash scripts/visual-acceptance.sh` → 输出 `artifacts/visual/current/`
-- [ ] Review gate：`scripts/review_codex.sh worktree` → 输出单一 VERDICT/CONFIDENCE/FINDINGS，且 verdict 为 correct
+- [x] Review gate：`scripts/review_codex.sh worktree` → 输出单一 VERDICT/CONFIDENCE/FINDINGS，且 verdict 为 correct
 - [ ] `npm test`：若存在 package.json / 测试脚本时执行；若不存在则标记 N/A 并记录原因
 
 ## A1. 视觉验收最小脚手架
