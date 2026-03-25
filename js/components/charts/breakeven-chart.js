@@ -3,9 +3,7 @@
 window.BreakevenChart = (function() {
 
   const BreakevenChart = ({ calculations, currency = "¥" }) => {
-    if (!calculations) return null;
-
-    const revenue = calculations.revenue?.total || 0;
+    const revenue = calculations?.revenue?.total || 0;
     const cost = calculations.cost?.total || 0;
     const maxValue = Math.max(revenue, cost);
     
