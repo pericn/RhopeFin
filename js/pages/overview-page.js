@@ -102,7 +102,7 @@ window.OverviewPage = (function() {
         h('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
           h('div', { key: 'm1', className: 'rilo-ledger-metric' }, [
             h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('profit', '年净利润')),
-            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${currency}${profit.toLocaleString()}`),
+            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${currency}${(profit/10000).toFixed(2)}万`),
             h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, '当前测算口径')
           ]),
           h('div', { key: 'm2', className: 'rilo-ledger-metric' }, [
@@ -595,9 +595,9 @@ window.OverviewPage = (function() {
     const totalMemberPct = (data?.revenue?.member?.basePct || 0) + (data?.revenue?.member?.proPct || 0) + (data?.revenue?.member?.vipPct || 0);
     
     const alerts = [
-      profit <= 0 && { type: 'error', title: '净利润为负', message: `当前口径下年净利润为 -${currency}${Math.abs(profit).toLocaleString()}`, icon: '⚠️' },
+      profit <= 0 && { type: 'error', title: '净利润为负', message: `当前口径下年净利润为 ${currency}${(Math.abs(profit)/10000).toFixed(2)}万`, icon: '⚠️' },
       margin > 0 && margin < 5 && { type: 'warning', title: '净利润率读数', message: `当前净利润率为 ${margin.toFixed(1)}%`, icon: '📉' },
-      conservativeProfit <= 0 && profit > 0 && { type: 'warning', title: '保守情景净利润', message: `保守情景下年净利润为 ${currency}${conservativeProfit.toLocaleString()}`, icon: '🛡️' },
+      conservativeProfit <= 0 && profit > 0 && { type: 'warning', title: '保守情景净利润', message: `保守情景下年净利润为 ${currency}${(conservativeProfit/10000).toFixed(2)}万`, icon: '🛡️' },
       totalMemberPct > 100 && { type: 'error', title: '会员比例总和', message: `会员类型比例合计为 ${totalMemberPct}%`, icon: '❌' }
     ].filter(Boolean);
     
