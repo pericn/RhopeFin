@@ -221,15 +221,9 @@ window.ScenarioChart = (function() {
     return JSON.stringify(chartData, null, 2);
   };
 
-  return {
-    ScenarioChart,
-    ProfitChart,
-    MarginChart,
-    ProfitBar,
-    MarginBar,
-    buildChartData,
-    generateChartSummary,
-    exportChartData
-  };
+  // 保留 components/charts/scenario-chart.js 中已注册的 ScenarioComparisonChart
+  const _existing = window.ScenarioChart || {};
+  Object.assign(_existing, { ScenarioChart, ProfitChart, buildChartData, generateChartSummary, exportChartData });
+  return _existing;
 
 })();

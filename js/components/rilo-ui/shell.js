@@ -268,6 +268,7 @@
   const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
     const [activeSection, setActiveSection] = React.useState('conclusion');
     const [selectedTerm, setSelectedTerm] = React.useState(null);
+    const [inspectorOpen, setInspectorOpen] = React.useState(true);
     const mergedGlossaryTerms = React.useMemo(
       () => Object.assign({}, glossaryTerms || {}),
       [glossaryTerms]
@@ -311,10 +312,18 @@
     return React.createElement(InspectorContext.Provider, { value: api },
       React.createElement('div', { className: 'rilo-shell-grid' }, [
         React.createElement('div', { key: 'left', className: 'rilo-shell-main' }, [
-          leftTitle && React.createElement('div', { key: 'lt', className: 'px-1' }, leftTitle),
+          React.createElement('div', { key: 'lt', className: 'flex items-center justify-between px-1' }, [
+            leftTitle && React.createElement('span', { key: 'title' }, leftTitle),
+            React.createElement('button', {
+              key: 'inspector-toggle',
+              onClick: () => setInspectorOpen(o => !o),
+              className: 'ml-auto text-xs px-2 py-1 rounded border border-[var(--rilo-border-deep)] text-[var(--rilo-text-2)] hover:bg-[var(--rilo-surface-1)] transition-colors',
+              title: inspectorOpen ? '收起参考面板' : '展开参考面板'
+            }, inspectorOpen ? '收起参考' : '展开参考')
+          ]),
           left
         ]),
-        React.createElement('aside', { key: 'side', className: 'rilo-shell-side' },
+        inspectorOpen && React.createElement('aside', { key: 'side', className: 'rilo-shell-side' },
           React.createElement(InspectorPanel, {
             title: inspectorTitle,
             conclusion,

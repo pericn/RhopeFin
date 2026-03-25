@@ -582,10 +582,10 @@ window.AnalysisPage = (function() {
           React.createElement('div', { key: 'bars', className: 'space-y-4' }, scenarios.map((item, index) => {
             const metricValue = getImpactValue(item, impactMetric);
             const tone = index === 1
-              ? 'bg-[linear-gradient(90deg,rgba(86,101,125,0.92),rgba(121,136,159,0.74))]'
+              ? 'bg-[#566379]'
               : index === 0
-                ? 'bg-[linear-gradient(90deg,rgba(141,117,111,0.84),rgba(174,149,143,0.72))]'
-                : 'bg-[linear-gradient(90deg,rgba(118,139,118,0.84),rgba(151,170,151,0.72))]';
+                ? 'bg-[#8d756f]'
+                : 'bg-[#768b76]';
             return React.createElement('div', { key: item.name }, [
               React.createElement('div', { key: 'row-top', className: 'mb-1.5 flex items-center justify-between text-sm' }, [
                 React.createElement('span', { key: 'label', className: 'text-[var(--rilo-text-1)]' }, `${item.name} · ${item.change > 0 ? `+${item.change}%` : `${item.change}%`}`),
