@@ -148,18 +148,18 @@
       --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       --font-mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
       --font-display-weight: 650;
-      --rilo-value-info: #6d7988;
-      --rilo-value-success: #798776;
-      --rilo-value-warning: #8a7d6b;
-      --rilo-value-danger: #8a756d;
-      --rilo-value-info-soft: rgba(109, 121, 136, 0.10);
-      --rilo-value-success-soft: rgba(121, 135, 118, 0.10);
-      --rilo-value-warning-soft: rgba(138, 125, 107, 0.10);
-      --rilo-value-danger-soft: rgba(138, 117, 109, 0.10);
-      --rilo-value-info-border: rgba(109, 121, 136, 0.18);
-      --rilo-value-success-border: rgba(121, 135, 118, 0.18);
-      --rilo-value-warning-border: rgba(138, 125, 107, 0.18);
-      --rilo-value-danger-border: rgba(138, 117, 109, 0.18);
+      --rilo-value-info: #727b86;
+      --rilo-value-success: #7c8476;
+      --rilo-value-warning: #877b6c;
+      --rilo-value-danger: #84726c;
+      --rilo-value-info-soft: rgba(114, 123, 134, 0.08);
+      --rilo-value-success-soft: rgba(124, 132, 118, 0.08);
+      --rilo-value-warning-soft: rgba(135, 123, 108, 0.08);
+      --rilo-value-danger-soft: rgba(132, 114, 108, 0.08);
+      --rilo-value-info-border: rgba(114, 123, 134, 0.14);
+      --rilo-value-success-border: rgba(124, 132, 118, 0.14);
+      --rilo-value-warning-border: rgba(135, 123, 108, 0.14);
+      --rilo-value-danger-border: rgba(132, 114, 108, 0.14);
     }
 
     body {
@@ -352,7 +352,7 @@
     .rilo-token-control .ant-select-selector,
     .rilo-token-slider {
       /* BUGFIX-6: 统一 Settings 控件的尺寸、背景与焦点层级，让 InputNumber / Select / Slider 回到 design token 基线。 */
-      box-shadow: var(--rilo-shadow-soft) !important;
+      box-shadow: none !important;
     }
 
     /* 折叠面板 */
@@ -556,7 +556,7 @@
       border: 1px solid rgba(34, 31, 26, 0.10);
       border-radius: var(--radius-lg);
       background: rgba(245, 240, 233, 0.98);
-      box-shadow: var(--rilo-shadow-soft);
+      box-shadow: none;
     }
 
     .settings-sidebar-card {
@@ -954,7 +954,7 @@
     .rilo-card-hierarchy-high {
       background: rgba(246, 241, 234, 0.97);
       border-color: rgba(34,31,26,0.12) !important;
-      box-shadow: var(--rilo-shadow-card) !important;
+      box-shadow: none !important;
     }
 
     .rilo-card-hierarchy-mid {
@@ -1247,11 +1247,11 @@
 
     .rilo-ledger-title {
       margin-top: 12px;
-      font-family: var(--font-display), Georgia, serif;
+      font-family: var(--font-sans), "PingFang SC", sans-serif;
       font-size: clamp(1.7rem, 2.3vw, 2.45rem);
       line-height: 1.16;
       letter-spacing: -0.012em;
-      font-weight: var(--font-display-weight);
+      font-weight: 700;
       color: var(--ink-1);
     }
 
@@ -1336,15 +1336,15 @@
 
     .rilo-display-serif {
       font-family: var(--font-display), Georgia, serif;
-      font-weight: var(--font-display-weight);
-      letter-spacing: 0.01em;
+      font-weight: 680;
+      letter-spacing: 0.008em;
       color: var(--ink-1);
     }
 
     .rilo-section-title {
-      font-family: var(--font-display), Georgia, serif;
-      font-weight: 620;
-      letter-spacing: -0.01em;
+      font-family: var(--font-sans), "PingFang SC", sans-serif;
+      font-weight: 650;
+      letter-spacing: -0.006em;
       color: var(--ink-1);
     }
 

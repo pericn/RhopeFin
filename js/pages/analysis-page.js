@@ -67,25 +67,6 @@ window.AnalysisPage = (function() {
     return `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`;
   };
 
-  const getNarrative = (selectedParam, downside, upside, impactMetric) => {
-    const dominatesDownside = Math.abs(downside) >= Math.abs(upside);
-    const lead = dominatesDownside ? '下行风险更陡' : '上行弹性更明显';
-
-    const paramTextMap = {
-      fitoutStandard: '装修标准直接推高前期投入，通常先影响回本节奏，再决定项目容错空间。',
-      occ: '入住率更接近日常运营杠杆，轻微波动就会连续传导到收入和利润。',
-      adr: '平均房价是提效杠杆，但前提是交付能力与客单接受度能一起跟上。',
-      memberRatio: '会员占比影响收入结构稳定性，适合和复购/套餐策略一起看。',
-      customRevenue: '自定义收入更像增量抓手，适合验证新服务是否真能补利润。'
-    };
-
-    const metricHint = impactMetric === 'paybackYears'
-      ? '优先看回本是否被明显拉长。'
-      : `优先看${getMetricLabel(impactMetric)}是否在负向扰动里快速塌陷。`;
-
-    return `${lead}。${paramTextMap[selectedParam] || '这个参数值得做单独复核。'}${metricHint}`;
-  };
-
   const ExplanationCard = ({ label, title, copy }) => React.createElement('div', {
     className: 'rilo-explainer-card'
   }, [
@@ -351,7 +332,7 @@ window.AnalysisPage = (function() {
     const payback = calculations?.profitability?.paybackYears;
 
     return React.createElement('div', {
-      className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-[var(--radius-lg)] border border-[rgba(34,31,26,0.10)] px-5 py-5 md:px-6 md:py-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page'
+      className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-[var(--radius-lg)] border border-[rgba(34,31,26,0.10)] px-5 py-5 md:px-6 md:py-6 rilo-zh-page'
     }, [
       React.createElement('div', { key: 'header-main', className: 'rilo-ledger-header' }, [
         React.createElement('div', {
@@ -360,7 +341,7 @@ window.AnalysisPage = (function() {
         }, [
             React.createElement('div', { key: 'copy', className: 'rilo-ledger-header-copy text-left' }, [
             React.createElement('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '单参复核'),
-            React.createElement('h1', { key: 'title', className: 'rilo-ledger-title' }, '敏感度分析'),
+            React.createElement('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif' }, '敏感度分析'),
             React.createElement('p', {
               key: 'hint',
               className: 'rilo-ledger-subtitle rilo-zh-subtle'
@@ -406,7 +387,7 @@ window.AnalysisPage = (function() {
       { value: 'grossMargin', label: '综合毛利率' }
     ];
 
-    return React.createElement('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
+    return React.createElement('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '控制面板')
@@ -499,7 +480,7 @@ window.AnalysisPage = (function() {
 
     const KPI = window.UIComponents?.KPI;
 
-    return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
+    return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '三档结果快照')
@@ -556,7 +537,7 @@ window.AnalysisPage = (function() {
       return Math.max(24, Math.min(92, 26 + (Math.abs(value) / (maxAbs || 1)) * 66));
     };
 
-    return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
+    return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, '敏感度图表')
@@ -626,7 +607,7 @@ window.AnalysisPage = (function() {
     const Term = window.RiloUI?.Term;
     const titleNode = (termKey, text) => Term ? React.createElement(Term, { termKey }, text) : text;
 
-    return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 shadow-[var(--rilo-shadow-card)] rilo-zh-page' }, [
+    return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'copy' }, [
           React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)] rilo-section-title' }, '情景对比')

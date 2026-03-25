@@ -92,7 +92,7 @@ window.OverviewPage = (function() {
         h('div', { key: 'top', className: 'flex flex-col gap-3' }, [
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '项目盘点'),
-            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '项目概况'),
+            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif rilo-zh-header' }, '项目概况'),
             h('p', {
               key: 'hint',
               className: 'rilo-ledger-subtitle rilo-zh-subtle'
@@ -372,17 +372,17 @@ window.OverviewPage = (function() {
       h('div', { key: 'header', className: 'flex flex-col gap-2 md:flex-row md:items-end md:justify-between' }, [
         h('div', { key: 'copy' }, [
           h('h2', { key: 'title', className: 'text-xl font-semibold text-[var(--rilo-text-1)]' }, '🧭 综合状态'),
-          h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)]' }, '汇总健康度、关键判断、风险指标与结构信息。')
+          h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)]' }, '汇总评分、风险读数与结构信息。')
         ]),
         h('div', { key: 'score', className: 'rounded-2xl bg-[var(--rilo-surface-2)] px-4 py-3 text-right' }, [
-          h('div', { key: 'label', className: 'text-xs uppercase tracking-wide text-[var(--rilo-text-3)]' }, '健康度评分'),
+          h('div', { key: 'label', className: 'text-xs uppercase tracking-wide text-[var(--rilo-text-3)]' }, '综合评分'),
           h('div', { key: 'value', className: 'text-2xl font-bold text-[var(--rilo-text-1)]' }, `${health.score} / 100 · ${health.grade}`),
           h('div', { key: 'desc', className: 'text-sm text-[var(--rilo-text-2)]' }, health.description)
         ])
       ]),
       h('div', { key: 'grid', className: 'grid grid-cols-1 gap-4 lg:grid-cols-2' }, [
         h('div', { key: 'guidance', className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
-          h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '综合判断'),
+          h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '模型输出'),
           h('div', { key: 'recommendation', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, recommendationLabelMap[guidance.recommendation] || '待补充数据'),
           h('div', { key: 'confidence', className: 'mt-1 text-sm text-[var(--rilo-text-2)]' }, `置信度：${guidance.confidenceLevel ?? 0}%`),
           h('ul', { key: 'reasons', className: 'mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--rilo-text-2)]' }, (guidance.reasons || []).map((reason, index) =>
@@ -559,7 +559,7 @@ window.OverviewPage = (function() {
         key: 'header',
         eyebrow: 'Business Overview',
         title: '业务结构概览',
-        subtitle: '先对照收入与成本的构成，再看盈亏平衡点，判断问题出在结构还是规模。',
+        subtitle: '先对照收入与成本构成，再看盈亏平衡点与规模门槛。',
         aside: null
       }),
       h('div', { key: 'grid', className: 'mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2' }, [
@@ -610,7 +610,7 @@ window.OverviewPage = (function() {
     const colorClasses = { error: 'bg-red-50 border-red-200 text-red-800', warning: 'bg-yellow-50 border-yellow-200 text-yellow-800' };
     const summary = [
       alerts.length > 0 ? `${alerts.length} 条需优先处理` : null,
-      insights.length > 0 ? `${insights.length} 条可继续放大的积极信号` : null
+      insights.length > 0 ? `${insights.length} 条高位读数` : null
     ].filter(Boolean).join(' · ');
     
     return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
@@ -618,7 +618,7 @@ window.OverviewPage = (function() {
         key: 'header',
         eyebrow: 'Signals',
         title: '系统信号',
-        subtitle: '集中显示当前模型中的风险信号与正向信号。',
+        subtitle: '集中显示当前模型中的风险读数与高位读数。',
         aside: summary
       }),
       h('div', { key: 'content', className: 'mt-5 space-y-4' }, [
@@ -635,8 +635,8 @@ window.OverviewPage = (function() {
         insights.length > 0 && h('section', { key: 'insights-group', className: 'space-y-3 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4' }, [
           h('div', { key: 'head', className: 'flex items-center justify-between gap-3' }, [
             h('div', { key: 'copy' }, [
-              h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '正向信号'),
-              h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, '这些信号表示当前模型下已有较好的经营表现。')
+              h('h3', { key: 'title', className: 'text-base font-semibold text-[var(--rilo-text-1)]' }, '高位读数'),
+              h('p', { key: 'subtitle', className: 'text-sm text-[var(--rilo-text-2)] rilo-zh-subtle' }, '这些读数表示当前口径下部分指标处于较高区间。')
             ]),
             h('span', { key: 'count', className: 'rounded-full bg-[var(--rilo-surface-1)] px-3 py-1 text-xs font-medium text-[var(--rilo-text-2)]' }, `${insights.length} 条`)
           ]),

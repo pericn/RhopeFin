@@ -58,7 +58,6 @@ window.SettingsPage = (function() {
       h('div', { key: 'settings-layout', className: 'settings-layout settings-layout--reset settings-layout--adaptive' }, [
         h('aside', { key: 'settings-sidebar', className: 'settings-sidebar' }, [
           h('div', { key: 'sidebar-card', className: 'settings-sidebar-card' }, [
-            h('div', { key: 'sidebar-title', className: 'settings-sidebar-title' }, '参数分组'),
             h('nav', { key: 'settings-nav', className: 'settings-cat-nav', 'aria-label': '参数分组' },
               CATEGORIES.map((category, index) => h('button', {
                 key: category.key,
@@ -78,7 +77,6 @@ window.SettingsPage = (function() {
         ]),
         h('section', { key: 'editor', className: 'settings-editor' }, [
           h('div', { key: 'editor-head', className: 'settings-editor-header' }, [
-            h('div', { key: 'eyebrow', className: 'settings-editor-eyebrow' }, '当前分组'),
             h('h2', { key: 'title', className: 'settings-editor-title rilo-section-title' }, CATEGORIES.find(item => item.key === activeCategory)?.label || '参数配置')
           ]),
           editorSurface
@@ -119,8 +117,8 @@ window.SettingsPage = (function() {
         h('div', { key: 'row', className: 'flex flex-col gap-4' }, [
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '经营参数'),
-            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-zh-header' }, '经营设置'),
-            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '按分组填写核心参数，结果页将同步读取这里的当前口径。'),
+            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif rilo-zh-header' }, '经营设置'),
+            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '按分组填写核心参数，结果页会同步读取当前口径。'),
             h('p', {
               key: 'hover-tutorial',
               className: 'settings-header-note text-xs text-[var(--rilo-text-3)] rilo-zh-subtle'

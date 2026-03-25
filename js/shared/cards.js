@@ -26,7 +26,7 @@
       info: 'bg-[var(--rilo-sem-info)]/10 border-[var(--rilo-sem-info)] text-[var(--rilo-sem-info)]'
     };
     const colors = colorClasses ? colorClasses[alert.type] : defaultColors[alert.type] || defaultColors.info;
-    return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)] bg-[rgba(255,251,246,0.72)] ${colors}` }, [
+    return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 bg-[rgba(255,251,246,0.72)] ${colors}` }, [
       React.createElement('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
         React.createElement('span', { key: 'icon', className: 'text-lg' }, alert.icon),
         React.createElement('h5', { key: 'title', className: 'font-medium' }, alert.title)
@@ -57,7 +57,7 @@
     };
     const cls = colorClasses[mappedType];
 
-    return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)] bg-[rgba(255,251,246,0.72)] ${cls}` }, [
+    return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 bg-[rgba(255,251,246,0.72)] ${cls}` }, [
       React.createElement('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
         React.createElement('span', { key: 'icon', className: 'text-lg' }, insight.icon),
         React.createElement('h5', { key: 'title', className: 'font-medium' }, insight.title)
@@ -86,7 +86,7 @@
     };
 
     return React.createElement('div', {
-      className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)] bg-[rgba(255,251,246,0.72)] ${priorityColors[recommendation.priority]}`
+      className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 bg-[rgba(255,251,246,0.72)] ${priorityColors[recommendation.priority]}`
     }, [
       React.createElement('div', {
         key: 'header',
@@ -120,7 +120,7 @@
 
   const ScenarioCard = ({ scenario, currency }) => {
     return React.createElement('div', {
-      className: `rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-md)] p-4 shadow-[var(--rilo-shadow-soft)]`
+      className: `rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-md)] p-4`
     }, [
       // 卡片头部
       React.createElement('div', {
@@ -183,7 +183,7 @@
           React.createElement('span', { key: 'label', className: 'text-sm' }, '回本周期'),
           React.createElement('span', {
             key: 'value',
-            className: 'font-bold text-[var(--rilo-accent)]'
+            className: 'font-bold text-[var(--rilo-value-info)]'
           }, scenario.data.paybackYears === Infinity ? '无法回本' : `${(scenario.data.paybackYears || 0).toFixed(1)}年`)
         ]),
 
@@ -196,10 +196,10 @@
             key: 'indicator',
             className: `px-3 py-1 rounded-full text-xs font-medium ${
               (scenario.data.profit || 0) > 0
-                ? 'bg-[var(--rilo-value-success)] text-[#f7f2ea]'
-                : 'bg-[var(--rilo-value-danger)] text-[#f7f2ea]'
+                ? 'bg-[var(--rilo-value-success-soft)] text-[var(--rilo-value-success)] border border-[var(--rilo-value-success-border)]'
+                : 'bg-[var(--rilo-value-danger-soft)] text-[var(--rilo-value-danger)] border border-[var(--rilo-value-danger-border)]'
             }`
-          }, (scenario.data.profit || 0) > 0 ? '净利润为正' : '净利润为负')
+          }, (scenario.data.profit || 0) > 0 ? '净利润读数 > 0' : '净利润读数 < 0')
         ])
       ])
     ]);
