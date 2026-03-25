@@ -2,14 +2,13 @@
 window.CostChart = (function() {
 
   const CostStructureChart = ({ calculations, currency = "¥" }) => {
-    if (!calculations?.cost) return null;
-    const cost = calculations.cost;
+    const cost = calculations?.cost || {};
     const total = cost.total || 0;
 
     if (total <= 0) {
       return React.createElement('div', {
         className: 'text-center py-6 text-[var(--rilo-text-3)] text-sm'
-      }, '暂无成本数据');
+      }, '暂无成本数据 — 请在经营设置中完善成本参数');
     }
 
     const fixed = cost.fixed?.total || 0;

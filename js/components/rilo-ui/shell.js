@@ -367,7 +367,7 @@
 
   // 图表卡片组件（统一图表容器）
   const ChartCard = ({ title, children, className = "" }) => {
-    return React.createElement(Card, { title, className });
+    return React.createElement(Card, { title, className }, children);
   };
   window.RiloUI.ChartCard = ChartCard;
 

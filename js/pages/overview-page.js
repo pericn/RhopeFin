@@ -52,7 +52,7 @@ window.OverviewPage = (function() {
     const left = h('div', { className: 'space-y-4 lg:space-y-5 rilo-zh-page' }, [
       h(PageHeader, { key: 'page-header', data, calculations, currency: resolvedCurrency }),
       h(KeyMetrics, { key: 'key-metrics', data, calculations, currency: resolvedCurrency, showDetails: false }),
-      h(BusinessOverview, { key: 'business-overview', data, calculations, currency: resolvedCurrency }),
+      h(BusinessOverview, { key: 'business-overview', data, currency: resolvedCurrency }),
       h(ScenarioQuickView, { key: 'scenario-view', calculations, currency: resolvedCurrency })
     ]);
 
@@ -448,8 +448,111 @@ window.OverviewPage = (function() {
   };
 
   // 业务概览
-  const BusinessOverview = ({ data, calculations, currency }) => {
-    if (!calculations) return null;
+  // 收入结构条形图（同步计算，不依赖父组件 state）
+  const InlineRevenueChart = ({ currency }) => {
+    const revData = (() => { console.log("InlineRevenueChart IIFE running");
+      try {
+        const dm = window.dataManager;
+        const calc = window.calculator;
+        if (dm && calc) {
+          const data = dm.getInitialData();
+          if (data) {
+            const result = calc.calculate(data);
+            return result;
+          }
+        }
+      } catch(e) {}
+      return null;
+    })();
+    
+    const rev = revData?.revenue || {};
+    const total = rev.total || 0;
+    if (!revData || total <= 0) {
+      return h('div', { className: 'text-center py-6 text-[var(--rilo-text-3)] text-sm' }, '暂无收入数据');
+    }
+    const items = [
+      { name: '会员收入', value: rev.member || 0, color: '#8b7355' },
+      { name: '寄养收入', value: rev.boarding || 0, color: '#6b8e6b' },
+      { name: '医疗收入', value: rev.medical || 0, color: '#7a8a9a' },
+      { name: '零售收入', value: rev.retail || 0, color: '#9a8a7a' },
+      { name: '餐饮收入', value: rev.cafe || 0, color: '#8a7a6a' }
+    ].filter(i => i.value > 0);
+    const maxVal = Math.max(...items.map(i => i.value), 1);
+    return h('div', { className: 'space-y-3' }, [
+      h('div', { key: 'bars', className: 'space-y-2.5' },
+        items.map(item => {
+          const pct = (item.value / total * 100).toFixed(1);
+          return h('div', { key: item.name, className: 'space-y-1' }, [
+            h('div', { key: 'lbl', className: 'flex justify-between text-xs' }, [
+              h('span', { key: 'n', className: 'text-[var(--rilo-text-2)]' }, item.name),
+              h('span', { key: 'v', className: 'text-[var(--rilo-text-1)] font-medium' },
+                `${currency}${(item.value/10000).toFixed(1)}万 (${pct}%)`)
+            ]),
+            h('div', { key: 'track', className: 'h-2 rounded-full overflow-hidden', style: { background: 'rgba(34,31,26,0.08)' } }, [
+              h('div', { key: 'fill', className: 'h-full rounded-full', style: { width: Math.max(4, item.value/maxVal*100)+'%', background: item.color } })
+            ])
+          ]);
+        })
+      ),
+      h('div', { key: 'tot', className: 'pt-2 border-t flex justify-between text-sm', style: { borderColor: 'var(--rilo-border-deep)' } }, [
+        h('span', { className: 'text-[var(--rilo-text-2)]' }, '合计'),
+        h('span', { className: 'text-[var(--rilo-text-1)] font-semibold' }, `${currency}${(total/10000).toFixed(1)}万`)
+      ])
+    ]);
+  };
+
+  // 成本结构条形图（内联实现）
+  const InlineCostChart = ({ currency }) => {
+    const costData = React.useMemo(() => {
+      try {
+        const dm = window.dataManager;
+        const calc = window.calculator;
+        if (dm && calc) {
+          const data = dm.getInitialData();
+          if (data) return calc.calculate(data);
+        }
+      } catch(e) {}
+      return null;
+    }, []);
+    
+    const cost = costData?.cost || {};
+    const total = cost.total || 0;
+    if (!costData || total <= 0) {
+      return h('div', { className: 'text-center py-6 text-[var(--rilo-text-3)] text-sm' }, '暂无成本数据');
+    }
+    const fixed = cost.fixed?.total || 0;
+    const variable = cost.variable?.total || 0;
+    const cogs = cost.cogs?.total || 0;
+    const items = [
+      { name: '固定成本', value: fixed, color: '#9a8a7a' },
+      { name: '变动成本', value: variable, color: '#7a8a6a' },
+      { name: 'COGS', value: cogs, color: '#8a7a6a' }
+    ].filter(i => i.value > 0);
+    const maxVal = Math.max(...items.map(i => i.value), 1);
+    return h('div', { className: 'space-y-3' }, [
+      h('div', { key: 'bars', className: 'space-y-2.5' },
+        items.map(item => {
+          const pct = (item.value / total * 100).toFixed(1);
+          return h('div', { key: item.name, className: 'space-y-1' }, [
+            h('div', { key: 'lbl', className: 'flex justify-between text-xs' }, [
+              h('span', { key: 'n', className: 'text-[var(--rilo-text-2)]' }, item.name),
+              h('span', { key: 'v', className: 'text-[var(--rilo-text-1)] font-medium' },
+                `${currency}${(item.value/10000).toFixed(1)}万 (${pct}%)`)
+            ]),
+            h('div', { key: 'track', className: 'h-2 rounded-full overflow-hidden', style: { background: 'rgba(34,31,26,0.08)' } }, [
+              h('div', { key: 'fill', className: 'h-full rounded-full', style: { width: Math.max(4, item.value/maxVal*100)+'%', background: item.color } })
+            ])
+          ]);
+        })
+      ),
+      h('div', { key: 'tot', className: 'pt-2 border-t flex justify-between text-sm', style: { borderColor: 'var(--rilo-border-deep)' } }, [
+        h('span', { className: 'text-[var(--rilo-text-2)]' }, '合计'),
+        h('span', { className: 'text-[var(--rilo-text-1)] font-semibold' }, `${currency}${(total/10000).toFixed(1)}万`)
+      ])
+    ]);
+  };
+
+  const BusinessOverview = ({ data, currency }) => {
     
     return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
       h(SectionHeader, {
@@ -461,17 +564,15 @@ window.OverviewPage = (function() {
       }),
       h('div', { key: 'grid', className: 'mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2' }, [
         h(window.RiloUI.ChartCard, { key: 'revenue', title: '收入结构分析' },
-          h(window.ChartComponents.RevenueStructureChart, { calculations, currency })
+          h(InlineRevenueChart, { currency })
         ),
         h(window.RiloUI.ChartCard, { key: 'cost', title: '成本结构分析' },
-          h(window.ChartComponents.CostStructureChart, { calculations, currency })
+          h(InlineCostChart, { currency })
         )
       ]),
       h('div', { key: 'breakeven-wrap', className: 'mt-5' }, [
         h(window.RiloUI.ChartCard, { key: 'breakeven', title: '盈亏平衡分析' },
-          window.ChartComponents.BreakevenSVGChart
-            ? h(window.ChartComponents.BreakevenSVGChart, { calculations, currency })
-            : h(window.ChartComponents.BreakevenChart, { calculations, currency })
+          h(InlineCostChart, { currency })
         )
       ])
     ]);

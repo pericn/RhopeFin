@@ -2,16 +2,23 @@
 window.RevenueChart = (function() {
 
   const RevenueStructureChart = ({ calculations, currency = "¥" }) => {
-    if (!calculations?.revenue) return null;
-    const rev = calculations.revenue;
+    // Defensively extract revenue data from various possible shapes
+    if (calculations) {
+      console.log('RevenueChart: calculations.revenue =', calculations.revenue);
+    } else {
+      console.log('RevenueChart: calculations is', calculations);
+    }
+    const rev = calculations?.revenue || {};
     const total = rev.total || 0;
 
+    // Show meaningful fallback if no data
     if (total <= 0) {
       return React.createElement('div', {
         className: 'text-center py-6 text-[var(--rilo-text-3)] text-sm'
-      }, '暂无收入数据');
+      }, '暂无收入数据 — 请在经营设置中完善收入参数');
     }
 
+    // Ensure all revenue items have defaults
     const items = [
       { name: '会员收入', value: rev.member || 0, color: '#8b7355' },
       { name: '寄养收入', value: rev.boarding || 0, color: '#6b8e6b' },
@@ -21,7 +28,7 @@ window.RevenueChart = (function() {
       { name: '自定义收入', value: rev.custom || 0, color: '#7a6a5a' }
     ].filter(item => item.value > 0);
 
-    const maxValue = Math.max(...items.map(i => i.value));
+    const maxValue = Math.max(...items.map(i => i.value), 1);
 
     return React.createElement('div', { className: 'space-y-3' }, [
       React.createElement('div', { key: 'bars', className: 'space-y-2.5' },
