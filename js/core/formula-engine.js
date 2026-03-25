@@ -71,6 +71,22 @@ class FormulaEngine {
     return rentCost + staffCost + utilitiesCost + otherCosts;
   }
 
+  // 安全数学表达式求值器（替换 new Function 防止注入）
+  safeMathEval(expr) {
+    // 只允许数字、运算符、括号、小数点、空格
+    if (!/^[0-9+\-*/().\s]+$/.test(expr)) {
+      console.warn('公式含非法字符，已拒绝执行:', expr);
+      return 0;
+    }
+    // 使用 Function 构造器，但表达式已经白名单验证过，只有数学运算
+    try {
+      const result = (0, Function('"use strict"; return (' + expr + ')'))();
+      return isNaN(result) ? 0 : Number(result);
+    } catch (e) {
+      return 0;
+    }
+  }
+
   // 计算自定义公式
   evaluateFormula(formula, customVariables = []) {
     try {
@@ -83,18 +99,22 @@ class FormulaEngine {
         const placeholder = `%${index + 1}`;
         const regex = new RegExp(`\\${placeholder}\\b`, 'g');
         const value = variable?.value || 0;
-        processedFormula = processedFormula.replace(regex, value.toString());
+        // 强制转数字，防止注入
+        const safeVal = Number(value) || 0;
+        processedFormula = processedFormula.replace(regex, safeVal.toString());
       });
       
       // 然后替换系统变量
       Object.keys(this.systemVariables).forEach(key => {
         const regex = new RegExp(`\\b${key}\\b`, 'g');
-        processedFormula = processedFormula.replace(regex, this.systemVariables[key].toString());
+        const val = this.systemVariables[key];
+        // 强制转数字，防止注入
+        const safeVal = Number(val) || 0;
+        processedFormula = processedFormula.replace(regex, safeVal.toString());
       });
       
-      // 使用Function构造器安全地计算表达式
-      const result = new Function('return ' + processedFormula)();
-      return isNaN(result) ? 0 : Number(result);
+      // 白名单验证后求值
+      return this.safeMathEval(processedFormula);
     } catch (error) {
       console.warn('公式计算错误:', formula, error);
       return 0;
@@ -146,7 +166,7 @@ class FormulaEngine {
       }
 
       // 尝试执行公式
-      new Function('return ' + testFormula)();
+      this.safeMathEval(testFormula);
       
       return { isValid: true, error: null };
     } catch (error) {
