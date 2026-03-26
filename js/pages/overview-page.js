@@ -255,7 +255,11 @@ window.OverviewPage = (function() {
       ? (((revenue?.boarding || 0) - (cost?.cogs?.boarding || 0)) / soldRoomNights)
       : 0;
     const rentToSales = revenue?.total > 0 ? ((cost?.fixed?.rent || 0) / revenue.total) * 100 : 0;
-    const titleNode = (_termKey, text) => text;
+    const titleNode = (termKey, text) => {
+      const Term = window.RiloUI?.Term;
+      if (!Term) return text;
+      return React.createElement(Term, { termKey }, text);
+    };
     
     const metricGroups = [
       {
