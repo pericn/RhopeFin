@@ -118,7 +118,7 @@ window.SettingsPage = (function() {
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '经营参数'),
             h('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif rilo-zh-header' }, '经营设置'),
-            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, null)
+            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '将鼠标悬停在下划线术语上查看解释，点击"查看更多"打开参考面板')
           ])
         ])
       ])
