@@ -6,9 +6,10 @@ const path = require('node:path');
 const read = (relativePath) =>
   fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
 
-test('settings header exposes hover tutorial without a dedicated top glossary button', () => {
+test('settings header removes design-spec tutorial copy without a dedicated top glossary button', () => {
   const source = read('js/pages/settings-page-v2.js');
-  assert.match(source, /Hover 教程：将鼠标移到浅蓝下划线术语上可查看解释/);
+  assert.doesNotMatch(source, /Hover 教程：将鼠标移到浅蓝下划线术语上可查看解释/);
+  assert.doesNotMatch(source, /按分组填写核心参数，结果页会同步读取当前口径/);
   assert.doesNotMatch(source, /key: 'terms-btn'/);
 });
 
@@ -41,11 +42,25 @@ test('app shell keeps left nav and no longer renders the sidebar action row or n
   assert.doesNotMatch(app, /rilo-app-nav-meta/);
 });
 
-test('analysis page uses explicit fallback panels instead of blank sections', () => {
+test('analysis page fallback panels avoid design-spec copy', () => {
   const analysis = read('js/pages/analysis-page.js');
-  assert.match(analysis, /结果快照待生成/);
-  assert.match(analysis, /敏感度图表待生成/);
-  assert.match(analysis, /情景对比待生成/);
+  assert.match(analysis, /暂无结果快照/);
+  assert.match(analysis, /暂无敏感度图表/);
+  assert.match(analysis, /暂无情景对比/);
+  assert.doesNotMatch(analysis, /固定其他条件，展示单一参数扰动后的三档重算结果/);
+  assert.doesNotMatch(analysis, /这里会展示下调、基准、上调三档结果/);
+});
+
+test('overview page removes design-spec copy from top sections', () => {
+  const overview = read('js/pages/overview-page.js');
+  assert.doesNotMatch(overview, /首屏展示当前测算口径下的总盘结果、结构图表与情景对比/);
+  assert.doesNotMatch(overview, /顶部只保留全局经营读数；单业务指标与结构明细统一下沉到后续区域/);
+});
+
+test('inspector collapse control closes the whole drawer area', () => {
+  const shell = read('js/components/rilo-ui/shell.js');
+  assert.match(shell, /onClose: \(\) => setInspectorOpen\(false\)/);
+  assert.match(shell, /\}, typeof onClose === 'function' \? '收起' : allCollapsed \? '全部展开' : '全部收起'\)/);
 });
 
 test('visual acceptance scaffold keeps fixed pages and viewports', () => {

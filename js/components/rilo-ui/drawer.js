@@ -109,7 +109,7 @@
       }, '暂无相关结论'),
       process: process || React.createElement('div', {
         className: 'text-sm text-[var(--rilo-text-3)] py-6'
-      }, '当前页暂无额外过程说明，可先查看左侧结果区。'),
+      }, '暂无相关说明'),
       glossary: React.createElement(React.Fragment, null, glossaryDom)
     };
 

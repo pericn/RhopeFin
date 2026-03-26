@@ -147,7 +147,7 @@
       className: `min-h-[36px] px-3.5 py-1.5 rounded-[14px] text-sm font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 ${active ? 'rilo-btn-strong' : 'rilo-btn-soft hover:-translate-y-px text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]'}`
     }, children);
 
-  const InspectorPanel = ({ title = '参考面板', conclusion, process, glossary, glossaryTerms = {} }) => {
+  const InspectorPanel = ({ title = '参考面板', conclusion, process, glossary, glossaryTerms = {}, onClose }) => {
     const { activeSection, setActiveSection, selectedTerm } = useInspector();
     const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
     const glossaryEntries = React.useMemo(() => (
@@ -157,20 +157,20 @@
     ), [glossaryTerms]);
     const sectionIds = React.useMemo(() => ['conclusion', 'process', 'glossary'], []);
     const allCollapsed = sectionIds.every((sectionId) => collapsed[sectionId]);
-    const collapseAll = React.useCallback(() => {
-      // BUGFIX-2: 提供 Inspector 整体收起/展开能力，避免用户只能逐段点开或点收。
-      setCollapsed({ conclusion: true, process: true, glossary: true });
-    }, []);
     const expandAll = React.useCallback(() => {
       setCollapsed({ conclusion: false, process: false, glossary: false });
     }, []);
     const toggleAll = React.useCallback(() => {
-      if (allCollapsed) {
+      if (allCollapsed && typeof onClose !== 'function') {
         expandAll();
         return;
       }
-      collapseAll();
-    }, [allCollapsed, collapseAll, expandAll]);
+      if (typeof onClose === 'function') {
+        onClose();
+        return;
+      }
+      setCollapsed({ conclusion: true, process: true, glossary: true });
+    }, [allCollapsed, expandAll, onClose]);
 
     const fallbackConclusion = React.createElement('div', {
       className: 'text-sm text-[var(--rilo-text-3)] py-1'
@@ -250,7 +250,7 @@
             type: 'button',
             className: 'min-h-[34px] px-3 py-1.5 rounded-[14px] text-xs font-medium border rilo-btn-soft text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]',
             onClick: toggleAll
-          }, allCollapsed ? '全部展开' : '全部收起')
+          }, typeof onClose === 'function' ? '收起' : allCollapsed ? '全部展开' : '全部收起')
         ]),
         React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
           React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
@@ -329,7 +329,8 @@
             conclusion,
             process,
             glossary,
-            glossaryTerms: mergedGlossaryTerms
+            glossaryTerms: mergedGlossaryTerms,
+            onClose: () => setInspectorOpen(false)
           })
         )
       ])

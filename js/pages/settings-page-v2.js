@@ -118,11 +118,7 @@ window.SettingsPage = (function() {
           h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
             h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '经营参数'),
             h('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif rilo-zh-header' }, '经营设置'),
-            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '按分组填写核心参数，结果页会同步读取当前口径。'),
-            h('p', {
-              key: 'hover-tutorial',
-              className: 'settings-header-note text-xs text-[var(--rilo-text-3)] rilo-zh-subtle'
-            }, 'Hover 教程：将鼠标移到浅蓝下划线术语上可查看解释，点“查看更多”可打开术语面板。')
+            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, null)
           ])
         ])
       ])

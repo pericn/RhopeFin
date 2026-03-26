@@ -94,7 +94,7 @@ window.OverviewPage = (function() {
             h('p', {
               key: 'hint',
               className: 'rilo-ledger-subtitle rilo-zh-subtle'
-            }, '首屏展示当前测算口径下的总盘结果、结构图表与情景对比。')
+            }, null)
           ])
         ]),
         h('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
@@ -300,8 +300,8 @@ window.OverviewPage = (function() {
         key: 'primary',
         eyebrow: 'Core KPI',
         title: '全局关键指标',
-        subtitle: '顶部只保留全局经营读数；单业务拆分与效率指标下沉到后续详情区域。',
-        aside: 'ROI 与单业务 KPI 不进入顶部首屏。',
+        subtitle: null,
+        aside: null,
         gridClassName: 'rilo-kpi-grid-tight grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3',
         items: [
           { key: 'revenue', title: '年总营收', value: revenue?.total ? (revenue.total / 10000).toFixed(2) : 0, suffix: '万元', color: 'success', size: 'large' },
@@ -319,7 +319,7 @@ window.OverviewPage = (function() {
         key: 'header',
         eyebrow: 'Overview Metrics',
         title: '关键财务指标',
-        subtitle: '顶部只保留全局经营读数；单业务指标与结构明细统一下沉到后续区域。',
+        subtitle: null,
         aside: null
       }),
       ...metricGroups.map((group, index) =>

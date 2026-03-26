@@ -251,7 +251,7 @@ window.AnalysisPage = (function() {
       !hasCalculationData && React.createElement('div', {
         key: 'empty-note',
         className: 'rounded-2xl border border-dashed border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4 text-[var(--rilo-text-3)]'
-      }, '缺少完整计算结果时，页面会先显示安全占位值，避免敏感度分析直接报错。')
+      }, '暂无计算结果')
     ]);
 
     const left = React.createElement('div', { className: 'space-y-6 rilo-zh-page' }, [
@@ -343,7 +343,7 @@ window.AnalysisPage = (function() {
             React.createElement('p', {
               key: 'hint',
               className: 'rilo-ledger-subtitle rilo-zh-subtle'
-            }, '固定其他条件，展示单一参数扰动后的三档重算结果。')
+            }, null)
           ])
         ]),
         React.createElement('div', { key: 'summary-strip', className: 'rilo-ledger-metrics' }, [
@@ -432,8 +432,8 @@ window.AnalysisPage = (function() {
 
     if (!hasScenarioData) {
       return React.createElement(EmptyPanel, {
-        title: '结果快照待生成',
-        copy: '补齐经营设置后，这里会展示下调、基准、上调三档结果。'
+        title: '暂无结果快照',
+        copy: '请先补齐经营设置。'
       });
     }
 
@@ -516,7 +516,7 @@ window.AnalysisPage = (function() {
 
     if (!hasScenarioData) {
       return React.createElement(EmptyPanel, {
-        title: '敏感度图表待生成',
+        title: '暂无敏感度图表',
         copy: '当前没有足够的测算结果可画图，先到经营设置页补齐关键参数。'
       });
     }
@@ -597,8 +597,8 @@ window.AnalysisPage = (function() {
 
     if (!hasScenarioData) {
       return React.createElement(EmptyPanel, {
-        title: '情景对比待生成',
-        copy: '没有有效结果时先显示占位说明，避免表格区域出现空白。'
+        title: '暂无情景对比',
+        copy: '请先补齐经营设置。'
       });
     }
 
