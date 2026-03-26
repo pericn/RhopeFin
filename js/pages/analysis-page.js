@@ -325,7 +325,7 @@ window.AnalysisPage = (function() {
 
   const PageHeader = ({ data, selectedParam, paramRange, impactMetric, calculations, currency, scenarios }) => {
     const profit = calculations?.profitability?.profit || 0;
-    const titleNode = (_termKey, text) => text;
+    const titleNode = (termKey, text) => { const Term = window.RiloUI && window.RiloUI.Term; return Term ? React.createElement(Term, { termKey }, text) : text; };
     const margin = calculations?.profitability?.margin || 0;
     const payback = calculations?.profitability?.paybackYears;
 
@@ -602,7 +602,7 @@ window.AnalysisPage = (function() {
       });
     }
 
-    const titleNode = (_termKey, text) => text;
+    const titleNode = (termKey, text) => { const Term = window.RiloUI && window.RiloUI.Term; return Term ? React.createElement(Term, { termKey }, text) : text; };
 
     return React.createElement('div', { className: 'rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-lg)] p-6 rilo-zh-page' }, [
       React.createElement('div', { key: 'heading', className: 'mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between border-b border-[var(--line)] pb-4' }, [
