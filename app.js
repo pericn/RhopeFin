@@ -2,6 +2,42 @@
 (function() {
   'use strict';
 
+  const ReferenceIcon = ({ className = '' }) => React.createElement('svg', {
+    viewBox: '0 0 20 20',
+    width: 18,
+    height: 18,
+    fill: 'currentColor',
+    'aria-hidden': 'true',
+    className
+  }, React.createElement('path', {
+    d: 'M5.75 3A2.75 2.75 0 0 0 3 5.75v8.5A2.75 2.75 0 0 0 5.75 17h8.5A2.75 2.75 0 0 0 17 14.25v-8.5A2.75 2.75 0 0 0 14.25 3h-8.5Zm1.5 2.25a.75.75 0 0 1 .75-.75h2.9a3.1 3.1 0 0 1 0 6.2H9.7v1.05a.75.75 0 0 1-1.5 0V10a.75.75 0 0 1 .75-.75h1.95a1.6 1.6 0 0 0 0-3.2H8a.75.75 0 0 1-.75-.8Zm1.5 9.35a.95.95 0 1 1 1.9 0 .95.95 0 0 1-1.9 0Z'
+  }));
+
+  const AlertIcon = ({ className = '' }) => React.createElement('svg', {
+    viewBox: '0 0 24 24',
+    width: 48,
+    height: 48,
+    fill: 'none',
+    'aria-hidden': 'true',
+    className
+  }, [
+    React.createElement('path', {
+      key: 'outline',
+      d: 'M12 3.75l8.25 14.25A1.5 1.5 0 0 1 18.96 20.25H5.04A1.5 1.5 0 0 1 3.75 18L12 3.75Z',
+      stroke: 'currentColor',
+      strokeWidth: '1.5',
+      strokeLinejoin: 'round'
+    }),
+    React.createElement('path', {
+      key: 'mark',
+      d: 'M12 9v4.5m0 3h.008',
+      stroke: 'currentColor',
+      strokeWidth: '1.8',
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round'
+    })
+  ]);
+
   class PageContentBoundary extends React.Component {
     constructor(props) {
       super(props);
@@ -426,21 +462,12 @@
             }, React.createElement('button', {
               type: 'button',
               className: 'rilo-sidebar-action-btn',
+              'aria-label': '打开说明面板',
+              title: '打开说明面板',
               onClick: () => window.RiloUI?.activeInspectorApi?.toggleInspector?.()
-            }, [
-              React.createElement('span', {
-                key: 'index',
-                className: 'rilo-app-nav-index'
-              }, '参考'),
-              React.createElement('span', {
-                key: 'label',
-                className: 'rilo-app-nav-label'
-              }, '打开说明面板'),
-              React.createElement('span', {
-                key: 'dot',
-                className: 'rilo-app-nav-dot'
-              })
-            ]))
+            }, React.createElement(ReferenceIcon, {
+              className: 'text-[var(--rilo-text-2)] transition-colors hover:text-[var(--rilo-accent)]'
+            })))
           ]),
 
           React.createElement('div', {
@@ -522,8 +549,8 @@
         }, [
           React.createElement('div', {
             key: 'icon',
-            className: 'text-6xl text-center mb-4'
-          }, '💥'),
+            className: 'mb-4 flex justify-center text-[var(--rilo-value-danger)]'
+          }, React.createElement(AlertIcon)),
           React.createElement('h2', {
             key: 'title',
             className: 'text-2xl font-bold text-red-600 text-center mb-4'

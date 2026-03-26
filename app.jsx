@@ -1,4 +1,4 @@
-// 🐾 宠物综合体经营测算小程序 v1.0
+// 宠物综合体经营测算小程序 v1.0
 // 说明：
 // - 单文件 React 组件，可在本地直接运行与编辑。
 // - 所有关键参数均为可变量，可保存你自己的预设。
@@ -294,7 +294,7 @@ function App() {
       <div className="max-w-7xl mx-auto flex flex-col gap-6">
         <header className="flex flex-col lg:flex-row lg:items-end gap-3 lg:gap-6">
           <div className="flex-1">
-            <h1 className="text-2xl lg:text-3xl font-bold">🐾 宠物综合体经营测算</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold">宠物综合体经营测算</h1>
             <p className="text-gray-500 text-sm lg:text-base mt-1">可变参数 · 即时计算 · 适合路演与物业/投资沟通</p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">

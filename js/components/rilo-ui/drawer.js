@@ -9,7 +9,46 @@
 
   const toDrawerGlossaryDomId = (termKey) => `drawer-glossary-${encodeURIComponent(String(termKey || '').trim())}`;
 
-  // 抽屉容器组件
+  const ChevronIcon = ({ collapsed }) => React.createElement('svg', {
+    width: 14,
+    height: 14,
+    viewBox: '0 0 16 16',
+    fill: 'none',
+    'aria-hidden': 'true',
+    className: `transition-transform duration-200 ${collapsed ? '' : 'rotate-180'}`
+  }, React.createElement('path', {
+    d: 'M4 6.5L8 10l4-3.5',
+    stroke: 'currentColor',
+    strokeWidth: '1.6',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round'
+  }));
+
+  const DrawerSection = ({ sectionKey, title, collapsed, onToggle, children }) => React.createElement('section', {
+    className: 'mb-8'
+  }, [
+    React.createElement('div', {
+      key: `${sectionKey}-header`,
+      className: 'mb-3 flex items-center justify-between'
+    }, [
+      React.createElement('h3', {
+        key: `${sectionKey}-title`,
+        className: 'text-sm font-semibold tracking-[0.08em] text-[var(--rilo-text-2)]'
+      }, title),
+      React.createElement('button', {
+        key: `${sectionKey}-toggle`,
+        type: 'button',
+        className: 'inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--rilo-text-3)] transition-colors hover:bg-[var(--rilo-surface-2)] hover:text-[var(--rilo-accent)]',
+        onClick: onToggle,
+        'aria-label': `${collapsed ? '展开' : '折叠'}${title}`,
+        'aria-expanded': !collapsed
+      }, React.createElement(ChevronIcon, { collapsed }))
+    ]),
+    !collapsed && React.createElement('div', {
+      key: `${sectionKey}-content`
+    }, children)
+  ]);
+
   const DefinitionsDrawer = ({
     isOpen,
     onClose,
@@ -18,6 +57,11 @@
     glossaryTerms = {},
     selectedTerm = null
   }) => {
+    const [collapsedSections, setCollapsedSections] = React.useState({
+      process: false,
+      glossary: false
+    });
+
     React.useEffect(() => {
       if (!isOpen) return undefined;
 
@@ -29,7 +73,14 @@
       };
     }, [isOpen]);
 
-    // ESC 键关闭
+    React.useEffect(() => {
+      if (!isOpen) return;
+      setCollapsedSections({
+        process: false,
+        glossary: false
+      });
+    }, [isOpen]);
+
     React.useEffect(() => {
       if (!isOpen) return undefined;
 
@@ -40,7 +91,6 @@
       return () => document.removeEventListener('keydown', handleEsc);
     }, [isOpen, onClose]);
 
-    // 点击遮罩关闭
     const handleBackdropClick = (e) => {
       if (e.target === e.currentTarget) onClose();
     };
@@ -59,6 +109,13 @@
     }, [selectedTerm, isOpen]);
 
     if (!isOpen) return null;
+
+    const toggleSection = (sectionKey) => {
+      setCollapsedSections((prev) => ({
+        ...prev,
+        [sectionKey]: !prev[sectionKey]
+      }));
+    };
 
     const glossaryDom = entries.length > 0
       ? entries.map(([key, def]) =>
@@ -91,19 +148,15 @@
       'aria-modal': 'true',
       'aria-label': title
     }, [
-      // 遮罩层
       React.createElement('div', {
         key: 'backdrop',
         className: 'absolute inset-0 bg-black/50 backdrop-blur-sm',
         onClick: handleBackdropClick
       }),
-
-      // 抽屉面板
       React.createElement('div', {
         key: 'drawer',
         className: 'relative w-full max-w-lg bg-[var(--rilo-surface-1)] border-l border-[var(--rilo-border-deep)] h-full shadow-2xl transform transition-transform duration-300 ease-out'
       }, [
-        // 抽屉头部
         React.createElement('div', {
           className: 'flex items-center justify-between px-6 py-4 border-b border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)]'
         }, [
@@ -119,24 +172,27 @@
             onClick: onClose
           }, '×')
         ]),
-
-        // 抽屉内容
         React.createElement('div', {
           className: 'p-6 overflow-y-auto h-[calc(100%-110px)]'
         }, [
-          React.createElement('section', {
+          React.createElement(DrawerSection, {
             key: 'process',
-            className: 'mb-8'
+            sectionKey: 'process',
+            title: '过程',
+            collapsed: collapsedSections.process,
+            onToggle: () => toggleSection('process')
           }, processDom),
-          React.createElement('section', {
-            key: 'glossary'
+          React.createElement(DrawerSection, {
+            key: 'glossary',
+            sectionKey: 'glossary',
+            title: '术语',
+            collapsed: collapsedSections.glossary,
+            onToggle: () => toggleSection('glossary')
           }, glossaryDom)
         ])
       ])
     ]);
   };
 
-  // 注册到全局
   window.RiloUI.DefinitionsDrawer = DefinitionsDrawer;
-
 })();
