@@ -129,8 +129,8 @@ window.OverviewPage = (function() {
     
     const { revenue, cost, profitability, investment } = calculations;
     const cogs = cost?.cogs?.total || 0;
-    const fixed = cost?.fixed || 0;
-    const variable = cost?.variable || 0;
+    const fixed = cost?.fixed?.total || 0;
+    const variable = cost?.variable?.total || 0;
     const grossProfit = (revenue?.total || 0) - cogs;
     const netProfit = profitability?.profit || 0;
     
