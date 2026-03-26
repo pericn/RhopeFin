@@ -316,7 +316,7 @@
 
   // 图表卡片组件（统一图表容器）
   const ChartCard = ({ title, children, className = "" }) => {
-    return React.createElement(Card, { title, className }, children);
+    return React.createElement(Card, { title, className: `border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] ${className}`.trim() }, children);
   };
   window.RiloUI.ChartCard = ChartCard;
 

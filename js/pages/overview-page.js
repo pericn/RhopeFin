@@ -534,9 +534,18 @@ window.OverviewPage = (function() {
   const ScenarioQuickView = ({ calculations, currency }) => {
     if (!calculations?.scenarios) return null;
     
-    return h(window.RiloUI.ChartCard, { title: '情景分析预览' },
-      h(window.ChartComponents.ScenarioComparisonChart, { calculations, currency })
-    );
+    return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
+      h(SectionHeader, {
+        key: 'header',
+        eyebrow: 'Scenario Analysis',
+        title: '情景分析',
+        subtitle: '在同一版式下对比保守、基础、乐观三种利润表现，聚焦区间差异而不是语义底色。',
+        aside: '三种情景同一底色'
+      }),
+      h('div', { key: 'content', className: 'mt-5' }, [
+        h(window.ChartComponents.ScenarioComparisonChart, { key: 'chart', calculations, currency })
+      ])
+    ]);
   };
 
   // 警告和洞察

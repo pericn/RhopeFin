@@ -8,7 +8,7 @@
 
   // ChartCard: Simple container for a chart with title
   const ChartCard = ({ title, children }) =>
-    React.createElement('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[rgba(34,31,26,0.10)] p-6 shadow-[var(--rilo-shadow-card)]' }, [
+    React.createElement('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-6 shadow-[var(--rilo-shadow-card)]' }, [
       React.createElement('div', { key: 'header', className: 'mb-4 border-b border-[var(--line)] pb-4' }, [
         React.createElement('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, 'Reading'),
         React.createElement('h3', { key: 'title', className: 'mt-2 text-lg font-semibold text-[var(--rilo-text-1)]' }, title)
@@ -118,7 +118,7 @@
 
   const ScenarioCard = ({ scenario, currency }) => {
     return React.createElement('div', {
-      className: `rilo-ledger-panel border border-[rgba(34,31,26,0.10)] rounded-[var(--radius-md)] p-4`
+      className: 'rilo-ledger-panel rounded-[var(--radius-md)] border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4 shadow-[var(--rilo-shadow-soft)]'
     }, [
       // 卡片头部
       React.createElement('div', {

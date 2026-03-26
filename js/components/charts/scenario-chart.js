@@ -22,31 +22,28 @@ window.ScenarioChart = (function() {
         name: '保守情况',
         profit: conservativeProfit,
         margin: calculations.scenarios.conservative?.margin || 0,
-        color: 'bg-orange-500',
-        bgColor: 'bg-orange-50'
+        color: 'bg-blue-500'
       },
       {
         name: '基础情况',
         profit: baseProfit,
         margin: calculations.profitability?.margin || 0,
-        color: 'bg-blue-500',
-        bgColor: 'bg-blue-50'
+        color: 'bg-blue-500'
       },
       {
         name: '乐观情况',
         profit: optimisticProfit,
         margin: calculations.scenarios.optimistic?.margin || 0,
-        color: 'bg-green-500',
-        bgColor: 'bg-green-50'
+        color: 'bg-green-500'
       }
     ];
 
     return React.createElement('div', {
-      className: 'bg-white rounded-lg p-4 border'
+      className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)] p-4 shadow-[var(--rilo-shadow-soft)]'
     }, [
       React.createElement('h5', {
         key: 'title',
-        className: 'font-medium text-gray-800 mb-4'
+        className: 'mb-4 text-sm font-semibold text-[var(--rilo-text-1)]'
       }, '情景对比分析'),
       
       React.createElement('div', {
@@ -58,11 +55,11 @@ window.ScenarioChart = (function() {
         
         return React.createElement('div', {
           key: scenario.name,
-          className: `${scenario.bgColor} rounded-lg p-3`
+          className: 'rounded-xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-4 shadow-[var(--rilo-shadow-soft)]'
         }, [
           React.createElement('h6', {
             key: 'name',
-            className: 'text-sm font-medium text-gray-800 mb-2'
+            className: 'mb-2 text-sm font-medium text-[var(--rilo-text-1)]'
           }, scenario.name),
           
           React.createElement('div', {
@@ -75,13 +72,13 @@ window.ScenarioChart = (function() {
             }, `${currency}${Math.abs(scenario.profit).toLocaleString()}`),
             React.createElement('div', {
               key: 'margin',
-              className: 'text-xs text-gray-600'
+              className: 'text-xs text-[var(--rilo-text-3)]'
             }, `利润率: ${scenario.margin.toFixed(1)}%`)
           ]),
 
           React.createElement('div', {
             key: 'bar-container',
-            className: 'w-full bg-gray-200 rounded-full h-2'
+            className: 'h-2 w-full rounded-full bg-[rgba(53,39,24,0.10)]'
           },
             React.createElement('div', {
               className: `h-2 rounded-full ${isPositive ? scenario.color : 'bg-red-500'} transition-all duration-500`,
@@ -91,7 +88,7 @@ window.ScenarioChart = (function() {
 
           React.createElement('div', {
             key: 'status',
-            className: 'text-xs mt-2 text-center'
+            className: 'mt-2 text-center text-xs text-[var(--rilo-text-3)]'
           }, isPositive ? '盈利' : '亏损')
         ]);
       }))
