@@ -186,14 +186,31 @@ window.UIComponents = (function() {
 
   // KPI指标显示组件
   const KPI = ({ title, value, color = "info", size = "normal", change = null, changeLabel = null, format = null, suffix = "" }) => {
+    const semanticTone = {
+      success: {
+        card: 'bg-[var(--rilo-value-success-soft)] border-[var(--rilo-value-success-border)]',
+        value: 'text-[var(--rilo-value-success)]',
+        glow: 'rgba(93, 138, 100, 0.34)'
+      },
+      danger: {
+        card: 'bg-[var(--rilo-value-danger-soft)] border-[var(--rilo-value-danger-border)]',
+        value: 'text-[var(--rilo-value-danger)]',
+        glow: 'rgba(154, 100, 92, 0.32)'
+      },
+      warning: {
+        card: 'bg-[var(--rilo-value-warning-soft)] border-[var(--rilo-value-warning-border)]',
+        value: 'text-[var(--rilo-value-warning)]',
+        glow: 'rgba(154, 116, 70, 0.32)'
+      },
+      info: {
+        card: 'bg-[var(--rilo-value-info-soft)] border-[var(--rilo-value-info-border)]',
+        value: 'text-[var(--rilo-value-info)]',
+        glow: 'rgba(88, 111, 140, 0.32)'
+      }
+    };
+
     const getColorClasses = (color) => {
-      const colors = {
-        success: 'bg-[var(--rilo-value-success-soft)] text-[var(--rilo-value-success)] border-[var(--rilo-value-success-border)]',
-        danger: 'bg-[var(--rilo-value-danger-soft)] text-[var(--rilo-value-danger)] border-[var(--rilo-value-danger-border)]',
-        warning: 'bg-[var(--rilo-value-warning-soft)] text-[var(--rilo-value-warning)] border-[var(--rilo-value-warning-border)]',
-        info: 'bg-[var(--rilo-value-info-soft)] text-[var(--rilo-value-info)] border-[var(--rilo-value-info-border)]'
-      };
-      return colors[color] || colors.info;
+      return semanticTone[color]?.card || semanticTone.info.card;
     };
 
     const formatValue = (val) => {
@@ -208,6 +225,7 @@ window.UIComponents = (function() {
     };
 
     const formattedValue = formatValue(value);
+    const resolvedTone = semanticTone[color] || semanticTone.info;
     const showSuffix = suffix && typeof formattedValue === 'string' && !formattedValue.includes(suffix);
     const hasChange = changeLabel !== null || change !== null;
     const changeTone = change > 0
@@ -224,7 +242,8 @@ window.UIComponents = (function() {
     }, [
       React.createElement('div', {
         key: 'glow',
-        className: 'pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(109,121,136,0.18),transparent)]'
+        className: 'pointer-events-none absolute inset-x-0 top-0 h-px',
+        style: { background: `linear-gradient(90deg, transparent, ${resolvedTone.glow}, transparent)` }
       }),
       React.createElement('div', {
         key: 'title',
@@ -232,12 +251,12 @@ window.UIComponents = (function() {
       }, title),
       React.createElement('div', {
         key: 'value',
-        className: `font-bold ${size === 'large' ? 'text-[2.1rem]' : 'text-[1.55rem]'} tracking-[-0.05em] text-[var(--rilo-text-1)] leading-[1.02]`
+        className: `font-bold ${size === 'large' ? 'text-[2.1rem]' : 'text-[1.55rem]'} tracking-[-0.05em] ${resolvedTone.value} leading-[1.02]`
       }, [
         React.createElement('span', { key: 'main' }, formattedValue),
         showSuffix && React.createElement('span', {
           key: 'suffix',
-          className: 'ml-1.5 text-sm font-medium tracking-normal text-[var(--rilo-text-3)]'
+          className: `ml-1.5 text-sm font-medium tracking-normal ${resolvedTone.value} opacity-80`
         }, suffix)
       ]),
       hasChange && React.createElement('div', {

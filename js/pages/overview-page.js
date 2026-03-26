@@ -39,7 +39,6 @@ window.OverviewPage = (function() {
   
   // 主概览页面组件（统一两栏：左主内容 + 右侧 InspectorPanel）
   const OverviewPage = ({ data, calculations, updateData, currency = "¥" }) => {
-    const Term = window.RiloUI?.Term;
     const resolvedCurrency = data?.basic?.currency || currency;
 
     const glossaryTerms = {}; // 统一走 shared term-registry；本页不再覆写全局术语定义
@@ -81,8 +80,7 @@ window.OverviewPage = (function() {
     ]);
 
   const PageHeader = ({ data, calculations, currency = '¥' }) => {
-    const Term = window.RiloUI?.Term;
-    const titleNode = (termKey, text) => Term ? h(Term, { termKey }, text) : text;
+    const titleNode = (_termKey, text) => text;
     const profit = calculations?.profitability?.profit || 0;
     const margin = calculations?.profitability?.margin || 0;
     const payback = calculations?.profitability?.paybackYears;
@@ -262,7 +260,6 @@ window.OverviewPage = (function() {
   // 已添加 RevPAR（每间可售房晚收入）作为次级指标：ADR × 入住率（%）
   const KeyMetrics = ({ data, calculations, currency, showDetails = true }) => {
     if (!calculations) return null;
-    const Term = window.RiloUI?.Term;
     const { revenue, cost, profitability, investment } = calculations;
     const profit = profitability?.profit || 0;
     const margin = profitability?.margin || 0;
@@ -296,7 +293,7 @@ window.OverviewPage = (function() {
       ? (((revenue?.boarding || 0) - (cost?.cogs?.boarding || 0)) / soldRoomNights)
       : 0;
     const rentToSales = revenue?.total > 0 ? ((cost?.fixed?.rent || 0) / revenue.total) * 100 : 0;
-    const titleNode = (termKey, text) => Term ? h(Term, { termKey }, text) : text;
+    const titleNode = (_termKey, text) => text;
     
     const metricGroups = [
       {
