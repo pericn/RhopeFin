@@ -29,7 +29,7 @@ window.BreakevenSensitivity = (function() {
     ];
 
     return React.createElement(window.UIComponents.Section, {
-      title: '📊 敏感性分析'
+      title: '敏感性分析'
     }, [
       // 说明文本
       React.createElement('div', {

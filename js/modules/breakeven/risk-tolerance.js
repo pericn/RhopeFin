@@ -14,7 +14,7 @@ window.BreakevenRiskTolerance = (function() {
     if (!breakeven) return null;
 
     return React.createElement(window.UIComponents.Section, {
-      title: '🛡️ 风险承受能力分析'
+      title: '风险承受能力分析'
     }, [
       // 成本上升承受度
       React.createElement('div', {

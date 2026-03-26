@@ -8,7 +8,7 @@ window.ScenarioParameters = (function() {
     if (!data || !updateData) return null;
 
     return React.createElement(window.UIComponents.Section, {
-      title: '⚙️ 情景参数设置'
+      title: '情景参数设置'
     }, [
       // 收入调整系数设置
       React.createElement('div', {
@@ -78,7 +78,7 @@ window.ScenarioParameters = (function() {
         React.createElement('h5', {
           key: 'title',
           className: 'font-medium text-yellow-800 mb-2'
-        }, '💡 参数说明'),
+        }, '参数说明'),
         React.createElement('div', {
           key: 'content',
           className: 'text-sm text-yellow-700 space-y-1'

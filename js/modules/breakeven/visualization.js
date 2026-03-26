@@ -32,7 +32,7 @@ window.BreakevenVisualization = (function() {
     };
 
     return React.createElement(window.UIComponents.Section, {
-      title: '📈 盈亏平衡可视化',
+      title: '盈亏平衡可视化',
       className: 'col-span-full'
     }, [
       // 图表容器

@@ -12,7 +12,7 @@ window.MarginChart = (function() {
     const businessMargins = [
       {
         name: '会员业务',
-        icon: '👥',
+        icon: '',
         revenue: revenue.member || 0,
         cogs: cost?.cogs?.member || 0,
         margin: revenue.member > 0 ? ((revenue.member - (cost?.cogs?.member || 0)) / revenue.member * 100) : 0,
@@ -20,7 +20,7 @@ window.MarginChart = (function() {
       },
       {
         name: '寄养业务',
-        icon: '🏨', 
+        icon: '', 
         revenue: revenue.boarding || 0,
         cogs: cost?.cogs?.boarding || 0,
         margin: revenue.boarding > 0 ? ((revenue.boarding - (cost?.cogs?.boarding || 0)) / revenue.boarding * 100) : 0,
@@ -28,7 +28,7 @@ window.MarginChart = (function() {
       },
       {
         name: '医疗业务',
-        icon: '🏥',
+        icon: '',
         revenue: revenue.medical || 0,
         cogs: cost?.cogs?.medical || 0,
         margin: revenue.medical > 0 ? ((revenue.medical - (cost?.cogs?.medical || 0)) / revenue.medical * 100) : 0,
@@ -36,7 +36,7 @@ window.MarginChart = (function() {
       },
       {
         name: '零售业务',
-        icon: '🛍️',
+        icon: '',
         revenue: revenue.retail || 0,
         cogs: cost?.cogs?.retail || 0,
         margin: revenue.retail > 0 ? ((revenue.retail - (cost?.cogs?.retail || 0)) / revenue.retail * 100) : 0,
@@ -44,7 +44,7 @@ window.MarginChart = (function() {
       },
       {
         name: '餐饮业务',
-        icon: '☕',
+        icon: '',
         revenue: revenue.cafe || 0,
         cogs: cost?.cogs?.cafe || 0,
         margin: revenue.cafe > 0 ? ((revenue.cafe - (cost?.cogs?.cafe || 0)) / revenue.cafe * 100) : 0,
@@ -67,7 +67,7 @@ window.MarginChart = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-lg font-semibold text-blue-800 mb-3'
-        }, '📊 毛利率分析与计算'),
+        }, '毛利率分析与计算'),
         React.createElement('div', {
           key: 'formula',
           className: 'bg-white rounded p-3 mb-3'
@@ -95,7 +95,7 @@ window.MarginChart = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-lg font-semibold text-teal-800 mb-3'
-        }, '🎯 综合毛利率分析'),
+        }, '综合毛利率分析'),
         React.createElement('div', {
           key: 'main-display',
           className: 'text-center mb-4'
@@ -138,7 +138,7 @@ window.MarginChart = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-lg font-semibold text-gray-800'
-        }, '💼 各业务板块毛利率详解'),
+        }, '各业务板块毛利率详解'),
         
         ...businessMargins.map((item, index) => 
           React.createElement('div', {
@@ -263,7 +263,7 @@ window.MarginChart = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-lg font-semibold text-purple-800 mb-3'
-        }, '📈 毛利率对比分析'),
+        }, '毛利率对比分析'),
         React.createElement('div', {
           key: 'analysis',
           className: 'grid grid-cols-1 md:grid-cols-2 gap-4'

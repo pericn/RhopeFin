@@ -252,7 +252,7 @@
       return new window.Calculator(formulaEngine);
     };
     
-    if (window.DEBUG_MODE) console.log('✅ Calculator initialized');
+    if (window.DEBUG_MODE) console.log('Calculator initialized');
   }
   
   if (window.DEBUG_MODE) console.log('Calculator modules ready');

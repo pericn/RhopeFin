@@ -82,7 +82,7 @@ window.CostSettings = (function() {
   // 固定成本设置组件
   const FixedCostSettings = ({ data, updateField, costData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '🏢 固定成本设置'
+      title: '固定成本设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -242,7 +242,7 @@ window.CostSettings = (function() {
   // 变动成本设置组件
   const VariableCostSettings = ({ data, updateField, costData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '⚡ 变动成本设置'
+      title: '变动成本设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -356,7 +356,7 @@ window.CostSettings = (function() {
 
     // 否则提供一个简化版本
     return React.createElement(window.UIComponents.Section, {
-      title: '💸 自定义成本'
+      title: '自定义成本'
     }, React.createElement('div', {
       style={{color:'var(--rilo-text-3)'}} className: 'text-center p-4'
     }, '自定义成本模块加载中...'));

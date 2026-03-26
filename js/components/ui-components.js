@@ -369,7 +369,7 @@ window.UIComponents = (function() {
                 key: 'close',
                 className: 'text-gray-400 hover:text-gray-600',
                 onClick: onClose
-              }, '✕')
+              }, 'X')
             ])
           ]),
           React.createElement('div', {

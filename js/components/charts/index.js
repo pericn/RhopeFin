@@ -52,7 +52,7 @@
   });
   
   if (window.DEBUG_MODE) {
-    console.log('📊 Charts initialized:', registered.length + '/' + Object.keys(expectedComponents).length);
+    console.log('Charts initialized:', registered.length + '/' + Object.keys(expectedComponents).length);
     if (missing.length > 0) console.warn('Missing:', missing);
   }
 

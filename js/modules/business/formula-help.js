@@ -153,7 +153,7 @@ window.FormulaHelpPanel = (function() {
         onClick: () => setIsOpen(!isOpen),
         variant: 'outline',
         size: 'small'
-      }, '📖 公式帮助'),
+      }, '公式帮助'),
 
       // 帮助模态框
       isOpen && React.createElement(window.UIComponents.Modal, {

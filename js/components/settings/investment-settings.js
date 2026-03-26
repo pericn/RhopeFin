@@ -46,7 +46,7 @@ window.InvestmentSettings = (function() {
   // 基础投资设置组件
   const BasicInvestmentSettings = ({ data, updateField, updateData, investmentData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '🏗️ 投资设置'
+      title: '投资设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -188,7 +188,7 @@ window.InvestmentSettings = (function() {
 
     // 否则提供一个简化版本
     return React.createElement(window.UIComponents.Section, {
-      title: '💰 自定义投资'
+      title: '自定义投资'
     }, React.createElement('div', {
       style={{color:'var(--rilo-text-3)'}} className: 'text-center p-4'
     }, '自定义投资模块加载中...'));

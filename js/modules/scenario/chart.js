@@ -8,7 +8,7 @@ window.ScenarioChart = (function() {
     const chartData = buildChartData(calculations);
 
     return React.createElement(window.UIComponents.Section, {
-      title: '📊 情景分析图表',
+      title: '情景分析图表',
       className: 'col-span-full'
     }, [
       React.createElement('div', {

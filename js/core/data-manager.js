@@ -125,7 +125,7 @@ class DataManager {
         
         // 调试：记录原始保存的项目名称
         if (window.DEBUG_MODE || true) { // 临时启用调试
-          console.log('📂 加载原始数据 - 项目名称:', parsedData?.basic?.projectName);
+          console.log('加载原始数据 - 项目名称:', parsedData?.basic?.projectName);
         }
         
         // 合并保存的数据和默认数据，确保新字段不丢失
@@ -133,7 +133,7 @@ class DataManager {
         
         // 调试：记录合并后的项目名称
         if (window.DEBUG_MODE || true) {
-          console.log('🔀 合并后数据 - 项目名称:', mergedData?.basic?.projectName);
+          console.log('合并后数据 - 项目名称:', mergedData?.basic?.projectName);
         }
         
         // 验证和清理数据，确保不包含NaN值
@@ -141,7 +141,7 @@ class DataManager {
         
         // 调试：记录清理后的项目名称
         if (window.DEBUG_MODE || true) {
-          console.log('🧹 清理后数据 - 项目名称:', cleanedData?.basic?.projectName);
+          console.log('清理后数据 - 项目名称:', cleanedData?.basic?.projectName);
         }
         
         return cleanedData;
@@ -154,7 +154,7 @@ class DataManager {
     
     // 调试：记录初始数据的项目名称
     if (window.DEBUG_MODE || true) {
-      console.log('🎬 初始数据 - 项目名称:', initialData?.basic?.projectName);
+      console.log('初始数据 - 项目名称:', initialData?.basic?.projectName);
     }
     
     return initialData;
@@ -168,7 +168,7 @@ class DataManager {
       
       // 调试：记录项目名称保存情况
       if (window.DEBUG_MODE || true) { // 临时启用调试
-        console.log('📝 保存数据 - 项目名称:', cleanData?.basic?.projectName);
+        console.log('保存数据 - 项目名称:', cleanData?.basic?.projectName);
       }
       
       localStorage.setItem(this.storageKey, JSON.stringify(cleanData));

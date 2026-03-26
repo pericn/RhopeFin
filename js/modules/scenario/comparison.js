@@ -8,7 +8,7 @@ window.ScenarioComparison = (function() {
     const scenarios = buildScenarioData(calculations);
 
     return React.createElement(window.UIComponents.Section, {
-      title: '📋 情景对比分析',
+      title: '情景对比分析',
       className: 'col-span-full'
     }, [
       React.createElement('div', {
@@ -32,7 +32,7 @@ window.ScenarioComparison = (function() {
         data: calculations.scenarios.conservative,
         bgColor: 'bg-orange-50',
         textColor: 'text-orange-800',
-        icon: '📉'
+        icon: ''
       },
       {
         name: '基准情况',
@@ -45,14 +45,14 @@ window.ScenarioComparison = (function() {
         },
         bgColor: 'bg-blue-50',
         textColor: 'text-blue-800',
-        icon: '📊'
+        icon: ''
       },
       {
         name: '乐观情况',
         data: calculations.scenarios.optimistic,
         bgColor: 'bg-green-50',
         textColor: 'text-green-800',
-        icon: '📈'
+        icon: ''
       }
     ];
   };

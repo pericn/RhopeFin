@@ -17,7 +17,7 @@ window.BreakevenTargetMargin = (function() {
     const targetMargins = [5, 10, 15, 20];
 
     return React.createElement(window.UIComponents.Section, {
-      title: '🎯 目标利润率分析'
+      title: '目标利润率分析'
     }, [
       // 说明文本
       React.createElement('div', {

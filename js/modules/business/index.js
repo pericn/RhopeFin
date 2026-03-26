@@ -91,10 +91,10 @@ window.CustomModules = (function() {
     
     if (isReady) {
       if (window.DEBUG_MODE) {
-        console.log('✅ Business modules ready (5 modules loaded)');
+        console.log('Business modules ready (5 modules loaded)');
       }
     } else {
-      console.error('❌ Some business modules are missing');
+      console.error('Some business modules are missing');
     }
 
     return isReady;

@@ -240,7 +240,7 @@ window.RevenueSettings = (function() {
       ]),
       custom: React.createElement(window.UIComponents.Section, {
         key: 'custom-revenue',
-        title: '💰 自定义收入'
+        title: '自定义收入'
       }, React.createElement(window.CustomModules.CustomRevenueManager, {
         data,
         updateData,
@@ -285,7 +285,7 @@ window.RevenueSettings = (function() {
   // 会员收入设置组件
   const MemberRevenueSettings = ({ data, updateField, revenueData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '👥 会员收入设置'
+      title: '会员收入设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -445,7 +445,7 @@ window.RevenueSettings = (function() {
     ];
 
     return React.createElement(window.UIComponents.Section, {
-      title: '🏨 寄养收入设置'
+      title: '寄养收入设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -485,7 +485,7 @@ window.RevenueSettings = (function() {
   // 医疗收入设置组件
   const MedicalRevenueSettings = ({ data, updateField, revenueData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '🏥 医疗收入设置'
+      title: '医疗收入设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -527,7 +527,7 @@ window.RevenueSettings = (function() {
   // 零售收入设置组件
   const RetailRevenueSettings = ({ data, updateField, revenueData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '🛍️ 零售收入设置'
+      title: '零售收入设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
@@ -568,7 +568,7 @@ window.RevenueSettings = (function() {
   // 餐饮/社交收入设置组件
   const CafeRevenueSettings = ({ data, updateField, revenueData }) => {
     return React.createElement(window.UIComponents.Section, {
-      title: '☕ 餐饮/社交收入设置'
+      title: '餐饮/社交收入设置'
     }, React.createElement(window.UIComponents.Space, {
       direction: 'vertical',
       size: 'middle',
