@@ -14,18 +14,10 @@
     isOpen,
     onClose,
     title = '参考',
-    activeSection = 'process',
-    onSectionChange,
     process = null,
     glossaryTerms = {},
     selectedTerm = null
   }) => {
-    const [localSection, setLocalSection] = React.useState(activeSection || 'process');
-
-    React.useEffect(() => {
-      setLocalSection(activeSection || 'process');
-    }, [activeSection]);
-
     React.useEffect(() => {
       if (!isOpen) return undefined;
 
@@ -57,29 +49,16 @@
       ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
       : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}));
 
-    const currentSection = localSection || 'process';
-    const switchSection = (nextSection) => {
-      setLocalSection(nextSection);
-      if (onSectionChange) onSectionChange(nextSection);
-    };
-
     React.useEffect(() => {
-      if (!isOpen || currentSection !== 'glossary' || !selectedTerm) return;
+      if (!isOpen || !selectedTerm) return;
 
       const el = document.getElementById(toDrawerGlossaryDomId(selectedTerm));
       if (el && typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ block: 'nearest' });
       }
-    }, [selectedTerm, currentSection, isOpen]);
+    }, [selectedTerm, isOpen]);
 
     if (!isOpen) return null;
-
-    const sectionButton = (sectionKey, label) => React.createElement('button', {
-      key: sectionKey,
-      type: 'button',
-      className: `min-h-[36px] px-3.5 py-1.5 rounded-[14px] text-sm font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 ${currentSection === sectionKey ? 'rilo-btn-strong' : 'rilo-btn-soft text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]'}`,
-      onClick: () => switchSection(sectionKey)
-    }, label);
 
     const glossaryDom = entries.length > 0
       ? entries.map(([key, def]) =>
@@ -102,12 +81,9 @@
           className: 'text-center text-[var(--rilo-text-3)] py-12'
         }, '暂无术语说明');
 
-    const sectionContent = {
-      process: process || React.createElement('div', {
-        className: 'text-sm text-[var(--rilo-text-3)] py-6'
-      }, '暂无相关说明'),
-      glossary: React.createElement(React.Fragment, null, glossaryDom)
-    };
+    const processDom = process || React.createElement('div', {
+      className: 'text-sm text-[var(--rilo-text-3)] py-6'
+    }, '暂无相关说明');
 
     return React.createElement('div', {
       className: 'fixed inset-0 z-50 flex justify-end',
@@ -131,18 +107,11 @@
         React.createElement('div', {
           className: 'flex items-center justify-between px-6 py-4 border-b border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-2)]'
         }, [
-          React.createElement('div', { key: 'copy', className: 'space-y-3' }, [
+          React.createElement('div', { key: 'copy' }, [
             React.createElement('h2', {
               key: 'title',
               className: 'text-lg font-semibold text-[var(--rilo-text-1)]'
-            }, title),
-            React.createElement('div', {
-              key: 'tabs',
-              className: 'flex flex-wrap gap-2'
-            }, [
-              sectionButton('process', '过程'),
-              sectionButton('glossary', '术语')
-            ])
+            }, title)
           ]),
           React.createElement('button', {
             key: 'close',
@@ -154,7 +123,15 @@
         // 抽屉内容
         React.createElement('div', {
           className: 'p-6 overflow-y-auto h-[calc(100%-110px)]'
-        }, sectionContent[currentSection] || sectionContent.glossary)
+        }, [
+          React.createElement('section', {
+            key: 'process',
+            className: 'mb-8'
+          }, processDom),
+          React.createElement('section', {
+            key: 'glossary'
+          }, glossaryDom)
+        ])
       ])
     ]);
   };

@@ -26,13 +26,17 @@ test('overview keeps an on-page folded detailed-calculation entry', () => {
   assert.match(overview, /h\(DetailedCalculationDisplay, \{ calculations, currency: resolvedCurrency \}\)/);
 });
 
-test('definitions drawer has only process and glossary tabs (no conclusion)', () => {
+test('definitions drawer stacks process and glossary content without tabs', () => {
   const drawer = read('js/components/rilo-ui/drawer.js');
   assert.doesNotMatch(drawer, /结论/);
-  assert.match(drawer, /sectionButton\('process', '过程'\)/);
-  assert.match(drawer, /sectionButton\('glossary', '术语'\)/);
+  assert.doesNotMatch(drawer, /sectionButton/);
+  assert.doesNotMatch(drawer, /switchSection/);
+  assert.doesNotMatch(drawer, /currentSection/);
+  assert.match(drawer, /title = '参考'/);
   assert.match(drawer, /role: 'dialog'/);
   assert.match(drawer, /getGlossaryEntries\(window\.RiloUI\?\.termRegistry \|\| \{\}, glossaryTerms \|\| \{\}\)/);
+  assert.match(drawer, /key: 'process'/);
+  assert.match(drawer, /key: 'glossary'/);
 });
 
 test('app shell keeps left nav and no longer renders the sidebar action row or nav meta copy', () => {
