@@ -147,42 +147,17 @@
       className: `min-h-[36px] px-3.5 py-1.5 rounded-[14px] text-sm font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 ${active ? 'rilo-btn-strong' : 'rilo-btn-soft hover:-translate-y-px text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]'}`
     }, children);
 
-  const InspectorPanel = ({ title = '参考面板', conclusion, process, glossary, glossaryTerms = {}, onClose }) => {
+  const InspectorPanel = ({ title = '参考', process, glossary, glossaryTerms = {} }) => {
     const { activeSection, setActiveSection, selectedTerm } = useInspector();
-    const [collapsed, setCollapsed] = React.useState({ conclusion: false, process: true, glossary: true });
     const glossaryEntries = React.useMemo(() => (
       window.RiloUI?.getGlossaryEntries
         ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
         : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}))
     ), [glossaryTerms]);
-    const sectionIds = React.useMemo(() => ['conclusion', 'process', 'glossary'], []);
-    const allCollapsed = sectionIds.every((sectionId) => collapsed[sectionId]);
-    const expandAll = React.useCallback(() => {
-      setCollapsed({ conclusion: false, process: false, glossary: false });
-    }, []);
-    const toggleAll = React.useCallback(() => {
-      if (allCollapsed && typeof onClose !== 'function') {
-        expandAll();
-        return;
-      }
-      if (typeof onClose === 'function') {
-        onClose();
-        return;
-      }
-      setCollapsed({ conclusion: true, process: true, glossary: true });
-    }, [allCollapsed, expandAll, onClose]);
-
-    const fallbackConclusion = React.createElement('div', {
-      className: 'text-sm text-[var(--rilo-text-3)] py-1'
-    }, '暂无相关结论');
 
     const fallbackProcess = React.createElement('div', {
       className: 'text-sm text-[var(--rilo-text-3)] py-1'
     }, '暂无相关说明');
-
-    React.useEffect(() => {
-      setCollapsed(prev => ({ ...prev, [activeSection]: false }));
-    }, [activeSection]);
 
     React.useEffect(() => {
       if (selectedTerm && activeSection !== 'glossary') {
@@ -222,51 +197,27 @@
       return undefined;
     }, [selectedTerm, activeSection]);
 
-    const Section = ({ id, label, children }) =>
-      React.createElement('div', { className: 'rilo-inspector-section' }, [
-        React.createElement('div', {
-          key: 'h',
-          className: 'rilo-inspector-section-header'
-        }, [
-          React.createElement('div', { key: 'l', className: 'font-semibold text-[var(--rilo-text-1)]' }, label),
-          React.createElement('button', {
-            key: 'c',
-            className: 'text-xs text-[var(--rilo-text-3)] hover:text-[var(--rilo-accent)]',
-            onClick: () => setCollapsed(prev => ({ ...prev, [id]: !prev[id] }))
-          }, collapsed[id] ? '展开' : '收起')
-        ]),
-        !collapsed[id] && React.createElement('div', { key: 'b', className: 'rilo-inspector-section-body' }, children)
-      ]);
-
     window.RiloUI.InspectorPanel = InspectorPanel;
+
+    const sectionContent = activeSection === 'glossary'
+      ? glossaryContent
+      : process || fallbackProcess;
 
     return React.createElement('div', { className: 'rilo-inspector-panel' }, [
       React.createElement('div', { key: 'title', className: 'rilo-inspector-header' }, [
         React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, '参考'),
         React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title),
-        React.createElement('div', { key: 'panel-actions', className: 'flex flex-wrap gap-2' }, [
-          React.createElement('button', {
-            key: 'toggle-all',
-            type: 'button',
-            className: 'min-h-[34px] px-3 py-1.5 rounded-[14px] text-xs font-medium border rilo-btn-soft text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]',
-            onClick: toggleAll
-          }, typeof onClose === 'function' ? '收起' : allCollapsed ? '全部展开' : '全部收起')
-        ]),
         React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
-          React.createElement(SectionButton, { key: 'c', active: activeSection === 'conclusion', onClick: () => setActiveSection('conclusion') }, '结论'),
           React.createElement(SectionButton, { key: 'p', active: activeSection === 'process', onClick: () => setActiveSection('process') }, '过程'),
           React.createElement(SectionButton, { key: 'g', active: activeSection === 'glossary', onClick: () => setActiveSection('glossary') }, '术语')
         ])
       ]),
-
-      React.createElement(Section, { key: 'sec-c', id: 'conclusion', label: '结论' }, conclusion || fallbackConclusion),
-      React.createElement(Section, { key: 'sec-p', id: 'process', label: '过程' }, process || fallbackProcess),
-      React.createElement(Section, { key: 'sec-g', id: 'glossary', label: '术语' }, glossaryContent)
+      React.createElement('div', { key: 'section-body', className: 'rilo-inspector-section-body' }, sectionContent)
     ]);
   };
 
   const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
-    const [activeSection, setActiveSection] = React.useState('conclusion');
+    const [activeSection, setActiveSection] = React.useState('process');
     const [selectedTerm, setSelectedTerm] = React.useState(null);
     const [inspectorOpen, setInspectorOpen] = React.useState(true);
     const mergedGlossaryTerms = React.useMemo(
@@ -279,8 +230,11 @@
       setActiveSection,
       selectedTerm,
       setSelectedTerm,
-      glossaryTerms: mergedGlossaryTerms
-    }), [activeSection, mergedGlossaryTerms, selectedTerm]);
+      glossaryTerms: mergedGlossaryTerms,
+      inspectorOpen,
+      setInspectorOpen,
+      toggleInspector: () => setInspectorOpen((open) => !open)
+    }), [activeSection, inspectorOpen, mergedGlossaryTerms, selectedTerm]);
 
     window.RiloUI.TwoPaneLayout = TwoPaneLayout;
     window.RiloUI.useInspector = useInspector;
@@ -315,24 +269,16 @@
       React.createElement('div', { className: shellGridClassName }, [
         React.createElement('div', { key: 'left', className: 'rilo-shell-main' }, [
           React.createElement('div', { key: 'lt', className: 'flex items-center justify-between px-1' }, [
-            leftTitle && React.createElement('span', { key: 'title' }, leftTitle),
-            React.createElement('button', {
-              key: 'inspector-toggle',
-              onClick: () => setInspectorOpen(o => !o),
-              className: 'ml-auto text-xs px-2 py-1 rounded border border-[var(--rilo-border-deep)] text-[var(--rilo-text-2)] hover:bg-[var(--rilo-surface-1)] transition-colors',
-              title: inspectorOpen ? '收起参考面板' : '展开参考面板'
-            }, inspectorOpen ? '收起参考' : '展开参考')
+            leftTitle && React.createElement('span', { key: 'title' }, leftTitle)
           ]),
           left
         ]),
         inspectorOpen && React.createElement('aside', { key: 'side', className: 'rilo-shell-side' },
           React.createElement(InspectorPanel, {
             title: inspectorTitle,
-            conclusion,
             process,
             glossary,
-            glossaryTerms: mergedGlossaryTerms,
-            onClose: () => setInspectorOpen(false)
+            glossaryTerms: mergedGlossaryTerms
           })
         )
       ])

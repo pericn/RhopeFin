@@ -26,9 +26,9 @@ test('overview keeps an on-page folded detailed-calculation entry', () => {
   assert.match(overview, /h\(DetailedCalculationDisplay, \{ calculations, currency: resolvedCurrency \}\)/);
 });
 
-test('definitions drawer keeps the three-layer information architecture', () => {
+test('definitions drawer has only process and glossary tabs (no conclusion)', () => {
   const drawer = read('js/components/rilo-ui/drawer.js');
-  assert.match(drawer, /sectionButton\('conclusion', '结论'\)/);
+  assert.doesNotMatch(drawer, /结论/);
   assert.match(drawer, /sectionButton\('process', '过程'\)/);
   assert.match(drawer, /sectionButton\('glossary', '术语'\)/);
   assert.match(drawer, /role: 'dialog'/);
@@ -57,10 +57,10 @@ test('overview page removes design-spec copy from top sections', () => {
   assert.doesNotMatch(overview, /顶部只保留全局经营读数；单业务指标与结构明细统一下沉到后续区域/);
 });
 
-test('inspector collapse control closes the whole drawer area', () => {
+test('inspector has no conclusion tab, no expand/collapse buttons', () => {
   const shell = read('js/components/rilo-ui/shell.js');
-  assert.match(shell, /onClose: \(\) => setInspectorOpen\(false\)/);
-  assert.match(shell, /\}, typeof onClose === 'function' \? '收起' : allCollapsed \? '全部展开' : '全部收起'\)/);
+  assert.doesNotMatch(shell, /结论/);
+  assert.doesNotMatch(shell, /全部展开|全部收起/);
 });
 
 test('visual acceptance scaffold keeps fixed pages and viewports', () => {

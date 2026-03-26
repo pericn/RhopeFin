@@ -145,6 +145,13 @@
       className: 'mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-3'
     }, [
       React.createElement(window.UIComponents.Button, {
+        key: 'inspector',
+        onClick: () => window.RiloUI?.activeInspectorApi?.toggleInspector?.(),
+        variant: 'outline',
+        size: 'small',
+        className: 'rilo-toolbar-action'
+      }, '参考'),
+      React.createElement(window.UIComponents.Button, {
         key: 'preset',
         onClick: () => {
           const presetData = dataManager.applyPreset();
@@ -165,13 +172,15 @@
           updateData(finalData);
         },
         variant: 'secondary',
-        size: 'small'
+        size: 'small',
+        className: 'rilo-toolbar-action'
       }, '示例参数'),
       React.createElement(window.UIComponents.Button, {
         key: 'export',
         onClick: () => dataManager.exportData(data),
         variant: 'outline',
-        size: 'small'
+        size: 'small',
+        className: 'rilo-toolbar-action'
       }, '导出数据'),
       React.createElement('label', {
         key: 'import',
@@ -199,7 +208,7 @@
           key: 'import-button',
           variant: 'outline',
           size: 'small',
-          className: 'pointer-events-none'
+          className: 'pointer-events-none rilo-toolbar-action'
         }, '导入数据')
       ]),
       React.createElement(window.UIComponents.Button, {
@@ -212,7 +221,8 @@
           }
         },
         variant: 'danger',
-        size: 'small'
+        size: 'small',
+        className: 'rilo-toolbar-action'
       }, '清除数据')
     ]) : null;
 
@@ -288,7 +298,7 @@
           React.createElement('div', {
             key: 'icon',
             className: 'text-6xl text-center mb-4'
-          }, '❌'),
+          }, '错误'),
           React.createElement('h2', {
             key: 'title',
             className: 'text-xl font-bold text-red-600 text-center mb-4'
@@ -366,10 +376,9 @@
             setIsDrawerOpen(false);
             setDrawerTermKey(null);
           },
-          title: drawerContent.title || '计算面板',
+          title: drawerContent.title || '参考',
           activeSection: drawerSection,
           onSectionChange: setDrawerSection,
-          conclusion: drawerContent.conclusion,
           process: drawerContent.process,
           glossaryTerms: Object.assign({}, window.RiloUI.termRegistry || {}, drawerContent.glossaryTerms || {}),
           selectedTerm: drawerTermKey
@@ -521,7 +530,7 @@
               key: 'reload',
               onClick: () => window.location.reload(),
               variant: 'primary'
-            }, '🔄 重新加载'),
+            }, '重新加载'),
             React.createElement(SafeButton, {
               key: 'clear',
               onClick: () => {
@@ -529,7 +538,7 @@
                 window.location.reload();
               },
               variant: 'secondary'
-            }, '🗑️ 清除数据重启'),
+            }, '清除数据重启'),
             React.createElement(SafeButton, {
               key: 'report',
               onClick: () => {
@@ -538,7 +547,7 @@
                 window.open(`mailto:support@example.com?subject=${subject}&body=${body}`);
               },
               variant: 'outline'
-            }, '📧 报告错误')
+            }, '报告错误')
           ])
         ])
       ]);
@@ -603,7 +612,7 @@
       return false;
     }
 
-    console.info('✅ 所有依赖模块已加载完成');
+    console.info('所有依赖模块已加载完成');
     return true;
   };
 
@@ -629,7 +638,7 @@
         card.style.cssText = 'background:white;border-radius:1rem;box-shadow:xl;padding:2rem;max-width:28rem;text-align:center;';
         const icon = document.createElement('div');
         icon.style.cssText = 'font-size:3rem;margin-bottom:1rem;';
-        icon.textContent = '⚠️';
+        icon.textContent = '错误';
         const title = document.createElement('h2');
         title.style.cssText = 'font-size:1.25rem;font-weight:700;color:#dc2626;margin-bottom:1rem;';
         title.textContent = '模块加载失败';
@@ -638,7 +647,7 @@
         msg.textContent = '部分必需的模块未能正确加载，请检查网络连接或刷新页面重试。';
         const btn = document.createElement('button');
         btn.style.cssText = 'padding:0.5rem 1rem;background:#dc2626;color:white;border-radius:0.5rem;border:none;cursor:pointer;font-size:1rem;';
-        btn.textContent = '🔄 重新加载';
+        btn.textContent = '重新加载';
         btn.onclick = function() { window.location.reload(); };
         card.append(icon, title, msg, btn);
         err.append(card);
@@ -661,8 +670,8 @@
       document.getElementById('root')
     );
 
-    console.log('🐾 Rilo Analysis 应用已启动 v2.0');
-    console.log('📊 模块化架构 · 所有功能已加载');
+    console.log('Rilo Analysis 应用已启动 v2.0');
+    console.log('模块化架构，所有功能已加载');
   };
 
   // 将startApp暴露为全局函数，供模块加载完成后调用

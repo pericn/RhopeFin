@@ -13,18 +13,17 @@
   const DefinitionsDrawer = ({
     isOpen,
     onClose,
-    title = '信息面板',
-    activeSection = 'glossary',
+    title = '参考',
+    activeSection = 'process',
     onSectionChange,
-    conclusion = null,
     process = null,
     glossaryTerms = {},
     selectedTerm = null
   }) => {
-    const [localSection, setLocalSection] = React.useState(activeSection || 'glossary');
+    const [localSection, setLocalSection] = React.useState(activeSection || 'process');
 
     React.useEffect(() => {
-      setLocalSection(activeSection || 'glossary');
+      setLocalSection(activeSection || 'process');
     }, [activeSection]);
 
     React.useEffect(() => {
@@ -58,7 +57,7 @@
       ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
       : Object.entries(Object.assign({}, window.RiloUI?.termRegistry || {}, glossaryTerms || {}));
 
-    const currentSection = localSection || 'glossary';
+    const currentSection = localSection || 'process';
     const switchSection = (nextSection) => {
       setLocalSection(nextSection);
       if (onSectionChange) onSectionChange(nextSection);
@@ -104,9 +103,6 @@
         }, '暂无术语说明');
 
     const sectionContent = {
-      conclusion: conclusion || React.createElement('div', {
-        className: 'text-sm text-[var(--rilo-text-3)] py-6'
-      }, '暂无相关结论'),
       process: process || React.createElement('div', {
         className: 'text-sm text-[var(--rilo-text-3)] py-6'
       }, '暂无相关说明'),
@@ -144,7 +140,6 @@
               key: 'tabs',
               className: 'flex flex-wrap gap-2'
             }, [
-              sectionButton('conclusion', '结论'),
               sectionButton('process', '过程'),
               sectionButton('glossary', '术语')
             ])
