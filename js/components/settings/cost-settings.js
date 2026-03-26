@@ -210,11 +210,11 @@ window.CostSettings = (function() {
     }, [
       React.createElement('div', {
         key: 'title',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
+        style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
       }, '成本预测'),
       React.createElement('div', {
         key: 'daily',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
+        style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
         }, [
         React.createElement('span', {
           key: 'daily-label'
@@ -226,7 +226,7 @@ window.CostSettings = (function() {
       ]),
       React.createElement('div', {
         key: 'annual',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: ''
+        style={{color:'var(--rilo-text-3)'}} className: ''
       }, [
         React.createElement('span', {
           key: 'annual-label'
@@ -314,11 +314,11 @@ window.CostSettings = (function() {
     }, [
       React.createElement('div', {
         key: 'title',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
+        style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
       }, '成本预测'),
       React.createElement('div', {
       key: 'daily',
-      style={{color:'var(--rilo-text-3)'}} className: 'className: 'mb-1'
+      style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
     }, [
       React.createElement('span', {
         key: 'daily-label'
@@ -330,7 +330,7 @@ window.CostSettings = (function() {
     ]),
       React.createElement('div', {
         key: 'annual',
-        style={{color:'var(--rilo-text-3)'}} className: 'className: ''
+        style={{color:'var(--rilo-text-3)'}} className: ''
       }, [
         React.createElement('span', {
           key: 'annual-label'
