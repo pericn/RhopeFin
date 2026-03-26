@@ -309,8 +309,10 @@
       };
     }, [api]);
 
+    const shellGridClassName = `rilo-shell-grid ${inspectorOpen ? 'rilo-shell-grid--with-inspector' : 'rilo-shell-grid--expanded'}`;
+
     return React.createElement(InspectorContext.Provider, { value: api },
-      React.createElement('div', { className: 'rilo-shell-grid' }, [
+      React.createElement('div', { className: shellGridClassName }, [
         React.createElement('div', { key: 'left', className: 'rilo-shell-main' }, [
           React.createElement('div', { key: 'lt', className: 'flex items-center justify-between px-1' }, [
             leftTitle && React.createElement('span', { key: 'title' }, leftTitle),

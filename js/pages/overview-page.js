@@ -49,7 +49,6 @@ window.OverviewPage = (function() {
     const process = h(DetailedCalculationDisplay, { calculations, currency: resolvedCurrency });
 
     const left = h('div', { className: 'space-y-4 lg:space-y-5 rilo-zh-page' }, [
-      h(PageHeader, { key: 'page-header', data, calculations, currency: resolvedCurrency }),
       h(KeyMetrics, { key: 'key-metrics', data, calculations, currency: resolvedCurrency, showDetails: false }),
       h(BusinessOverview, { key: 'business-overview', data, currency: resolvedCurrency }),
       h(ScenarioQuickView, { key: 'scenario-view', calculations, currency: resolvedCurrency })
@@ -79,44 +78,7 @@ window.OverviewPage = (function() {
       aside ? h('div', { key: 'aside', className: 'text-xs text-[var(--rilo-text-3)] rilo-zh-subtle md:text-right' }, aside) : null
     ]);
 
-  const PageHeader = ({ data, calculations, currency = '¥' }) => {
-    const titleNode = (_termKey, text) => text;
-    const profit = calculations?.profitability?.profit || 0;
-    const margin = calculations?.profitability?.margin || 0;
-    const payback = calculations?.profitability?.paybackYears;
 
-    return h('div', { className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[var(--rilo-border-deep)] px-5 py-5 md:px-6 md:py-6 rilo-zh-page' }, [
-      h('div', { key: 'row', className: 'rilo-ledger-header' }, [
-        h('div', { key: 'top', className: 'flex flex-col gap-3' }, [
-          h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
-            h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '项目盘点'),
-            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif rilo-zh-header' }, '项目概况'),
-            h('p', {
-              key: 'hint',
-              className: 'rilo-ledger-subtitle rilo-zh-subtle'
-            }, null)
-          ])
-        ]),
-        h('div', { key: 'metrics', className: 'rilo-ledger-metrics' }, [
-          h('div', { key: 'm1', className: 'rilo-ledger-metric' }, [
-            h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('profit', '年净利润')),
-            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${currency}${(profit/10000).toFixed(2)}万`),
-            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, '当前测算口径')
-          ]),
-          h('div', { key: 'm2', className: 'rilo-ledger-metric' }, [
-            h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('netMargin', '净利润率')),
-            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, `${margin.toFixed(1)}%`),
-            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, null)
-          ]),
-          h('div', { key: 'm3', className: 'rilo-ledger-metric' }, [
-            h('div', { key: 'label', className: 'rilo-ledger-metric-label' }, titleNode('payback', '回本周期')),
-            h('div', { key: 'value', className: 'rilo-ledger-metric-value' }, payback === Infinity ? '暂时无法回本' : `${(payback || 0).toFixed(1)} 年`),
-            h('div', { key: 'note', className: 'rilo-ledger-metric-note' }, null)
-          ])
-        ])
-      ])
-    ]);
-  };
 
   // 数据操作区
   const DataActions = ({ data, updateData, currency = '¥' }) => {
@@ -315,15 +277,8 @@ window.OverviewPage = (function() {
     ];
 
     return h('div', { className: 'rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] p-5 shadow-sm rilo-zh-page' }, [
-      h(SectionHeader, {
-        key: 'header',
-        eyebrow: 'Overview Metrics',
-        title: '关键财务指标',
-        subtitle: null,
-        aside: null
-      }),
       ...metricGroups.map((group, index) =>
-        h('section', { key: group.key, className: index === 0 ? 'mt-5 space-y-3' : 'mt-6 space-y-3' }, [
+        h('section', { key: group.key, className: index === 0 ? 'space-y-3' : 'mt-6 space-y-3' }, [
           h('div', { key: 'group-header', className: 'flex flex-col gap-1 md:flex-row md:items-end md:justify-between' }, [
             h('div', { key: 'copy' }, [
               h('div', { key: 'eyebrow', className: 'text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)]' }, group.eyebrow),
@@ -643,6 +598,6 @@ window.OverviewPage = (function() {
     ]);
   };
 
-  return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, PageHeader, CurrencySelector, ImportButton, StatusIndicator };
+  return { OverviewPage, DataActions, KeyMetrics, BusinessOverview, ScenarioQuickView, AlertsAndInsights, CurrencySelector, ImportButton, StatusIndicator };
 
 })();
