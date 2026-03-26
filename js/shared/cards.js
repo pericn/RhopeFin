@@ -28,7 +28,6 @@
     const colors = colorClasses ? colorClasses[alert.type] : defaultColors[alert.type] || defaultColors.info;
     return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 bg-[rgba(255,251,246,0.72)] ${colors}` }, [
       React.createElement('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
-        React.createElement('span', { key: 'icon', className: 'text-lg' }, alert.icon),
         React.createElement('h5', { key: 'title', className: 'font-medium' }, alert.title)
       ]),
       React.createElement('p', { key: 'message', className: 'text-sm' }, alert.message)
@@ -59,7 +58,6 @@
 
     return React.createElement('div', { className: `rilo-card-hierarchy-mid border rounded-[var(--radius-md)] p-4 bg-[rgba(255,251,246,0.72)] ${cls}` }, [
       React.createElement('div', { key: 'header', className: 'flex items-center gap-2 mb-2' }, [
-        React.createElement('span', { key: 'icon', className: 'text-lg' }, insight.icon),
         React.createElement('h5', { key: 'title', className: 'font-medium' }, insight.title)
       ]),
       React.createElement('p', { key: 'content', className: 'text-sm' }, insight.content ?? insight.message)
@@ -92,7 +90,7 @@
         key: 'header',
         className: 'flex items-center gap-2 mb-2'
       }, [
-        React.createElement('span', { key: 'icon', className: 'text-lg' }, recommendation.icon),
+        null,
         React.createElement('h5', { key: 'title', className: 'font-medium' }, recommendation.title),
         React.createElement('span', {
           key: 'priority',
@@ -127,7 +125,7 @@
         key: 'header',
         className: `flex items-center gap-2 mb-4 text-[var(--rilo-text-1)]`
       }, [
-        React.createElement('span', { key: 'icon', className: 'text-lg' }, scenario.icon),
+        null,
         React.createElement('h4', { key: 'name', className: 'font-semibold' }, scenario.name)
       ]),
 
