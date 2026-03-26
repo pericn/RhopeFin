@@ -145,13 +145,6 @@
       className: 'mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-3'
     }, [
       React.createElement(window.UIComponents.Button, {
-        key: 'inspector',
-        onClick: () => window.RiloUI?.activeInspectorApi?.toggleInspector?.(),
-        variant: 'outline',
-        size: 'small',
-        className: 'rilo-toolbar-action'
-      }, '参考'),
-      React.createElement(window.UIComponents.Button, {
         key: 'preset',
         onClick: () => {
           const presetData = dataManager.applyPreset();
@@ -427,6 +420,27 @@
               React.createElement('span', { key: 'label', className: 'rilo-app-nav-label' }, tab.label),
               React.createElement('span', { key: 'dot', className: 'rilo-app-nav-dot' })
             ]))),
+            React.createElement('div', {
+              key: 'sidebar-inspector-action',
+              className: 'rilo-app-sidebar-action-wrap'
+            }, React.createElement('button', {
+              type: 'button',
+              className: 'rilo-sidebar-action-btn',
+              onClick: () => window.RiloUI?.activeInspectorApi?.toggleInspector?.()
+            }, [
+              React.createElement('span', {
+                key: 'index',
+                className: 'rilo-app-nav-index'
+              }, '参考'),
+              React.createElement('span', {
+                key: 'label',
+                className: 'rilo-app-nav-label'
+              }, '打开说明面板'),
+              React.createElement('span', {
+                key: 'dot',
+                className: 'rilo-app-nav-dot'
+              })
+            ]))
           ]),
 
           React.createElement('div', {
