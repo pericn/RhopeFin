@@ -31,15 +31,16 @@
 - [x] Settings 术语:revenue-settings.js 中 Term 组件已注册 ✅ (`0a7bdda` self-healing); section 04 需人工验收
 - [x] Settings 标题下方能看到一行「Hover 教程」提示 ✅ (`95d7902`)
 
-### C1. Inspector / Drawer(三层)
-- [x] Inspector 继续保持 Drawer 形态,而不是常驻右栏 ✅ (T11/T12)
-- [x] Drawer 内包含:过程 / 术语(结论 tab 已移除)✅ (T12)
-- [x] 切到「过程」可看到完整公式与明细(不缺项)✅ (T12)
-- [x] 切到「术语」可看到术语解释(ADR/Occ/RevPAR/Rooms/Days 等)✅ (T7)
+### C1. Inspector / Drawer（三层）
+- [x] Inspector 继续保持 Drawer 形态,而不是常驻右栏 ✅ (T11/T12; `1e376f7` 修复默认常开问题)
+- [x] Drawer 默认关闭，点击「打开说明面板」或 Term「查看更多」才滑入 ✅ (`1e376f7`)
+- [x] Drawer 内包含：过程 / 术语（结论 tab 已移除）✅ (T12)
+- [x] 切到「过程」可看到完整公式与明细（不缺项）✅ (T12)
+- [x] 切到「术语」可看到术语解释（ADR/Occ/RevPAR/Rooms/Days 等）✅ (T7)
 
 ### C2. 指标解释入口一致性
-- [ ] Settings / Overview / Analysis 顶部不再出现"术语解释"按钮（需人工确认顶部无此按钮）
-- [ ] 通过术语 Hover 的"查看更多"触发:Drawer 打开并切到「术语」tab ✅ (Overview已验证)；Settings section 04 需人工确认
+- [ ] Settings / Overview / Analysis 顶部不再出现"术语解释"按钮(需人工确认顶部无此按钮)
+- [ ] 通过术语 Hover 的"查看更多"触发:Drawer 打开并切到「术语」tab ✅ (Overview已验证);Settings section 04 需人工确认
 
 ### C3. 寄养关键功能回归
 - [ ] 入住率输入为双通道(Slider + 数字输入),范围 0-100,保留 1 位小数,粘贴清洗可用
@@ -56,11 +57,11 @@
 - [x] 情景分析预览正常渲染 ✅ (visual)
 - [x] 页面默认不出现综合建议、健康度评分、风险提示、建议性摘要这类报告内容 ✅ (T9 removed)
 
-## E. 敏感度分析（Analysis）
-- [x] 参数下拉可切换；范围滑杆可调整 ✅ (T7, Playwright nav)
-- [x] Analysis 右侧核心指标卡中能看到并可悬停：净利润 / 净利润率 / 回本周期（浅蓝下划线术语）✅ (`436bf14`, `7ae5982`)
-- [x] 图表随参数变化更新 ✅ (grossMargin fix `62e6104`；浏览器实测：装修±20%时回本周期1.7→2.1→2.4年)
-- [x] Analysis 场景表正常渲染 ✅ (浏览器实测：保守/基础/乐观三行，当前情况有蓝底高亮)
+## E. 敏感度分析(Analysis)
+- [x] 参数下拉可切换;范围滑杆可调整 ✅ (T7, Playwright nav)
+- [x] Analysis 右侧核心指标卡中能看到并可悬停:净利润 / 净利润率 / 回本周期(浅蓝下划线术语)✅ (`436bf14`, `7ae5982`)
+- [x] 图表随参数变化更新 ✅ (grossMargin fix `62e6104`;浏览器实测:装修±20%时回本周期1.7→2.1→2.4年)
+- [x] Analysis 场景表正常渲染 ✅ (浏览器实测:保守/基础/乐观三行,当前情况有蓝底高亮)
 - [ ] 情景对比表能渲染,且"当前情况"高亮
 
 ## F. 不减功能声明(人工确认)
