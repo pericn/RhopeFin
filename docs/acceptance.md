@@ -26,9 +26,9 @@
 
 ## C. 参数配置(Settings)关键路径
 ### C0. Hover 可见性(必须)
-- [x] Settings 页面基础设置/寄养收入设置中:ADR / Occ / Rooms / Days 等术语以**浅蓝下划线**展示 ✅ (T7 terms enabled)
-- [x] 鼠标悬停下划线术语:出现解释 Popover ✅ (code verified)
-- [x] Popover 内点击"查看更多":打开 Drawer 并切到「术语」tab ✅ (T7)
+- [x] Overview KPI 术语(年净利润/净利润率/回本周期):下划线 ✅, Popover ✅, hover test ✅
+- [x] Analysis 术语下划线 ✅ (7 terms found)
+- [x] Settings 术语:revenue-settings.js 中 Term 组件已注册 ✅ (`0a7bdda` self-healing); section 04 需人工验收
 - [x] Settings 标题下方能看到一行「Hover 教程」提示 ✅ (`95d7902`)
 
 ### C1. Inspector / Drawer(三层)
@@ -38,8 +38,8 @@
 - [x] 切到「术语」可看到术语解释(ADR/Occ/RevPAR/Rooms/Days 等)✅ (T7)
 
 ### C2. 指标解释入口一致性
-- [ ] Settings / Overview / Analysis 顶部不再出现"术语解释"按钮
-- [ ] 通过术语 Hover 的"查看更多"或脚本/API 触发:Drawer 打开并切到「术语」tab
+- [ ] Settings / Overview / Analysis 顶部不再出现"术语解释"按钮（需人工确认顶部无此按钮）
+- [ ] 通过术语 Hover 的"查看更多"触发:Drawer 打开并切到「术语」tab ✅ (Overview已验证)；Settings section 04 需人工确认
 
 ### C3. 寄养关键功能回归
 - [ ] 入住率输入为双通道(Slider + 数字输入),范围 0-100,保留 1 位小数,粘贴清洗可用
