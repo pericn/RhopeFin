@@ -113,7 +113,7 @@ window.AnalysisPage = (function() {
     const baseline = {
       profit: calculations?.profitability?.profit ?? 0,
       margin: calculations?.profitability?.margin ?? 0,
-      grossMargin: calculations?.profitability?.grossMargin ?? 0,
+      grossMargin: calculations?.profitability?.metrics?.grossMargin ?? 0,
       payback: calculations?.profitability?.paybackYears ?? Infinity
     };
 
@@ -168,7 +168,7 @@ window.AnalysisPage = (function() {
           return {
             profit: result?.profitability?.profit ?? baseline.profit,
             margin: result?.profitability?.margin ?? baseline.margin,
-            grossMargin: result?.profitability?.grossMargin ?? baseline.grossMargin,
+            grossMargin: result?.profitability?.metrics?.grossMargin ?? baseline.grossMargin,
             payback: result?.profitability?.paybackYears ?? baseline.payback
           };
         } catch (error) {
