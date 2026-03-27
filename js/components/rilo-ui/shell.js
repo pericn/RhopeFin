@@ -118,7 +118,7 @@
         key: 'more',
         type: 'button',
         className: 'mt-3 text-xs font-medium text-[var(--rilo-accent)] hover:text-[var(--rilo-accent-500)]',
-        onClick: openGlossary
+        onClick: () => openGlossary?.(termKey)
       }, '查看更多')
     ]);
 
@@ -231,7 +231,7 @@
   const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
     const [activeSection, setActiveSection] = React.useState('process');
     const [selectedTerm, setSelectedTerm] = React.useState(null);
-    const [inspectorOpen, setInspectorOpen] = React.useState(true);
+    const [inspectorOpen, setInspectorOpen] = React.useState(false);
     const mergedGlossaryTerms = React.useMemo(
       () => Object.assign({}, glossaryTerms || {}),
       [glossaryTerms]
@@ -245,7 +245,13 @@
       glossaryTerms: mergedGlossaryTerms,
       inspectorOpen,
       setInspectorOpen,
-      toggleInspector: () => setInspectorOpen((open) => !open)
+      toggleInspector: () => setInspectorOpen((open) => !open),
+      // Called by Term component's "查看更多" button: open drawer + switch to glossary tab
+      openGlossary: (termKey) => {
+        if (!inspectorOpen) setInspectorOpen(true);
+        setActiveSection('glossary');
+        if (termKey) setSelectedTerm(termKey);
+      }
     }), [activeSection, inspectorOpen, mergedGlossaryTerms, selectedTerm]);
 
     window.RiloUI.TwoPaneLayout = TwoPaneLayout;
