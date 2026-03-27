@@ -14,25 +14,35 @@
   const Term = ({ termKey, children }) => {
     const api = useInspector();
     const triggerRef = React.useRef(null);
+
+    // Self-healing: force re-render if term wasn't found on first render
+    // (first render may have happened before termRegistry was populated)
+    const [lookupKey, setLookupKey] = React.useState(0);
+
     const term = React.useMemo(() => {
       if (!termKey) return null;
-
       const mergedTerms = Object.assign({}, window.RiloUI?.termRegistry || {}, api?.glossaryTerms || {});
       const rawTerm = mergedTerms[termKey];
-
       if (window.RiloUI?.normalizeTermDefinition) {
         return window.RiloUI.normalizeTermDefinition(rawTerm, termKey);
       }
-
       if (!rawTerm) return null;
-
       return {
         key: termKey,
         title: rawTerm.title || termKey,
         body: rawTerm.body || rawTerm.definition || '',
         definition: rawTerm.definition || rawTerm.body || ''
       };
-    }, [api?.glossaryTerms, termKey]);
+    }, [api?.glossaryTerms, termKey, lookupKey]);
+
+    // If term is still null after mount, try again once termRegistry becomes available
+    React.useEffect(() => {
+      if (term === null && lookupKey === 0) {
+        const timer = setTimeout(() => setLookupKey(k => k + 1), 100);
+        return () => clearTimeout(timer);
+      }
+    }, [term, lookupKey]);
+
     const [open, setOpen] = React.useState(false);
     const [popoverStyle, setPopoverStyle] = React.useState(null);
     const popoverId = React.useMemo(
@@ -40,7 +50,9 @@
       [termKey]
     );
 
-    if (!term) return children;
+    // Always render the underlined trigger, even if term data isn't loaded yet.
+    // When term is null, the popover shows a loading state and openGlossary still works via termKey.
+    const effectiveTerm = term || { title: termKey, body: '' };
 
     const closeIfLeaving = (event) => {
       if (!event?.currentTarget?.contains(event?.relatedTarget)) {
@@ -97,11 +109,11 @@
       React.createElement('div', {
         key: 'title',
         className: 'text-sm font-semibold text-[var(--rilo-text-1)]'
-      }, term.title),
+      }, effectiveTerm.title),
       React.createElement('div', {
         key: 'body',
         className: 'mt-1 text-xs leading-5 text-[var(--rilo-text-2)]'
-      }, term.body),
+      }, effectiveTerm.body || (term ? '' : '术语信息加载中')),
       React.createElement('button', {
         key: 'more',
         type: 'button',
