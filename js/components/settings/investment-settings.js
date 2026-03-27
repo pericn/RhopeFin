@@ -119,12 +119,12 @@ window.InvestmentSettings = (function() {
     }, [
       React.createElement('div', {
         key: 'summary-title',
-        style={{color:'var(--rilo-text-3)'}} className: 'mb-2'
+        style:{color:'var(--rilo-text-3)'}, className: 'mb-2'
       }, '投资计算数据'),
       
       React.createElement('div', {
         key: 'fitout-item',
-        style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
+        style:{color:'var(--rilo-text-3)'}, className: 'mb-1'
       }, [
         React.createElement('span', {
           key: 'fitout-label'
@@ -137,7 +137,7 @@ window.InvestmentSettings = (function() {
       
       React.createElement('div', {
         key: 'medical-item',
-        style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
+        style:{color:'var(--rilo-text-3)'}, className: 'mb-1'
       }, [
         React.createElement('span', {
           key: 'medical-label'
@@ -150,7 +150,7 @@ window.InvestmentSettings = (function() {
       
       React.createElement('div', {
         key: 'custom-item',
-        style={{color:'var(--rilo-text-3)'}} className: 'mb-1'
+        style:{color:'var(--rilo-text-3)'}, className: 'mb-1'
       }, [
         React.createElement('span', {
           key: 'custom-label'
@@ -190,7 +190,7 @@ window.InvestmentSettings = (function() {
     return React.createElement(window.UIComponents.Section, {
       title: '自定义投资'
     }, React.createElement('div', {
-      style={{color:'var(--rilo-text-3)'}} className: 'text-center p-4'
+      style:{color:'var(--rilo-text-3)'}, className: 'text-center p-4'
     }, '自定义投资模块加载中...'));
   };
 
