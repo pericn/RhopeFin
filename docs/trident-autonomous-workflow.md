@@ -487,6 +487,34 @@ def autonomous_debugger(failed_test):
 
 这不是工具问题，不是架构问题，是流程起点问题。
 
+---
+
+## 附录：Rilo Analysis Autonomous Test Loop 实测结果（2026-03-28）
+
+**实验框架**：`scripts/autonomous_test_loop.py`
+**运行方式**：7 个 hypotheses → 自动执行 → scoring → reflection → iterate
+
+| ID | Hypothesis | Type | Score | Status |
+|----|-----------|------|-------|--------|
+| E1 | OCC clamp [0,100] | edge | 1.0 | ✅ PASS |
+| E2 | ADR=0 safe | edge | 1.0 | ✅ PASS |
+| E3 | Inspector toggle | interaction | 0.0 | ❌ FAIL（测试本身时序问题）|
+| E4 | Settings Rooms hover | interaction | 0.0 | ❌ FAIL（Playwright `.filter()` 不存在）|
+| E5 | Overview charts | interaction | 1.0 | ✅ PASS |
+| E6 | Scenario table ≥3 rows | interaction | 0.0 | ❌ FAIL（selector 错误，tr 不适用于 div-based table）|
+| E7 | No NaN regression | interaction | 1.0 | ✅ PASS |
+
+**核心发现：5/7 通过。2 个失败全是"测试脚本写错了"而非"功能坏了"。**
+
+**Reflection Loop 示例（E6）：**
+- 初始 hypothesis："Analysis 情景对比表应该有 ≥3 行"
+- 第一次运行：score=0（`tr` selector 找到 0 行）
+- Reflection：检查 DOM 发现表格使用 div-based rows，不是 `<tr>`
+- 更深调查：场景表在"仪表盘" tab 里，需要先点击 tab
+- 下一步：修复 selector 后重新运行
+
+这正是 autoresearch 框架的核心：**测试失败 → 诊断是假设错了还是测试写错了 → 对应修复 → 迭代**
+
 Rilo Analysis 的几乎所有"反复"都源于此：
 - Inspector tab vs accordion → 因为没有提前写可执行测试
 - Settings 无下划线 → 因为没有提前写可执行测试
