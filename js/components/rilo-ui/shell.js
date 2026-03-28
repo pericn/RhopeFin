@@ -67,8 +67,7 @@
         return;
       }
 
-      if (api?.setActiveSection && api?.setSelectedTerm) {
-        api.setActiveSection('glossary');
+      if (api?.setSelectedTerm) {
         api.setSelectedTerm(termKey);
         setOpen(false);
         return;
@@ -153,14 +152,27 @@
     ]);
   };
 
-  const SectionButton = ({ active, onClick, children }) =>
-    React.createElement('button', {
-      onClick,
-      className: `min-h-[36px] px-3.5 py-1.5 rounded-[14px] text-sm font-medium border transition-all focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 ${active ? 'rilo-btn-strong' : 'rilo-btn-soft hover:-translate-y-px text-[var(--rilo-text-2)] hover:text-[var(--rilo-text-1)]'}`
-    }, children);
+  // Accordion section header — click to expand/collapse
+  const AccordionSection = ({ title, isOpen, onToggle, children }) =>
+    React.createElement('div', { className: 'border-b border-[var(--rilo-border-deep)] last:border-b-0' }, [
+      React.createElement('button', {
+        key: 'header',
+        onClick: onToggle,
+        className: 'w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[var(--rilo-surface-1)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15'
+      }, [
+        React.createElement('span', { key: 't', className: 'text-sm font-medium text-[var(--rilo-text-1)]' }, title),
+        React.createElement('span', { key: 'icon', className: `text-[var(--rilo-text-3)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}` },
+          '▾')
+      ]),
+      isOpen && React.createElement('div', { key: 'body', className: 'px-4 pb-4' }, children)
+    ]);
 
   const InspectorPanel = ({ title = '参考', process, glossary, glossaryTerms = {} }) => {
-    const { activeSection, setActiveSection, selectedTerm } = useInspector();
+    // Accordion state: both sections can be open simultaneously
+    const [processOpen, setProcessOpen] = React.useState(true);   // 过程默认展开
+    const [glossaryOpen, setGlossaryOpen] = React.useState(false); // 术语默认收起
+    const { selectedTerm, setSelectedTerm } = useInspector();
+
     const glossaryEntries = React.useMemo(() => (
       window.RiloUI?.getGlossaryEntries
         ? window.RiloUI.getGlossaryEntries(window.RiloUI?.termRegistry || {}, glossaryTerms || {})
@@ -171,65 +183,66 @@
       className: 'text-sm text-[var(--rilo-text-3)] py-1'
     }, '暂无相关说明');
 
+    // When a term is selected, expand the glossary section and scroll to it
     React.useEffect(() => {
-      if (selectedTerm && activeSection !== 'glossary') {
-        setActiveSection('glossary');
+      if (selectedTerm) {
+        setGlossaryOpen(true);
+        setProcessOpen(false); // optionally collapse process when term is selected
+        // Scroll to the selected term entry
+        const el = document.getElementById(toGlossaryDomId(selectedTerm));
+        if (el) {
+          const frameId = window.requestAnimationFrame(() => {
+            el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          });
+          return () => window.cancelAnimationFrame(frameId);
+        }
       }
-    }, [activeSection, selectedTerm, setActiveSection]);
+    }, [selectedTerm]);
 
     const glossaryContent = React.useMemo(() => {
       if (glossaryEntries.length === 0) {
-        return glossary || React.createElement('div', {
-          className: 'text-sm text-[var(--rilo-text-3)] py-1'
-        }, '暂无术语说明。');
+        return glossary || React.createElement('div', { className: 'text-sm text-[var(--rilo-text-3)]' }, '暂无术语说明。');
       }
-
-      // BUGFIX-3: 术语区内容改为记忆化渲染，减少 Inspector 展开时重复创建大量节点造成的卡顿。
-      return React.createElement('div', { className: 'space-y-3' }, glossaryEntries.map(([key, def]) =>
+      return React.createElement('div', { className: 'space-y-2 pt-2' }, glossaryEntries.map(([key, def]) =>
         React.createElement('div', {
           key,
           id: toGlossaryDomId(key),
-          className: `rounded-[var(--radius-md)] border p-3.5 shadow-[var(--rilo-shadow-soft)] ${selectedTerm === key ? 'border-[var(--rilo-accent)] bg-[var(--rilo-accent-50)]' : 'border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)]'}`
+          className: `rounded-[var(--radius-md)] border p-3 cursor-pointer transition-colors ${selectedTerm === key ? 'border-[var(--rilo-accent)] bg-[var(--rilo-accent-50)]' : 'border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] hover:border-[var(--rilo-accent)]/40'}`,
+          onClick: () => setSelectedTerm?.(key)
         }, [
-          React.createElement('div', { key: 't', className: 'font-semibold text-[var(--rilo-text-1)]' }, def.title || key),
-          React.createElement('div', { key: 'b', className: 'text-sm text-[var(--rilo-text-2)] mt-1 leading-relaxed' }, def.body || def.definition || '')
+          React.createElement('div', { key: 't', className: 'font-medium text-[var(--rilo-text-1)] text-sm' }, def.title || key),
+          React.createElement('div', { key: 'b', className: 'text-xs text-[var(--rilo-text-2)] mt-1 leading-relaxed' }, def.body || def.definition || '')
         ])
       ));
-    }, [glossary, glossaryEntries, selectedTerm]);
-
-    React.useEffect(() => {
-      if (!selectedTerm) return;
-      const el = document.getElementById(toGlossaryDomId(selectedTerm));
-      if (el && typeof el.scrollIntoView === 'function') {
-        const frameId = window.requestAnimationFrame(() => {
-          el.scrollIntoView({ block: 'nearest' });
-        });
-        return () => window.cancelAnimationFrame(frameId);
-      }
-      return undefined;
-    }, [selectedTerm, activeSection]);
+    }, [glossary, glossaryEntries, selectedTerm, setSelectedTerm]);
 
     window.RiloUI.InspectorPanel = InspectorPanel;
 
-    const sectionContent = activeSection === 'glossary'
-      ? glossaryContent
-      : process || fallbackProcess;
-
     return React.createElement('div', { className: 'rilo-inspector-panel' }, [
+      // Header
       React.createElement('div', { key: 'title', className: 'rilo-inspector-header' }, [
         React.createElement('div', { key: 'kicker', className: 'rilo-inspector-kicker' }, '参考'),
-        React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title),
-        React.createElement('div', { key: 'tabs', className: 'rilo-inspector-tabs' }, [
-          React.createElement(SectionButton, { key: 'p', active: activeSection === 'process', onClick: () => setActiveSection('process') }, '过程'),
-          React.createElement(SectionButton, { key: 'g', active: activeSection === 'glossary', onClick: () => setActiveSection('glossary') }, '术语')
-        ])
+        React.createElement('div', { key: 't', className: 'text-sm font-semibold text-[var(--rilo-text-1)]' }, title)
       ]),
-      React.createElement('div', { key: 'section-body', className: 'rilo-inspector-section-body' }, sectionContent)
+      // Accordion sections — no tabs
+      React.createElement('div', { key: 'sections', className: 'divide-y divide-[var(--rilo-border-deep)]' }, [
+        React.createElement(AccordionSection, {
+          key: 'process',
+          title: '过程',
+          isOpen: processOpen,
+          onToggle: () => setProcessOpen(o => !o)
+        }, process || fallbackProcess),
+        React.createElement(AccordionSection, {
+          key: 'glossary',
+          title: '术语',
+          isOpen: glossaryOpen,
+          onToggle: () => setGlossaryOpen(o => !o)
+        }, glossaryContent)
+      ])
     ]);
   };
 
   const TwoPaneLayout = ({ leftTitle = null, left, inspectorTitle, conclusion, process, glossary, glossaryTerms }) => {
-    const [activeSection, setActiveSection] = React.useState('process');
     const [selectedTerm, setSelectedTerm] = React.useState(null);
     const [inspectorOpen, setInspectorOpen] = React.useState(false);
     const mergedGlossaryTerms = React.useMemo(
@@ -238,21 +251,17 @@
     );
 
     const api = React.useMemo(() => ({
-      activeSection,
-      setActiveSection,
       selectedTerm,
       setSelectedTerm,
       glossaryTerms: mergedGlossaryTerms,
       inspectorOpen,
       setInspectorOpen,
       toggleInspector: () => setInspectorOpen((open) => !open),
-      // Called by Term component's "查看更多" button: open drawer + switch to glossary tab
       openGlossary: (termKey) => {
         if (!inspectorOpen) setInspectorOpen(true);
-        setActiveSection('glossary');
         if (termKey) setSelectedTerm(termKey);
       }
-    }), [activeSection, inspectorOpen, mergedGlossaryTerms, selectedTerm]);
+    }), [inspectorOpen, mergedGlossaryTerms, selectedTerm]);
 
     window.RiloUI.TwoPaneLayout = TwoPaneLayout;
     window.RiloUI.useInspector = useInspector;
