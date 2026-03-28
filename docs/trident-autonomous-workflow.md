@@ -563,4 +563,256 @@ acceptance.md vs interaction-principles.md 冲突
 
 ---
 
-*文档版本：1.0 | 基于 Rilo Analysis 三天复盘 + Karpathy auto-agents + itsolelehmann autoresearch + SWE-bench 研究 | 2026-03-28*
+*文档版本：1.1 | 新增 iOS 完整开发流程 + Skill 缺口分析 + Xcode 26.3 Agentic | 2026-03-28*
+
+---
+
+## 附录：iOS 完整自动化开发流程 + Skill 缺口分析（2026-03-28 新增）
+
+> 背景：用户明确要求调研"autoresearch 思路如何应用到 iOS app 开发的每个细分环节"，以及确认"每个开发流程环节是否都已充分调研并配备 skills"。基于 2026 年 3 月最新调研（含 Xcode 26.3 agentic coding 发布信息）。
+
+---
+
+### 一、iOS 开发全流程 12 环节 + Skill 覆盖图
+
+| 环节 | 名称 | 已有 Skill | 缺口/现状 |
+|------|------|-----------|-----------|
+| 1 | 需求/PRD | (无) | ⚠️ 完全空白 |
+| 2 | 技术架构 | code-review-excellence | ✅ 有 |
+| 3 | 项目初始化 XcodeGen+Fastlane | (无) | ⚠️ 完全空白 |
+| 4 | UI/UX 设计 Figma→代码 | frontend-design | ✅ 有 |
+| 5 | 编码实现 Claude Code/Codex | coding-agent | ✅ 有 |
+| 6 | 单元测试 Swift Testing | (无) | ⚠️ 空白 |
+| 7 | UI 自动化 Appium/XCTest | playwright-skill | ⚠️ Playwright不适配iOS |
+| 8 | Visual 回归截图对比 | playwright-visual-testing | ⚠️ 无iOS截图比对方案 |
+| 9 | 构建 xcodebuild | (无) | ⚠️ 需要skill化 |
+| 10 | CI/CD GitHub Actions | (无) | ⚠️ 空白 |
+| 11 | TestFlight 灰度发布 | (无) | ⚠️ 空白 |
+| 12 | App Store 正式发布 | (无) | ⚠️ 空白 |
+
+**覆盖率：3/12 有 skill，9/12 空白（P0缺口4个，P1缺口4个，P2缺口1个）**
+
+---
+
+### 二、2026 年 iOS AI 辅助开发最新格局
+
+#### 2.1 Xcode 26.3 Agentic Coding（2026 年 2 月，最大新闻）
+
+Apple 在 2026 年 2 月发布 **Xcode 26.3**，原生集成 Claude Agent 和 OpenAI Codex。
+
+**核心变化**：
+- Claude Agent 和 Codex 可直接在 Xcode 里**自主运行**
+- Agent 能分析项目、修改文件、运行测试、修复编译错误
+- 支持"需要多个步骤的复杂长期任务"，直到完成或需要人工介入
+
+**对用户 iOS app 的直接影响**：
+用户的开发工作流从：
+```
+人工 → 切换到外部 agent → 复制粘贴代码 → 回到 Xcode
+```
+变成：
+```
+Xcode 26.3 Agentic Mode → Claude Agent 自主完成（写代码+build+测试+修复）
+```
+
+**局限性**：Xcode 26.3 agentic 是 IDE 内辅助，不等于完整 autonomy loop。完整流程还需要 CI/CD、测试闭环、打包发布等环节配合。
+
+#### 2.2 主流 Autonomous Coding Agent 横向对比（2026-03）
+
+| Agent | 类型 | iOS 适用性 | 核心局限 |
+|-------|------|-----------|--------|
+| **Devin** (Cognition) | 云端全自主 | ⚠️ 无法访问本地模拟器 | 贵；云端无法运行 xcodebuild |
+| **Claude Code / Codex** | 本地 CLI | ✅ 最实用 | 需人工分步触发，非端到端自主 |
+| **SWE-agent** (GitHub) | 开源本地 | ⚠️ 不理解 Xcode 项目结构 | 通用代码修复，不适配 iOS 特有任务 |
+| **Cursor / Windsurf** | IDE 集成 | ⚠️ 依赖人工触发 | 非自主，适合辅助编程 |
+| **Xcode 26.3 Agentic** | IDE 原生 | ✅ iOS 项目内最佳 | 目前功能相对初级，依赖 Xcode 版本 |
+
+**最优组合**：Xcode 26.3 Agentic（iOS 项目内自主）+ Claude Code CLI（本地全栈）+ Devin（云端复杂 research 任务）。
+
+#### 2.3 SWE-bench 与能力边界（2026 当前水平）
+
+- SWE-bench 当前成功率：**~50%**（已相当强）
+- 2026 年行业预测：70-80%
+- **Autonomous coding 的前提**：
+  1. 可执行测试（必须有 fail/pass 信号）
+  2. 明确的 reward signal（不能模糊）
+  3. 可写盘的文件系统（agent 写代码用）
+  4. 可运行命令的 shell（编译+测试）
+
+---
+
+### 三、Skill 缺口详解与优先级
+
+#### 🔴 P0（立即影响开发效率，必须填补）
+
+**P0-1: iOS 自动化测试 Skill（Appium + XCTest）**
+- **现状**：playwright-skill 完全不覆盖 iOS native UI 测试
+- **XCTest**：可用 `xcodebuild test` 运行，但 agent 不知道如何解读测试报告
+- **Appium**：clawhub 有 `mobile-appium-test`（score 3.326）可安装
+- **需要覆盖**：
+  - `xcodebuild test-with-generating-report` 调用方式
+  - XCTest matched patterns（UI 测试场景）
+  - 如何让 AI agent 理解 XCTest 失败原因
+  - Appium 作为 XCTest 替代的跨平台 UI 测试方案
+
+**P0-2: XcodeGen + Fastlane Skill**
+- **现状**：完全无 skill 指导
+- **为什么重要**：
+  - XcodeGen：iOS 项目结构管理（project.yml → .xcodeproj）
+  - Fastlane：CI/CD、截图自动化、打包发布的核心
+  - 没有这个 skill，agent 无法理解 iOS 项目结构
+- **需要覆盖**：
+  - XcodeGen project.yml 最佳实践
+  - Fastlane lane 模板（test / beta / appstore）
+  - Snapshot 截图自动化
+  - Fastlane match for code signing（CI 环境）
+
+**P0-3: Test-Driven Autonomy Skill（可执行验收标准）**
+- **来源**：基于 Rilo Analysis 三天复盘经验自建
+- **核心思路**：
+  ```
+  每个功能需求 X：
+    1. 写 tests/acceptance/x.test（XCTest 格式 + 自然语言描述）
+    2. 运行，确认当前 FAIL（证明测试有效）
+    3. Agent 实现功能
+    4. 测试 PASS → 功能验收通过
+  ```
+- **这是整个 autonomy 体系的 Day 0 基础设施**
+
+#### 🟡 P1（重要，逐步建设）
+
+**P1-1: iOS Visual Regression Skill**
+- **现状**：无 iOS 截图比对方案
+- **方案**：
+  - Fastlane Snapshot 生成截图（多语言、多屏幕尺寸）
+  - ImageMagick `compare` 命令比对
+  - 或接入 `Percy`（需 App Percy 订阅）
+- **Skill 需要**：capture → store baseline → compare → report diff → notify
+
+**P1-2: CI/CD Skill（GitHub Actions for iOS）**
+- **需要覆盖**：
+  - Xcode Cloud vs GitHub Actions 选择决策树
+  - GitHub Actions iOS 矩阵（xcode-version × ios-version）
+  - Fastlane match for code signing
+  - 自动上传 TestFlight / App Store Connect API
+- **clawhub**：`ci-cd`（score 0.846）+ 需补充 iOS 特定模板
+
+**P1-3: Claude Code / Xcode 26.3 桥接 Skill**
+- **让外部 coding agent 理解 iOS 项目结构**
+- **需要覆盖**：
+  - 如何 spawn Claude Agent 进入 Xcode 项目目录
+  - XcodeGen project.yml 与 .xcodeproj 的关系
+  - 如何让 agent 理解 `pod install` / `xcodebuild` / `xcrun simctl` 命令
+  - Autonomy loop 闭环（test → fail → agent fix → retest）
+
+#### 🟢 P2（锦上添花）
+
+- `mobile-code-review-pro`（clawhub score 3.205）
+- `mobile-master`（clawhub score 3.054）
+- `e2e-testing-patterns`（clawhub score 3.584）
+
+---
+
+### 四、Autoresearch 思路 → iOS 开发流程映射
+
+**核心类比**：
+
+| Rilo Analysis（Web） | iOS App |
+|---------------------|---------|
+| 可执行测试（jest/playwright） | XCTest + 可执行验收标准 |
+| Smoke test | xcodebuild build 验证 |
+| Visual regression | Fastlane Snapshot 比对 |
+| Builder agent（Codex ACP） | Claude Code + Xcode 26.3 Agentic |
+| Reflection loop | CI 失败 → 自动诊断 → agent fix → re-run |
+
+**iOS 版 Autoresearch Loop**：
+
+```
+Phase 1: Setup
+  - 写 acceptance tests（XCTest 格式 + 自然语言描述）
+  - 运行一次，确认当前 FAIL
+  - XcodeGen 配置到位（agent 可以运行测试）
+
+Phase 2: Experiment Loop
+  FOR each feature:
+    hypothesis → implement → xcodebuild test → score → reflect
+    IF FAIL 是因为实现错了 → Agent 自动修复
+    IF FAIL 是因为假设错了 → 修复测试
+    IF PASS → KEEP，继续下一功能
+
+Phase 3: CI/CD 闭环
+  GitHub Actions:
+    push → xcodebuild test → 截图比对
+    → FAIL → Devin / Xcode Agent 自动修复 → re-run
+    → PASS → 合并到 main
+```
+
+---
+
+### 五、Skill 安装优先级清单
+
+```bash
+# 立即通过 clawhub 安装
+clawhub install mobile-appium-test      # iOS UI 自动化 P0
+clawhub install mobile-code-review-pro  # iOS 代码审查 P1
+clawhub install ci-cd                   # CI/CD 基础 P1
+clawhub install e2e-testing-patterns    # 测试模式 P2
+
+# 需要自建（详细设计后交给 coding-agent 实现）
+# new: xcodegen-fastlane-skill         # P0 项目初始化
+# new: test-first-acceptance-skill     # P0 验收驱动开发
+# new: ios-visual-regression-skill     # P1 截图比对
+# new: github-actions-ios-skill        # P1 CI/CD
+```
+
+---
+
+### 六、完整 Autonomous iOS 开发流程（目标状态）
+
+```
+① PRD / 需求定义
+   ↓ (autoresearch: 写验收测试 + 确认 FAIL)
+② 验收标准 → XCTest
+   ↓ (XcodeGen project.yml)
+③ 项目初始化 XcodeGen + CocoaPods/SPM + Fastlane
+   ↓
+④ Claude Code / Xcode 26.3 Agent 实现功能
+   ↓ (autoresearch loop)
+⑤ xcodebuild test + XCTest
+   ↓ FAIL → Agent 自动 fix → re-run
+   ↓ PASS → 继续
+⑥ Fastlane Snapshot 截图 + Visual diff
+⑦ Appium UI 测试（跨端，自动化）
+⑧ GitHub Actions CI（build + test + 截图 + code sign）
+⑨ Fastlane Beta → TestFlight
+⑩ TestFlight 灰度（人工验收节点）
+⑪ Fastlane App Store → App Store Connect
+⑫ 发布完成 + 监控
+
+每个 FAIL 都触发：
+  ├→ 测试写错了 → 修复测试
+  ├→ 实现错了   → Agent 自动修复
+  ├→ 环境问题   → 修复环境后重跑
+  └→ 人工必须   → 通知人工介入（唯一阻塞点）
+```
+
+---
+
+### 七、用户决策路径
+
+**路径 A（最快见效）：优先填 P0 缺口
+  1. 安装 `mobile-appium-test` skill
+  2. 自建 `test-first-acceptance-skill`（基于 Rilo 经验）
+  3. 在当前 iOS 项目上试运行 autonomy loop
+
+**路径 B（系统完整）：搭建 iOS CI/CD
+  1. 安装 `ci-cd` + 自建 `github-actions-ios-skill`
+  2. 搭建 XcodeGen + Fastlane 基础设施
+  3. 配置 GitHub Actions 自动测试 pipeline
+  4. 配置 Fastlane match for code signing
+  5. 配置 TestFlight 自动发布
+
+**路径 C（工具链完整）：全覆盖
+  = 路径 A + 路径 B + P1/P2 所有 skill 安装
+
+*文档版本：1.1 | 新增 iOS 完整开发流程 + Skill 缺口分析 + Xcode 26.3 Agentic | 2026-03-28*
