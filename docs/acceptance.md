@@ -32,11 +32,12 @@
 - [x] Settings 标题下方能看到一行「Hover 教程」提示 ✅ (`95d7902`)
 
 ### C1. Inspector / Drawer（三层）
-- [x] Inspector 继续保持 Drawer 形态,而不是常驻右栏 ✅ (T11/T12; `1e376f7` 修复默认常开问题)
+- [x] Inspector 继续保持 Drawer 形态,而不是常驻右栏 ✅ (`1e376f7` 修复默认常开)
 - [x] Drawer 默认关闭，点击「打开说明面板」或 Term「查看更多」才滑入 ✅ (`1e376f7`)
-- [x] Drawer 内包含：过程 / 术语（结论 tab 已移除）✅ (T12)
-- [x] 切到「过程」可看到完整公式与明细（不缺项）✅ (T12)
-- [x] 切到「术语」可看到术语解释（ADR/Occ/RevPAR/Rooms/Days 等）✅ (T7)
+- [x] Drawer 内容为 accordion 展开/折叠（过程+术语各为独立可展开 section）✅ (`7ebd8a1`)
+- [x] 过程 section 展开可看到完整公式与明细 ✅ (T12; `7ebd8a1`)
+- [x] 术语 section 展开可看到术语解释（ADR/Occ/RevPAR/Rooms/Days 等）✅ (T7)
+- [x] 无 tab 切换，所有 section 共存于同一视图 ✅ (`7ebd8a1`)
 
 ### C2. 指标解释入口一致性
 - [ ] Settings / Overview / Analysis 顶部不再出现"术语解释"按钮(需人工确认顶部无此按钮)
