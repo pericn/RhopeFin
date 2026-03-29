@@ -257,9 +257,10 @@
       inspectorOpen,
       setInspectorOpen,
       toggleInspector: () => setInspectorOpen((open) => !open),
-      openGlossary: (termKey) => {
+      openGlossary: (termKey, section) => {
         if (!inspectorOpen) setInspectorOpen(true);
         if (termKey) setSelectedTerm(termKey);
+        // InspectorPanel's useEffect will auto-open glossary section when selectedTerm changes
       }
     }), [inspectorOpen, mergedGlossaryTerms, selectedTerm]);
 
@@ -318,6 +319,23 @@
   window.RiloUI.useInspector = useInspector;
   window.RiloUI.InspectorContext = InspectorContext;
   window.RiloUI.Term = Term;
+
+  // 打开术语抽屉（被 Term 组件的"查看更多"调用）
+  // inspectorMode='drawer' 时，跳过 HoverPopover，直接打开 Inspector 面板
+  window.RiloUI.openDefinitionsDrawer = (termKey, section) => {
+    const api = window.RiloUI.activeInspectorApi;
+    if (api?.openGlossary) {
+      api.openGlossary(termKey, section);
+    }
+  };
+
+  // 关闭术语抽屉
+  window.RiloUI.closeDefinitionsDrawer = () => {
+    const api = window.RiloUI.activeInspectorApi;
+    if (api?.setInspectorOpen) {
+      api.setInspectorOpen(false);
+    }
+  };
 
   // 简单的卡片容器组件（用于统一卡片样式）
   const Card = ({ title, children, className = "", collapsible = false }) => {
