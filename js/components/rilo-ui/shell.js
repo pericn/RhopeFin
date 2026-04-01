@@ -6,6 +6,21 @@
   // 确保 RiloUI 命名空间存在
   window.RiloUI = window.RiloUI || {};
 
+  const ChevronIcon = ({ isOpen, className = '' }) => React.createElement('svg', {
+    width: 14,
+    height: 14,
+    viewBox: '0 0 16 16',
+    fill: 'none',
+    'aria-hidden': 'true',
+    className: `transition-transform duration-200 ${isOpen ? 'rotate-180' : ''} ${className}`.trim()
+  }, React.createElement('path', {
+    d: 'M4 6.5L8 10l4-3.5',
+    stroke: 'currentColor',
+    strokeWidth: '1.6',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round'
+  }));
+
   const toGlossaryDomId = (termKey) => `glossary-${encodeURIComponent(String(termKey || '').trim())}`;
 
   const InspectorContext = React.createContext(null);
@@ -161,8 +176,7 @@
         className: 'w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[var(--rilo-surface-1)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15'
       }, [
         React.createElement('span', { key: 't', className: 'text-sm font-medium text-[var(--rilo-text-1)]' }, title),
-        React.createElement('span', { key: 'icon', className: `text-[var(--rilo-text-3)] transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}` },
-          '▾')
+        React.createElement(ChevronIcon, { key: 'icon', isOpen, className: 'text-[var(--rilo-text-3)]' })
       ]),
       isOpen && React.createElement('div', { key: 'body', className: 'px-4 pb-4' }, children)
     ]);
