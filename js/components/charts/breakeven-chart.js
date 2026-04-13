@@ -3,9 +3,7 @@
 window.BreakevenChart = (function() {
 
   const BreakevenChart = ({ calculations, currency = "¥" }) => {
-    if (!calculations) return null;
-
-    const revenue = calculations.revenue?.total || 0;
+    const revenue = calculations?.revenue?.total || 0;
     const cost = calculations.cost?.total || 0;
     const maxValue = Math.max(revenue, cost);
     
@@ -107,7 +105,7 @@ window.BreakevenChart = (function() {
           React.createElement('div', {
             key: 'indicator',
             className: `text-sm font-medium ${isProfitable ? 'text-green-600' : 'text-red-600'}`
-          }, isProfitable ? '✅ 已实现盈利' : '❌ 暂未盈利'),
+          }, isProfitable ? '已实现盈利' : '暂未盈利'),
           isProfitable && React.createElement('div', {
             key: 'profit',
             className: 'text-xs text-gray-600 mt-1'

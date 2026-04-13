@@ -35,7 +35,7 @@
       React.createElement('h2', {
         key: 'title',
         className: 'text-xl font-bold text-gray-800'
-      }, '🎯 情景分析预测'),
+      }, '情景分析预测'),
 
       React.createElement(window.ScenarioParameters.ScenarioParameters, {
         key: 'parameters',

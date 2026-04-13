@@ -78,7 +78,7 @@ window.CustomInvestmentManager = (function() {
         React.createElement('h3', {
           key: 'title',
           className: 'text-lg font-semibold text-purple-800'
-        }, '🏗️ 自定义投资项目'),
+        }, '自定义投资项目'),
         React.createElement(window.UIComponents.Button, {
           key: 'add-btn',
           onClick: addInvestment,
@@ -110,7 +110,7 @@ window.CustomInvestmentManager = (function() {
               className: 'text-red-500 hover:text-red-700',
               onClick: () => removeInvestment(index),
               title: '删除投资项目'
-            }, '✕')
+            }, 'X')
           ]),
 
           // 输入元件行 - 固定间距，指定输入框尺寸

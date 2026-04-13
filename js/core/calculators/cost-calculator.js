@@ -38,8 +38,8 @@ window.CostCalculator = (function() {
       };
     }
 
-    // 固定成本计算
-    calculateFixedCost(data, medicalRevenue) {
+    // 固定成本计算（HQ费按总收入计提）
+    calculateFixedCost(data, totalRevenue) {
       if (!data?.basic || !data?.cost?.fixed) {
         return {
           rent: 0, property: 0, staff: 0, cleaning: 0, hqFee: 0, custom: 0, total: 0,
@@ -56,13 +56,14 @@ window.CostCalculator = (function() {
       const staffSalaryPerMonth = isNaN(data.cost.fixed.staffSalaryPerMonth) ? 0 : (data.cost.fixed.staffSalaryPerMonth || 0);
       const cleaningOtherFixed = isNaN(data.cost.fixed.cleaningOtherFixed) ? 0 : (data.cost.fixed.cleaningOtherFixed || 0);
       const hqFeePctOfRevenue = isNaN(data.cost.fixed.hqFeePctOfRevenue) ? 0 : (data.cost.fixed.hqFeePctOfRevenue || 0);
-      const medicalRev = isNaN(medicalRevenue) ? 0 : (medicalRevenue || 0);
+      // HQ费计提基数：总收入（按决策：不再以医疗收入为基数）
+      const totalRevenueBase = isNaN(totalRevenue) ? 0 : (totalRevenue || 0);
 
       const rent = ((areaSqm * rentPerSqmPerDay * daysPerYear) || 0);
       const property = ((areaSqm * propertyPerSqmPerMonth * 12) || 0);
       const staff = ((staffCount * staffSalaryPerMonth * 12) || 0);
       const cleaning = cleaningOtherFixed || 0;
-      const hqFee = (((medicalRev * hqFeePctOfRevenue) / 100) || 0);
+      const hqFee = (((totalRevenueBase * hqFeePctOfRevenue) / 100) || 0);
       const custom = this.calculateCustomFixedCost(data.cost.custom || []) || 0;
 
       const total = (rent + property + staff + cleaning + hqFee + custom) || 0;
@@ -88,7 +89,7 @@ window.CostCalculator = (function() {
     calculateCOGS(data, revenue) {
       if (!data?.cost?.margins) {
         return {
-          members: 0, boarding: 0, medical: 0, retail: 0, cafe: 0,
+          member: 0, boarding: 0, medical: 0, retail: 0, cafe: 0,
           custom: 0, total: 0, margins: {}
         };
       }
@@ -231,6 +232,11 @@ window.CostCalculator = (function() {
           title: '人工成本',
           formula: '员工数 × 月薪 × 12',
           calculation: `${data.cost?.fixed?.staffCount || 0} × ${data.cost?.fixed?.staffSalaryPerMonth || 0} × 12`
+        },
+        hqFee: {
+          title: '总部管理费',
+          formula: '按总收入计提：总收入 × 管理费率%',
+          calculation: `总收入 × ${data.cost?.fixed?.hqFeePctOfRevenue || 0}%`
         }
       };
     }
@@ -238,7 +244,7 @@ window.CostCalculator = (function() {
     // 获取变动成本公式显示
     getVariableCostFormulas(data) {
       return {
-        members: {
+        member: {
           title: '会员变动成本',
           formula: '会员收入 × (100% - 毛利率%)',
           calculation: `收入 × (100% - ${data.cost?.margins?.members || 0}%)`
@@ -259,7 +265,7 @@ window.CostCalculator = (function() {
     // 获取业务成本(COGS)公式显示
     getCOGSFormulas(data) {
       return {
-        members: {
+        member: {
           title: '会员业务成本',
           formula: '会员收入 × (100 - 会员毛利率) / 100',
           calculation: `¥{memberRevenue} × (100 - ${data?.cost?.margins?.members || 0}%) / 100`

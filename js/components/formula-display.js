@@ -117,7 +117,7 @@ window.FormulaDisplay = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2'
-        }, '📈 核心指标'),
+        }, '核心指标'),
         
         calculations && React.createElement(FormulaItem, {
           key: 'revenue',
@@ -199,7 +199,7 @@ window.FormulaDisplay = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2'
-        }, '📊 附加指标'),
+        }, '附加指标'),
         
         data.basic?.daysPerYear > 0 && calculations && React.createElement(FormulaItem, {
           key: 'daily-revenue',
@@ -243,7 +243,7 @@ window.FormulaDisplay = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2'
-        }, '💰 收入明细计算'),
+        }, '收入明细计算'),
         
         React.createElement(FormulaItem, {
           key: 'member',
@@ -294,7 +294,7 @@ window.FormulaDisplay = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2'
-        }, '📋 业务成本(COGS)计算'),
+        }, '业务成本(COGS)计算'),
         
         React.createElement(FormulaItem, {
           key: 'member-cogs',
@@ -345,7 +345,7 @@ window.FormulaDisplay = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2'
-        }, '💸 运营成本计算'),
+        }, '运营成本计算'),
         
         React.createElement(FormulaItem, {
           key: 'rent',
@@ -390,7 +390,7 @@ window.FormulaDisplay = (function() {
         React.createElement('h4', {
           key: 'title',
           className: 'text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2'
-        }, '⚡ 投资回报分析'),
+        }, '投资回报分析'),
         
         calculations && data.basic?.areaSqm > 0 && React.createElement(FormulaItem, {
           key: 'roi',

@@ -8,7 +8,7 @@ window.ScenarioInsights = (function() {
     const insights = generateInsights(calculations, currency);
 
     return React.createElement(window.UIComponents.Section, {
-      title: '💡 情景分析洞察'
+      title: '情景分析洞察'
     }, [
       insights.length === 0 && React.createElement('div', {
         key: 'no-insights',
@@ -19,38 +19,11 @@ window.ScenarioInsights = (function() {
         key: 'insights',
         className: 'space-y-4'
       }, insights.map((insight, index) => 
-        React.createElement(InsightCard, {
+        React.createElement(window.RiloUI.InsightCard, {
           key: index,
           insight: insight
         })
       ))
-    ]);
-  };
-
-  // 洞察卡片组件
-  const InsightCard = ({ insight }) => {
-    const colorClasses = getInsightColorClasses();
-
-    return React.createElement('div', {
-      className: `border rounded-lg p-4 ${colorClasses[insight.type]}`
-    }, [
-      React.createElement('div', {
-        key: 'header',
-        className: 'flex items-center gap-2 mb-2'
-      }, [
-        React.createElement('span', {
-          key: 'icon',
-          className: 'text-lg'
-        }, insight.icon),
-        React.createElement('h5', {
-          key: 'title',
-          className: 'font-medium'
-        }, insight.title)
-      ]),
-      React.createElement('p', {
-        key: 'content',
-        className: 'text-sm'
-      }, insight.content)
     ]);
   };
 
@@ -111,7 +84,7 @@ window.ScenarioInsights = (function() {
         type: 'positive',
         title: '乐观收益潜力',
         content: `乐观情况下可额外获得${currency}${data.optimisticUpside.toLocaleString()}收益，增幅${upsidePercent}%`,
-        icon: '🚀'
+        icon: ''
       });
     }
 
@@ -130,7 +103,7 @@ window.ScenarioInsights = (function() {
         type: 'warning',
         title: '保守风险敞口',
         content: `保守情况下可能损失${currency}${data.conservativeDownside.toLocaleString()}收益，降幅${downsidePercent}%`,
-        icon: '⚠️'
+        icon: ''
       });
     }
 
@@ -149,21 +122,21 @@ window.ScenarioInsights = (function() {
         type: 'positive',
         title: '盈利稳定性高',
         content: '所有情景下均能实现盈利，业务模型具有较强抗风险能力',
-        icon: '💪'
+        icon: ''
       });
     } else if (allLoss) {
       insights.push({
         type: 'negative',
         title: '需要优化模型',
         content: '所有情景下均存在亏损，建议重新评估收入和成本结构',
-        icon: '🔄'
+        icon: ''
       });
     } else {
       insights.push({
         type: 'info',
         title: '盈利能力波动较大',
         content: '不同情景下盈利能力差异明显，需要关注关键风险因素',
-        icon: '📊'
+        icon: ''
       });
     }
 
@@ -182,28 +155,20 @@ window.ScenarioInsights = (function() {
           type: 'positive',
           title: '回本周期稳定',
           content: `各情景回本周期差异较小(${paybackRange.toFixed(1)}年)，投资风险可控`,
-          icon: '⏰'
+          icon: ''
         });
       } else {
         insights.push({
           type: 'warning',
           title: '回本周期波动大',
           content: `各情景回本周期相差${paybackRange.toFixed(1)}年，需要谨慎评估投资风险`,
-          icon: '⏱️'
+          icon: ''
         });
       }
     }
 
     return insights;
   };
-
-  // 获取洞察颜色类
-  const getInsightColorClasses = () => ({
-    positive: 'bg-green-50 border-green-200 text-green-800',
-    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    negative: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800'
-  });
 
   // 计算关键指标
   const calculateKeyMetrics = (calculations) => {
@@ -243,7 +208,6 @@ window.ScenarioInsights = (function() {
 
   return {
     ScenarioInsights,
-    InsightCard,
     generateInsights,
     extractAnalysisData,
     calculateKeyMetrics,

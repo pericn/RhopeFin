@@ -8,7 +8,7 @@ window.ScenarioChart = (function() {
     const chartData = buildChartData(calculations);
 
     return React.createElement(window.UIComponents.Section, {
-      title: '📊 情景分析图表',
+      title: '情景分析图表',
       className: 'col-span-full'
     }, [
       React.createElement('div', {
@@ -221,15 +221,9 @@ window.ScenarioChart = (function() {
     return JSON.stringify(chartData, null, 2);
   };
 
-  return {
-    ScenarioChart,
-    ProfitChart,
-    MarginChart,
-    ProfitBar,
-    MarginBar,
-    buildChartData,
-    generateChartSummary,
-    exportChartData
-  };
+  // 保留 components/charts/scenario-chart.js 中已注册的 ScenarioComparisonChart
+  const _existing = window.ScenarioChart || {};
+  Object.assign(_existing, { ScenarioChart, ProfitChart, buildChartData, generateChartSummary, exportChartData });
+  return _existing;
 
 })();

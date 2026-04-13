@@ -2,7 +2,7 @@
 window.UIComponents = (function() {
 
   // 通用输入组件
-  const Input = ({ label, value, onChange, type = "number", step = 1, suffix = "", hint = "", required = false, format = "decimal" }) => {
+  const Input = ({ label, value, onChange, type = "number", step = 1, suffix = "", hint = "", required = false, format = "decimal", width = null, className = "" }) => {
     const [inputValue, setInputValue] = React.useState('');
     const [isEditing, setIsEditing] = React.useState(false);
 
@@ -49,16 +49,17 @@ window.UIComponents = (function() {
     };
 
     return React.createElement('div', {
-      className: 'flex flex-col gap-1'
+      className: `flex flex-col gap-1 ${className}`.trim(),
+      style: width ? { width } : undefined
     }, [
       React.createElement('label', {
         key: 'label',
-        className: `text-sm text-gray-600 ${required ? 'font-medium' : ''}`
+        className: `text-sm text-[var(--rilo-text-2)] ${required ? 'font-medium' : ''}`
       }, [
         label,
         required && React.createElement('span', {
           key: 'required',
-          className: 'text-red-500 ml-1'
+          className: 'text-[var(--rilo-sem-danger)] ml-1'
         }, '*')
       ]),
       React.createElement('div', {
@@ -68,7 +69,7 @@ window.UIComponents = (function() {
         React.createElement('input', {
           key: 'input',
           type: type,
-          className: `px-3 py-2 rounded-xl border w-full ${required && !value ? 'border-red-300' : 'border-gray-300'} focus:border-blue-500 focus:outline-none`,
+          className: `px-3 py-2.5 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] placeholder-[var(--rilo-text-3)] ${required && !value ? 'border-[var(--rilo-sem-danger)]' : 'border-[var(--rilo-border-deep)]'} focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15`,
           value: inputValue,
           step: step,
           onChange: (e) => {
@@ -81,12 +82,12 @@ window.UIComponents = (function() {
         }),
         suffix && React.createElement('span', {
           key: 'suffix',
-          className: 'absolute right-3 top-2 text-gray-400 text-sm'
+          className: 'absolute right-3 top-2 text-sm text-[var(--rilo-text-3)]'
         }, suffix)
       ]),
       hint && React.createElement('div', {
         key: 'hint',
-        className: 'text-xs text-gray-400'
+        className: 'text-xs text-[var(--rilo-text-3)]'
       }, hint)
     ]);
   };
@@ -104,11 +105,11 @@ window.UIComponents = (function() {
     }, [
       React.createElement('label', {
         key: 'label',
-        className: 'text-sm text-gray-600'
+        className: 'text-sm text-[var(--rilo-text-2)]'
       }, label),
       React.createElement('textarea', {
         key: 'textarea',
-        className: 'px-3 py-2 rounded-xl border w-full resize-none focus:border-blue-500 focus:outline-none',
+        className: 'px-3 py-2.5 rounded-xl border w-full resize-none bg-[var(--rilo-surface-1)] border-[var(--rilo-border-deep)] text-[var(--rilo-text-1)] shadow-[var(--rilo-shadow-soft)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15',
         rows: rows,
         value: textValue,
         placeholder: placeholder,
@@ -125,11 +126,11 @@ window.UIComponents = (function() {
     }, [
       React.createElement('label', {
         key: 'label',
-        className: 'text-sm text-gray-600'
+        className: 'text-sm text-[var(--rilo-text-2)]'
       }, label),
       React.createElement('select', {
         key: 'select',
-        className: 'px-3 py-2 rounded-xl border w-full focus:border-blue-500 focus:outline-none',
+        className: 'px-3 py-2.5 rounded-xl border w-full bg-[var(--rilo-surface-1)] text-[var(--rilo-text-1)] border-[var(--rilo-border-deep)] shadow-[var(--rilo-shadow-soft)] focus:border-[var(--rilo-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15',
         value: value,
         onChange: (e) => onChange(e.target.value)
       }, options.map(option => 
@@ -140,7 +141,7 @@ window.UIComponents = (function() {
       )),
       hint && React.createElement('div', {
         key: 'hint',
-        className: 'text-xs text-gray-400'
+        className: 'text-xs text-[var(--rilo-text-3)]'
       }, hint)
     ]);
   };
@@ -150,23 +151,27 @@ window.UIComponents = (function() {
     const [isCollapsed, setIsCollapsed] = React.useState(false);
 
     return React.createElement('div', {
-      className: `bg-white rounded-2xl shadow p-4 lg:p-6 ${className}`
+      className: `rilo-ledger-panel rounded-[var(--radius-lg)] border border-[var(--rilo-border-deep)] p-4 lg:p-6 ${className}`
     }, [
       React.createElement('div', {
         key: 'header',
-        className: 'flex items-center justify-between mb-4'
+        className: 'flex items-center justify-between mb-5 border-b border-[var(--line)] pb-4'
       }, [
         React.createElement('div', {
           key: 'title-section',
-          className: 'flex items-center gap-2'
+          className: 'flex items-center gap-3'
         }, [
+          React.createElement('span', {
+            key: 'index',
+            className: 'text-[11px] uppercase tracking-[0.24em] text-[var(--rilo-text-3)]'
+          }, 'Section'),
           React.createElement('h2', {
             key: 'title',
-            className: 'text-lg font-semibold'
+            className: 'text-lg font-semibold tracking-[var(--rilo-tracking-tight-cn)] text-[var(--rilo-text-1)]'
           }, title),
           collapsible && React.createElement('button', {
             key: 'toggle',
-            className: 'text-gray-400 hover:text-gray-600 transition-colors',
+            className: 'text-[var(--rilo-text-3)] hover:text-[var(--rilo-accent)] transition-colors',
             onClick: () => setIsCollapsed(!isCollapsed)
           }, isCollapsed ? '▶' : '▼')
         ]),
@@ -174,23 +179,38 @@ window.UIComponents = (function() {
       ]),
       !isCollapsed && React.createElement('div', {
         key: 'content',
-        className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
+        className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5'
       }, children)
     ]);
   };
 
   // KPI指标显示组件
-  const KPI = ({ title, value, color = "blue", size = "normal", change = null, format = null }) => {
+  const KPI = ({ title, value, color = "info", size = "normal", change = null, changeLabel = null, format = null, suffix = "" }) => {
+    const semanticTone = {
+      success: {
+        card: 'bg-[var(--rilo-value-success-soft)] border-[var(--rilo-value-success-border)]',
+        value: 'text-[var(--rilo-value-success)]',
+        glow: 'rgba(93, 138, 100, 0.34)'
+      },
+      danger: {
+        card: 'bg-[var(--rilo-value-danger-soft)] border-[var(--rilo-value-danger-border)]',
+        value: 'text-[var(--rilo-value-danger)]',
+        glow: 'rgba(154, 100, 92, 0.32)'
+      },
+      warning: {
+        card: 'bg-[var(--rilo-value-warning-soft)] border-[var(--rilo-value-warning-border)]',
+        value: 'text-[var(--rilo-value-warning)]',
+        glow: 'rgba(154, 116, 70, 0.32)'
+      },
+      info: {
+        card: 'bg-[var(--rilo-value-info-soft)] border-[var(--rilo-value-info-border)]',
+        value: 'text-[var(--rilo-value-info)]',
+        glow: 'rgba(88, 111, 140, 0.32)'
+      }
+    };
+
     const getColorClasses = (color) => {
-      const colors = {
-        blue: 'bg-blue-50 text-blue-600 border-blue-200',
-        green: 'bg-green-50 text-green-600 border-green-200',
-        red: 'bg-red-50 text-red-600 border-red-200',
-        orange: 'bg-orange-50 text-orange-600 border-orange-200',
-        purple: 'bg-purple-50 text-purple-600 border-purple-200',
-        gray: 'bg-gray-50 text-gray-600 border-gray-200'
-      };
-      return colors[color] || colors.blue;
+      return semanticTone[color]?.card || semanticTone.info.card;
     };
 
     const formatValue = (val) => {
@@ -204,21 +224,45 @@ window.UIComponents = (function() {
       return val;
     };
 
+    const formattedValue = formatValue(value);
+    const resolvedTone = semanticTone[color] || semanticTone.info;
+    const showSuffix = suffix && typeof formattedValue === 'string' && !formattedValue.includes(suffix);
+    const hasChange = changeLabel !== null || change !== null;
+    const changeTone = change > 0
+      ? 'bg-[var(--rilo-value-success-soft)] text-[var(--rilo-value-success)]'
+      : change < 0
+        ? 'bg-[var(--rilo-value-danger-soft)] text-[var(--rilo-value-danger)]'
+        : 'bg-[rgba(34,31,26,0.08)] text-[var(--rilo-text-2)]';
+    const resolvedChangeLabel = changeLabel || (change !== null
+      ? `${change > 0 ? '+' : ''}${change.toFixed(1)}%`
+      : null);
+
     return React.createElement('div', {
-      className: `${getColorClasses(color)} rounded-xl p-4 border ${size === 'large' ? 'col-span-2' : ''}`
+      className: `${getColorClasses(color)} rilo-kpi-strong rounded-[var(--radius-md)] p-4 border relative overflow-hidden ${size === 'large' ? 'col-span-2' : ''}`
     }, [
       React.createElement('div', {
+        key: 'glow',
+        className: 'pointer-events-none absolute inset-x-0 top-0 h-px',
+        style: { background: `linear-gradient(90deg, transparent, ${resolvedTone.glow}, transparent)` }
+      }),
+      React.createElement('div', {
         key: 'title',
-        className: 'text-xs text-gray-600 mb-1'
+        className: 'pr-10 text-[11px] uppercase tracking-[0.22em] text-[var(--rilo-text-3)] mb-3'
       }, title),
       React.createElement('div', {
         key: 'value',
-        className: `font-bold ${size === 'large' ? 'text-2xl' : 'text-lg'}`
-      }, formatValue(value)),
-      change && React.createElement('div', {
+        className: `font-bold ${size === 'large' ? 'text-[2.1rem]' : 'text-[1.55rem]'} tracking-[-0.05em] ${resolvedTone.value} leading-[1.02]`
+      }, [
+        React.createElement('span', { key: 'main' }, formattedValue),
+        showSuffix && React.createElement('span', {
+          key: 'suffix',
+          className: `ml-1.5 text-sm font-medium tracking-normal ${resolvedTone.value} opacity-80`
+        }, suffix)
+      ]),
+      hasChange && React.createElement('div', {
         key: 'change',
-        className: `text-xs mt-1 ${change > 0 ? 'text-green-600' : 'text-red-600'}`
-      }, `${change > 0 ? '+' : ''}${change.toFixed(1)}%`)
+        className: `mt-3 inline-flex min-h-[28px] items-center rounded-full px-2.5 text-xs font-medium ${changeTone}`
+      }, resolvedChangeLabel)
     ]);
   };
 
@@ -226,26 +270,27 @@ window.UIComponents = (function() {
   const Button = ({ children, onClick, variant = 'primary', size = 'normal', disabled = false, className = "" }) => {
     const getVariantClasses = (variant) => {
       const variants = {
-        primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-        secondary: 'bg-gray-600 hover:bg-gray-700 text-white',
-        success: 'bg-green-600 hover:bg-green-700 text-white',
-        danger: 'bg-red-600 hover:bg-red-700 text-white',
-        outline: 'border border-blue-600 text-blue-600 hover:bg-blue-50'
+        primary: 'border border-[rgba(86,101,125,0.18)] bg-[rgba(86,101,125,0.92)] text-[#f7f2ea] hover:-translate-y-px hover:bg-[rgba(86,101,125,0.98)]',
+        secondary: 'border border-[rgba(34,31,26,0.11)] bg-[rgba(255,255,255,0.62)] text-[var(--rilo-text-1)] hover:-translate-y-px hover:border-[var(--rilo-border-strong)] hover:bg-[var(--rilo-surface-muted)]',
+        success: 'border border-[rgba(118,139,118,0.18)] bg-[rgba(118,139,118,0.92)] text-[#f7f2ea] hover:-translate-y-px',
+        danger: 'border border-[rgba(141,117,111,0.18)] bg-[rgba(141,117,111,0.92)] text-[#f7f2ea] hover:-translate-y-px',
+        outline: 'rilo-btn-soft hover:-translate-y-px',
+        ghost: 'border border-transparent bg-transparent text-[var(--rilo-text-2)] hover:bg-[rgba(255,255,255,0.36)] hover:text-[var(--rilo-text-1)]'
       };
       return variants[variant] || variants.primary;
     };
 
     const getSizeClasses = (size) => {
       const sizes = {
-        small: 'px-3 py-1 text-sm',
-        normal: 'px-4 py-2',
-        large: 'px-6 py-3 text-lg'
+        small: 'min-h-[36px] px-3.5 py-1.5 text-sm',
+        normal: 'min-h-[42px] px-4.5 py-2.5 text-sm',
+        large: 'min-h-[48px] px-6 py-3 text-lg'
       };
       return sizes[size] || sizes.normal;
     };
 
     return React.createElement('button', {
-      className: `${getVariantClasses(variant)} ${getSizeClasses(size)} rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`,
+      className: `${getVariantClasses(variant)} ${getSizeClasses(size)} rounded-[14px] font-medium tracking-[0.01em] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[var(--rilo-accent)]/15 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 ${className}`,
       onClick: disabled ? null : onClick,
       disabled: disabled
     }, children);
@@ -254,7 +299,7 @@ window.UIComponents = (function() {
   // 页签组件
   const Tabs = ({ tabs, activeTab, onTabChange, className = "" }) => {
     return React.createElement('div', {
-      className: `border-b border-gray-200 ${className}`
+      className: `border-b border-[var(--rilo-border-deep)] ${className}`
     }, 
       React.createElement('nav', {
         className: 'flex space-x-8'
@@ -263,8 +308,8 @@ window.UIComponents = (function() {
           key: tab.id,
           className: `py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
             activeTab === tab.id
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ? 'border-[var(--rilo-accent)] text-[var(--rilo-accent)]'
+              : `border-transparent text-[var(--rilo-text-3)] hover:text-[var(--rilo-text-1)] hover:border-[var(--rilo-border-deep)]`
           }`,
           onClick: () => onTabChange(tab.id)
         }, [
@@ -324,7 +369,7 @@ window.UIComponents = (function() {
                 key: 'close',
                 className: 'text-gray-400 hover:text-gray-600',
                 onClick: onClose
-              }, '✕')
+              }, 'X')
             ])
           ]),
           React.createElement('div', {
@@ -339,27 +384,50 @@ window.UIComponents = (function() {
   // 工具提示组件
   const Tooltip = ({ children, content, position = 'top' }) => {
     const [isVisible, setIsVisible] = React.useState(false);
+    const triggerRef = React.useRef(null);
+    const [tooltipStyle, setTooltipStyle] = React.useState(null);
 
-    const getPositionClasses = (position) => {
-      const positions = {
-        top: 'bottom-full left-1/2 transform -translate-x-1/2 mb-2',
-        bottom: 'top-full left-1/2 transform -translate-x-1/2 mt-2',
-        left: 'right-full top-1/2 transform -translate-y-1/2 mr-2',
-        right: 'left-full top-1/2 transform -translate-y-1/2 ml-2'
+    const updateTooltipStyle = React.useCallback(() => {
+      if (!triggerRef.current || typeof window === 'undefined') return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const width = Math.min(280, Math.max(200, window.innerWidth - 24));
+      const baseLeft = rect.left + (rect.width / 2) - (width / 2);
+      const left = Math.min(Math.max(12, baseLeft), Math.max(12, window.innerWidth - width - 12));
+      const top = position === 'bottom'
+        ? rect.bottom + 10
+        : rect.top - 10;
+      const translatedTop = position === 'bottom'
+        ? top
+        : Math.max(12, top - 44);
+      setTooltipStyle({ left: `${left}px`, top: `${translatedTop}px`, width: `${width}px` });
+    }, [position]);
+
+    React.useEffect(() => {
+      if (!isVisible) return undefined;
+      updateTooltipStyle();
+      window.addEventListener('resize', updateTooltipStyle);
+      window.addEventListener('scroll', updateTooltipStyle, true);
+      return () => {
+        window.removeEventListener('resize', updateTooltipStyle);
+        window.removeEventListener('scroll', updateTooltipStyle, true);
       };
-      return positions[position] || positions.top;
-    };
+    }, [isVisible, updateTooltipStyle]);
+
+    const tooltipContent = isVisible && React.createElement('div', {
+      key: 'tooltip',
+      className: 'fixed z-[1200] rounded-lg border border-[rgba(34,31,26,0.14)] bg-[rgba(34,31,26,0.96)] px-3 py-2 text-sm text-[rgba(247,242,234,0.96)] shadow-[0_16px_36px_rgba(34,31,26,0.28)]',
+      style: tooltipStyle || undefined
+    }, content);
 
     return React.createElement('div', {
+      ref: triggerRef,
       className: 'relative inline-block',
       onMouseEnter: () => setIsVisible(true),
       onMouseLeave: () => setIsVisible(false)
     }, [
       children,
-      isVisible && React.createElement('div', {
-        key: 'tooltip',
-        className: `absolute z-10 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg ${getPositionClasses(position)}`
-      }, content)
+      // BUGFIX-4: Tooltip 改为 fixed + portal，避免 hover 浮层被父容器 overflow 裁切且背景发虚。
+      tooltipContent && ReactDOM.createPortal(tooltipContent, document.body)
     ]);
   };
 

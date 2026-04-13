@@ -28,7 +28,7 @@ window.BreakevenAnalysis = (function() {
       React.createElement('h2', {
         key: 'title',
         className: 'text-xl font-bold text-gray-800'
-      }, '⚖️ 盈亏平衡分析'),
+      }, '盈亏平衡分析'),
 
       // 关键指标概览
       React.createElement('div', {

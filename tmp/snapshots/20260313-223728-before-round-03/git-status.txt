@@ -1,0 +1,18 @@
+## feat/hf-ui-s2-swarm
+ M js/core/calculators/cost-calculator.js
+?? docs/acceptance.md
+?? docs/agent.md
+?? docs/continuity-mechanism.md
+?? docs/decision-log.md
+?? docs/execution-plan.md
+?? docs/implementation-map.md
+?? docs/prd.md
+?? docs/refactor-task-breakdown.md
+?? docs/review.md
+?? docs/round-baton.md
+?? docs/spec.md
+?? docs/ui-guidelines.md
+?? docs/ux.md
+?? docs/worklog.md
+?? scripts/
+?? tmp/

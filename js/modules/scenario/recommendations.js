@@ -8,7 +8,7 @@ window.ScenarioRecommendations = (function() {
     const recommendations = generateRecommendations(calculations, currency);
 
     return React.createElement(window.UIComponents.Section, {
-      title: '📋 经营建议'
+      title: '经营建议'
     }, [
       recommendations.length === 0 && React.createElement('div', {
         key: 'no-recommendations',
@@ -19,42 +19,11 @@ window.ScenarioRecommendations = (function() {
         key: 'recommendations',
         className: 'space-y-4'
       }, recommendations.map((rec, index) => 
-        React.createElement(RecommendationCard, {
+        React.createElement(window.RiloUI.RecommendationCard, {
           key: index,
           recommendation: rec
         })
       ))
-    ]);
-  };
-
-  // 建议卡片组件
-  const RecommendationCard = ({ recommendation }) => {
-    const priorityColors = getPriorityColorClasses();
-
-    return React.createElement('div', {
-      className: `border rounded-lg p-4 ${priorityColors[recommendation.priority]}`
-    }, [
-      React.createElement('div', {
-        key: 'header',
-        className: 'flex items-center gap-2 mb-2'
-      }, [
-        React.createElement('span', {
-          key: 'icon',
-          className: 'text-lg'
-        }, recommendation.icon),
-        React.createElement('h5', {
-          key: 'title',
-          className: 'font-medium'
-        }, recommendation.title),
-        React.createElement('span', {
-          key: 'priority',
-          className: `text-xs px-2 py-1 rounded-full font-medium ${getPriorityBadgeClass(recommendation.priority)}`
-        }, getPriorityLabel(recommendation.priority))
-      ]),
-      React.createElement('div', {
-        key: 'content',
-        className: 'text-sm whitespace-pre-line'
-      }, recommendation.content)
     ]);
   };
 
@@ -105,7 +74,7 @@ window.ScenarioRecommendations = (function() {
         priority: 'high',
         title: '提高抗风险能力',
         content: '保守情况下出现亏损，建议：\n1. 降低固定成本\n2. 提高收入稳定性\n3. 增加多元化收入来源\n4. 建立现金流缓冲\n5. 制定应急预案',
-        icon: '🛡️'
+        icon: ''
       });
     }
 
@@ -114,7 +83,7 @@ window.ScenarioRecommendations = (function() {
         priority: 'high',
         title: '紧急业务调整',
         content: '所有情景均亏损，紧急建议：\n1. 重新评估商业模式\n2. 大幅降低成本结构\n3. 寻找新的收入来源\n4. 考虑业务转型\n5. 评估退出策略',
-        icon: '🚨'
+        icon: ''
       });
     }
 
@@ -130,7 +99,7 @@ window.ScenarioRecommendations = (function() {
         priority: 'medium',
         title: '把握增长机会',
         content: '乐观情况下收益显著提升，建议：\n1. 制定收入增长计划\n2. 投资营销推广\n3. 扩大业务规模\n4. 提升服务质量\n5. 开拓新市场',
-        icon: '📈'
+        icon: ''
       });
     }
 
@@ -139,7 +108,7 @@ window.ScenarioRecommendations = (function() {
         priority: 'medium',
         title: '利润率优化',
         content: '利润率提升潜力较大，建议：\n1. 优化成本结构\n2. 提高定价策略\n3. 改善运营效率\n4. 投资自动化\n5. 强化供应链管理',
-        icon: '⚡'
+        icon: ''
       });
     }
 
@@ -155,7 +124,7 @@ window.ScenarioRecommendations = (function() {
         priority: 'low',
         title: '优化经营效率',
         content: '所有情景均盈利，可考虑：\n1. 提升服务质量\n2. 探索新业务模式\n3. 建立竞争优势\n4. 投资技术升级\n5. 培养团队能力',
-        icon: '⭐'
+        icon: ''
       });
     }
 
@@ -164,7 +133,7 @@ window.ScenarioRecommendations = (function() {
         priority: 'medium',
         title: '稳定盈利能力',
         content: '盈利波动较大，建议：\n1. 分析关键风险因素\n2. 建立预警机制\n3. 制定情景应对策略\n4. 提高业务韧性\n5. 加强财务管控',
-        icon: '⚖️'
+        icon: ''
       });
     }
 
@@ -176,27 +145,6 @@ window.ScenarioRecommendations = (function() {
     const priorityOrder = { high: 1, medium: 2, low: 3 };
     return recommendations.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
   };
-
-  // 获取优先级颜色类
-  const getPriorityColorClasses = () => ({
-    high: 'bg-red-50 border-red-200 text-red-800',
-    medium: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-    low: 'bg-blue-50 border-blue-200 text-blue-800'
-  });
-
-  // 获取优先级徽章类
-  const getPriorityBadgeClass = (priority) => ({
-    high: 'bg-red-100',
-    medium: 'bg-yellow-100',
-    low: 'bg-blue-100'
-  }[priority]);
-
-  // 获取优先级标签
-  const getPriorityLabel = (priority) => ({
-    high: '高优先级',
-    medium: '中优先级',
-    low: '低优先级'
-  }[priority]);
 
   // 生成行动计划
   const generateActionPlan = (calculations, currency) => {
@@ -232,7 +180,6 @@ window.ScenarioRecommendations = (function() {
 
   return {
     ScenarioRecommendations,
-    RecommendationCard,
     generateRecommendations,
     generateActionPlan,
     assessImplementationImpact,

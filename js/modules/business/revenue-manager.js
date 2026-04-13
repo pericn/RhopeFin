@@ -127,7 +127,7 @@ window.CustomRevenueManager = (function() {
         React.createElement('h3', {
           key: 'title',
           className: 'text-lg font-semibold text-green-800'
-        }, '💰 自定义收入模块'),
+        }, '自定义收入模块'),
         React.createElement(window.UIComponents.Button, {
           key: 'add-btn',
           onClick: addModule,
@@ -144,7 +144,7 @@ window.CustomRevenueManager = (function() {
         React.createElement('div', {
           key: 'icon',
           className: 'text-4xl mb-2'
-        }, '📊'),
+        }, ''),
         React.createElement('div', {
           key: 'text'
         }, '暂无自定义收入模块，点击上方按钮添加')

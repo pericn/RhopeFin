@@ -1,0 +1,202 @@
+# Worklog — Rilo Analysis Rebuild
+
+## 2026-03-13 22:08 GMT+8
+### 收到问题
+- 用户要求进入正式执行阶段。
+- 要求：由 Cody 负责协调，核心开发工具使用 codex-cli。
+- 要求：全过程记录、任务拆细、每 5 分钟观察一次、API 变慢及时快照。
+
+### 开始解决
+- 已完成 docs 全量阅读与多角色分析收敛。
+- 已把用户拍板内容固化到：
+  - `docs/decision-log.md`
+  - `docs/execution-plan.md`
+
+### 当前状态
+- doing：执行前收敛
+- next：启动 codex-cli 主执行线，做第一轮结构重构前的仓库梳理与改造计划
+
+### 风险
+- 仓库中 docs/ 与 scripts/ 当前仍是未提交状态，说明上下文仍有丢失风险。
+- 需要尽快把执行痕迹与关键改动纳入版本控制。
+
+---
+
+## 五分钟节拍模板
+- 时间：
+- 当前子任务：
+- 状态：doing / blocked / done
+- 风险 / 阻塞：
+- 下一步：
+- 是否快照：yes / no
+
+## 2026-03-13 22:18 GMT+8
+### 里程碑
+- 统一 HQ 费用口径展示为“按总收入计提”，并在成本计算内部将相关变量命名明确为 total revenue 基数。
+- 新增 `docs/implementation-map.md`，梳理参数页/概览/敏感度/定义说明/共享壳层/脚本。
+
+## 2026-03-13 22:25 GMT+8
+- 时间：2026-03-13 22:25 GMT+8
+- 当前子任务：输出细粒度任务拆解文档（docs/refactor-task-breakdown.md），并识别下一最小代码补丁
+- 状态：done
+- 风险 / 阻塞：无（保持范围收敛，暂不触及页面代码）
+- 下一步：在概览页加入极小 TODO 注释以锚定 RevPAR 次级指标位置；或新增术语登记占位文件（不影响现有行为）
+- 是否快照：no
+
+## 2026-03-13 22:36 GMT+8
+- 时间：2026-03-13 22:36 GMT+8
+- 当前子任务：建立不中断执行机制（baton + round script + snapshot）
+- 状态：done
+- 风险 / 阻塞：后续需要严格用小轮次运行，避免 prompt 过大
+- 下一步：使用 scripts/codex_round.sh 启动概览页第一轮最小 patch
+- 是否快照：yes
+
+## 2026-03-13 22:37 GMT+8
+- 时间：2026-03-13 22:37 GMT+8
+- 当前子任务：Round 03 - 概览页骨架与结果区重排
+- 状态：doing
+- 风险 / 阻塞：待观察
+- 下一步：执行本轮 Codex patch
+- 是否快照：no
+
+## 2026-03-13 22:39 GMT+8
+- 时间：2026-03-13 22:39 GMT+8
+- 当前子任务：概览页最小补丁（结果区第一步：成本前置 + RevPAR TODO）
+- 状态：done
+- 风险 / 阻塞：无（未触及敏感度页与共享组件）
+- 下一步：评审 diff；下一轮实现 RevPAR 次级指标与 Inspector 细化
+- 是否快照：no
+- 时间：2026-03-13 22:40 GMT+8
+- 当前子任务：Round 03 - 概览页骨架与结果区重排
+- 状态：done
+- 风险 / 阻塞：退出码 0
+- 下一步：查看 tmp/codex-rounds/round-20260313-223741.log 与 docs/round-baton.md，决定下一轮
+- 是否快照：no
+
+## 2026-03-13 22:49 GMT+8
+- 时间：2026-03-13 22:49 GMT+8
+- 当前子任务：进入最后一小时冲刺模式（1 builder + 5 support subagents）
+- 状态：doing
+- 风险 / 阻塞：需要严格保持文件改动边界，避免并行写冲突
+- 下一步：主线先做参数配置页第一轮实改；support lanes 并行出精确建议
+- 是否快照：no
+
+## 2026-03-13 22:49 GMT+8
+- 时间：2026-03-13 22:49 GMT+8
+- 当前子任务：Round 04 - 参数配置页第一轮实改
+- 状态：doing
+- 风险 / 阻塞：待观察
+- 下一步：执行本轮 Codex patch
+- 是否快照：no
+
+## 2026-03-13 22:56 GMT+8
+- 时间：2026-03-13 22:56 GMT+8
+- 当前子任务：参数配置页第一轮最小可审阅 patch（插入“基础结果”+ 保持参数不折叠）
+- 状态：done
+- 风险 / 阻塞：无（仅插入结果区与轻量注释，不触及敏感度页/定义系统）
+- 下一步：评审 UI 与拦截边界值（入住率 0–100 及一位小数）
+- 是否快照：no
+- 时间：2026-03-13 22:52 GMT+8
+- 当前子任务：Round 04 - 参数配置页第一轮实改
+- 状态：done
+- 风险 / 阻塞：退出码 0
+- 下一步：查看 tmp/codex-rounds/round-20260313-224953.log 与 docs/round-baton.md，决定下一轮
+- 是否快照：no
+
+## 2026-03-13 23:01 GMT+8
+- 时间：2026-03-13 23:01 GMT+8
+- 当前子任务：Gateway 重启后恢复执行；进入 Round 05（敏感度分析页 correctness patch）
+- 状态：doing
+- 风险 / 阻塞：严格只修 analysis 页读取路径，不扩大范围
+- 下一步：执行 Round 05
+- 是否快照：no
+
+## 2026-03-13 23:00 GMT+8
+- 时间：2026-03-13 23:00 GMT+8
+- 当前子任务：Round 05 - 敏感度分析页正确性补丁
+- 状态：doing
+- 风险 / 阻塞：待观察
+- 下一步：执行本轮 Codex patch
+- 是否快照：no
+
+## 2026-03-13 23:05 GMT+8
+- 时间：2026-03-13 23:05 GMT+8
+- 当前子任务：Round 05 - 修正综合毛利率读取路径＋副标题微调＋TODO 注释
+- 状态：done
+- 风险 / 阻塞：无（未触及 calculator 主链路 / createModifiedData / getParamValue）
+- 下一步：在页面中验证切换至“综合毛利率”指标时数值不为 0 且随参数变化；准备合并
+- 是否快照：no
+- 时间：2026-03-13 23:03 GMT+8
+- 当前子任务：Round 05 - 敏感度分析页正确性补丁
+- 状态：done
+- 风险 / 阻塞：退出码 0
+- 下一步：查看 tmp/codex-rounds/round-20260313-230055.log 与 docs/round-baton.md，决定下一轮
+- 是否快照：no
+
+## 2026-03-13 23:35 GMT+8
+- 时间：2026-03-13 23:35 GMT+8
+- 当前子任务：合并 swarm 结果回主线（settings / overview / analysis / visual-plan）
+- 状态：done
+- 风险 / 阻塞：需要立刻跑 review gate，防止多线改动带来边界问题
+- 下一步：git add 后执行 scripts/review_codex.sh staged
+- 是否快照：no
+
+## 2026-03-13 23:36 GMT+8
+- 时间：2026-03-13 23:36 GMT+8
+- 当前子任务：修复 review gate 脚本与当前 codex CLI 参数兼容性
+- 状态：done
+- 风险 / 阻塞：无；已去除过时参数 -a never
+- 下一步：重跑 scripts/review_codex.sh staged
+- 是否快照：no
+
+## 2026-03-13 23:40 GMT+8
+- 时间：2026-03-13 23:40 GMT+8
+- 当前子任务：review gate 通过，进入最终固化
+- 状态：done
+- 风险 / 阻塞：review 提示仅有一个低优先级脚本建议，不阻塞交付
+- 下一步：commit 当前主线改动，并继续做最后快验
+- 是否快照：yes
+
+## 2026-03-13 23:42 GMT+8
+- 时间：2026-03-13 23:42 GMT+8
+- 当前子任务：切换到 1 分钟主动播报模式
+- 状态：done
+- 风险 / 阻塞：当前环境无独立 cron/心跳调度工具，无法真正注册系统级每分钟定时器
+- 下一步：以后每一轮/每个 blocker 主动播报；轮次目标压缩到 <=60 秒
+- 是否快照：no
+
+## 2026-03-13 23:49 GMT+8
+- 时间：2026-03-13 23:49 GMT+8
+- 当前子任务：OpenClaw/Gateway 中断后恢复继续；执行最后快验
+- 状态：doing
+- 风险 / 阻塞：无硬 blocker；当前以 smoke + staged review + 文件快验为主
+- 下一步：输出最终交付状态
+- 是否快照：no
+
+## 2026-03-16 23:12 GMT+8
+- 时间：2026-03-16 23:12 GMT+8
+- 当前子任务：UI 交互收口 + 术语体系/Inspector 统一
+- 状态：doing
+- 已完成：共享壳层/DefinitionsDrawer/Term Registry 落地；Overview/Analysis/Settings 术语入口与 hover 链路补齐；Phase 1 KPI 与 RevPAR 落地；review gate 加固；smoke 通过
+- 风险 / 阻塞：review gate 产出不稳定；深色主题残留 class 未清；入住率双通道输入未收口；系统性改名与文档同步未完成
+- 下一步：清理 tmp review 产物 → 稳定 review verdict → 手动验收 hover/Inspector → 同步文档
+- 是否快照：no
+
+## 2026-03-19 11:18 GMT+8
+- 时间：2026-03-19 11:18 GMT+8
+- 当前子任务：prototype 方向纠偏（v4 → v5）
+- 状态：doing
+- 已确认：v4 视觉方向过度偏向 editorial 展示，牺牲了 dashboard 功能感与信息密度，不符合“形式 follow 功能”的要求
+- 本轮调整：新增 `prototypes/rilo-ledger-dashboard-v5-cn.html`，保留 KPI / 参数账本 / 敏感度 / 场景表 / Inspector 骨架；弱化强结论文案占位；提升图形表达；以 Rilo 蓝作为主 accent，并扩展和谐辅色盘
+- 风险 / 阻塞：这仍是静态 prototype，真实代码页还需继续把输入控件、深色残留与文档同步收口
+- 下一步：以 v5 作为新的 prototype 基线，继续把真实页面实现向该方向收敛
+- 是否快照：no
+
+## 2026-03-19 11:31 GMT+8
+- 时间：2026-03-19 11:31 GMT+8
+- 当前子任务：将 v5 从单长页改成多页面切换原型
+- 状态：doing
+- 已调整：增加顶部页签切换与左侧导航联动；Overview / Settings / Analysis 改为独立 page panel；Settings 页补充明确的控件清单（Basic / Member / Boarding / Medical / Retail / Cost & Investment）
+- 风险 / 阻塞：目前仍是静态交互原型，未接真实 calculator 与数据状态
+- 下一步：继续把真实代码页结构与 v5 的分页信息架构对齐
+- 是否快照：no

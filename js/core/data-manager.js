@@ -1,5 +1,21 @@
 // 数据管理模块 - 负责数据结构定义、localStorage操作和数据状态管理
 class DataManager {
+  normalizeValueByPath(path, value) {
+    if (typeof value !== 'number' || !isFinite(value)) return value;
+
+    switch (path) {
+      case 'revenue.boarding.occ':
+        return Math.min(100, Math.max(0, Math.round(value * 10) / 10));
+      case 'basic.daysPerYear':
+      case 'revenue.boarding.rooms':
+      case 'revenue.member.count':
+      case 'cost.fixed.staffCount':
+        return Math.max(0, Math.round(value));
+      default:
+        return value;
+    }
+  }
+
   constructor() {
     this.storageKey = 'hopefulFinanceData';
     this.listeners = [];
@@ -10,7 +26,7 @@ class DataManager {
     return {
       basic: {
         currency: "¥",
-        projectName: "Hopeful 宠物综合体（示例）",
+        projectName: "Rilo Analysis 示例",
         areaSqm: 300,
         daysPerYear: 365
       },
@@ -83,6 +99,14 @@ class DataManager {
         custom: [] // 自定义成本模块
       },
 
+      // Cross-module business assumptions (used for marketing efficiency / unit economics)
+      assumptions: {
+        // Customer Acquisition Cost: cost to acquire one paying customer (or one new member)
+        cac: 300,
+        // Lifetime Value: expected gross contribution (or revenue) per customer over the lifetime
+        ltv: 6000
+      },
+
       scenario: {
         optimisticRevenueFactor: 120,
         conservativeRevenueFactor: 80,
@@ -101,7 +125,7 @@ class DataManager {
         
         // 调试：记录原始保存的项目名称
         if (window.DEBUG_MODE || true) { // 临时启用调试
-          console.log('📂 加载原始数据 - 项目名称:', parsedData?.basic?.projectName);
+          console.log('加载原始数据 - 项目名称:', parsedData?.basic?.projectName);
         }
         
         // 合并保存的数据和默认数据，确保新字段不丢失
@@ -109,7 +133,7 @@ class DataManager {
         
         // 调试：记录合并后的项目名称
         if (window.DEBUG_MODE || true) {
-          console.log('🔀 合并后数据 - 项目名称:', mergedData?.basic?.projectName);
+          console.log('合并后数据 - 项目名称:', mergedData?.basic?.projectName);
         }
         
         // 验证和清理数据，确保不包含NaN值
@@ -117,7 +141,7 @@ class DataManager {
         
         // 调试：记录清理后的项目名称
         if (window.DEBUG_MODE || true) {
-          console.log('🧹 清理后数据 - 项目名称:', cleanedData?.basic?.projectName);
+          console.log('清理后数据 - 项目名称:', cleanedData?.basic?.projectName);
         }
         
         return cleanedData;
@@ -130,7 +154,7 @@ class DataManager {
     
     // 调试：记录初始数据的项目名称
     if (window.DEBUG_MODE || true) {
-      console.log('🎬 初始数据 - 项目名称:', initialData?.basic?.projectName);
+      console.log('初始数据 - 项目名称:', initialData?.basic?.projectName);
     }
     
     return initialData;
@@ -144,7 +168,7 @@ class DataManager {
       
       // 调试：记录项目名称保存情况
       if (window.DEBUG_MODE || true) { // 临时启用调试
-        console.log('📝 保存数据 - 项目名称:', cleanData?.basic?.projectName);
+        console.log('保存数据 - 项目名称:', cleanData?.basic?.projectName);
       }
       
       localStorage.setItem(this.storageKey, JSON.stringify(cleanData));
@@ -195,7 +219,7 @@ class DataManager {
   // 更新数据路径 - 安全地更新嵌套对象属性
   updateDataPath(originalData, path, newValue) {
     // 只对数值类型进行NaN检查，保持字符串原样
-    const cleanValue = (typeof newValue === 'number' && isNaN(newValue)) ? 0 : newValue;
+    const cleanValue = (typeof newValue === 'number' && isNaN(newValue)) ? 0 : this.normalizeValueByPath(path, newValue);
     
     if (!path || typeof path !== 'string') {
       console.warn('Invalid path for data update:', path);
@@ -264,7 +288,7 @@ class DataManager {
       ...this.getInitialData(),
       basic: {
         ...this.getInitialData().basic,
-        projectName: "Hopeful 宠物综合体（预设示例）"
+        projectName: "Rilo Analysis 预设示例"
       }
     };
     
@@ -329,6 +353,20 @@ class DataManager {
     };
     
     cleanRecursive(cleanData);
+
+    cleanData.basic = cleanData.basic || {};
+    cleanData.revenue = cleanData.revenue || {};
+    cleanData.revenue.member = cleanData.revenue.member || {};
+    cleanData.revenue.boarding = cleanData.revenue.boarding || {};
+    cleanData.cost = cleanData.cost || {};
+    cleanData.cost.fixed = cleanData.cost.fixed || {};
+
+    cleanData.basic.daysPerYear = this.normalizeValueByPath('basic.daysPerYear', cleanData.basic.daysPerYear || 0);
+    cleanData.revenue.boarding.rooms = this.normalizeValueByPath('revenue.boarding.rooms', cleanData.revenue.boarding.rooms || 0);
+    cleanData.revenue.boarding.occ = this.normalizeValueByPath('revenue.boarding.occ', cleanData.revenue.boarding.occ || 0);
+    cleanData.revenue.member.count = this.normalizeValueByPath('revenue.member.count', cleanData.revenue.member.count || 0);
+    cleanData.cost.fixed.staffCount = this.normalizeValueByPath('cost.fixed.staffCount', cleanData.cost.fixed.staffCount || 0);
+
     return cleanData;
   }
 

@@ -18,6 +18,8 @@ window.UIComponents = (function() {
   const {
     Input: AntInput,
     InputNumber,
+    Select: AntSelect,
+    Slider: AntSlider,
     Button: AntButton,
     Card,
     Tabs,
@@ -73,6 +75,7 @@ window.UIComponents = (function() {
       
       type === 'number' ? React.createElement(InputNumber, {
         key: 'input',
+        className: 'rilo-token-control',
         value: value,
         onChange: onChange,
         step: step,
@@ -82,6 +85,7 @@ window.UIComponents = (function() {
         status: required && !value ? 'error' : undefined
       }) : React.createElement(AntInput, {
         key: 'input',
+        className: 'rilo-token-control',
         value: value,
         onChange: (e) => onChange(e.target.value),
         suffix: suffix,
@@ -96,6 +100,57 @@ window.UIComponents = (function() {
       }, hint)
     ]);
   };
+
+  const SelectComponent = ({ label, value, onChange, options = [], hint = "", width = "100%", placeholder = "" }) => React.createElement(Space, {
+    direction: 'vertical',
+    size: 4,
+    style: { width }
+  }, [
+    label && React.createElement(Text, {
+      key: 'label',
+      strong: true
+    }, label),
+    // BUGFIX-6: 为 Settings 暴露统一 token 化的 Select/Slider 封装，保证与 InputNumber 共用同一套视觉基线。
+    React.createElement(AntSelect, {
+      key: 'select',
+      className: 'rilo-token-control',
+      value,
+      onChange,
+      placeholder,
+      style: { width: '100%' },
+      options
+    }),
+    hint && React.createElement(Text, {
+      key: 'hint',
+      type: 'secondary',
+      style: { fontSize: 12 }
+    }, hint)
+  ]);
+
+  const SliderComponent = ({ label, value = 0, onChange, min = 0, max = 100, step = 1, hint = "", width = "100%" }) => React.createElement(Space, {
+    direction: 'vertical',
+    size: 6,
+    style: { width }
+  }, [
+    label && React.createElement(Text, {
+      key: 'label',
+      strong: true
+    }, label),
+    React.createElement(AntSlider, {
+      key: 'slider',
+      className: 'rilo-token-slider',
+      value,
+      onChange,
+      min,
+      max,
+      step
+    }),
+    hint && React.createElement(Text, {
+      key: 'hint',
+      type: 'secondary',
+      style: { fontSize: 12 }
+    }, hint)
+  ]);
 
   // 文本域组件 - 包装 Ant Design Input.TextArea
   const TextArea = ({ label, value, onChange, placeholder = "", rows = 3 }) => {
@@ -160,24 +215,48 @@ window.UIComponents = (function() {
   // 关键指标组件 - 使用 Ant Design Statistic
   const KPI = ({ title, value, prefix = "", suffix = "", trend = null, color = "default", className = "" }) => {
     const colorMap = {
-      'success': '#52c41a',
-      'danger': '#ff4d4f',
-      'warning': '#faad14',
-      'info': '#1890ff',
-      'default': '#000000'
+      'success': 'var(--rilo-value-success)',
+      'danger': 'var(--rilo-value-danger)',
+      'warning': 'var(--rilo-value-warning)',
+      'info': 'var(--rilo-value-info)',
+      'default': 'var(--rilo-text-1)'
+    };
+
+    const surfaceMap = {
+      'success': 'rgba(244, 247, 242, 0.9)',
+      'danger': 'rgba(248, 243, 242, 0.9)',
+      'warning': 'rgba(247, 244, 239, 0.9)',
+      'info': 'rgba(242, 245, 247, 0.9)',
+      'default': 'rgba(247, 243, 237, 0.9)'
     };
 
     return React.createElement(Card, {
       className: className,
-      style: { textAlign: 'center' }
+      style: {
+        textAlign: 'left',
+        background: surfaceMap[color] || surfaceMap.default,
+        borderColor: 'rgba(34, 31, 26, 0.08)',
+        boxShadow: 'var(--rilo-shadow-soft)'
+      }
     }, [
       React.createElement(Statistic, {
         key: 'statistic',
-        title: title,
+        title: React.createElement('span', {
+          style: {
+            color: 'var(--rilo-text-3)',
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase'
+          }
+        }, title),
         value: value,
         prefix: prefix,
         suffix: suffix,
-        valueStyle: { color: colorMap[color] }
+        valueStyle: {
+          color: colorMap[color],
+          fontWeight: 650,
+          letterSpacing: '-0.03em'
+        }
       }),
       
       trend && React.createElement(Space, {
@@ -186,7 +265,9 @@ window.UIComponents = (function() {
       }, [
         React.createElement('span', {
           key: 'trend-icon',
-          style: { color: trend > 0 ? '#52c41a' : trend < 0 ? '#ff4d4f' : '#999' }
+          style: {
+            color: trend > 0 ? 'var(--rilo-value-success)' : trend < 0 ? 'var(--rilo-value-danger)' : 'var(--rilo-text-3)'
+          }
         }, trend > 0 ? '↗' : trend < 0 ? '↘' : '→'),
         React.createElement(Text, {
           key: 'trend-text',
@@ -319,6 +400,8 @@ window.UIComponents = (function() {
   // 导出所有组件
   return {
     Input,
+    Select: SelectComponent,
+    Slider: SliderComponent,
     TextArea,
     Button,
     Section,
@@ -349,9 +432,49 @@ window.UIComponents = (function() {
         // locale: antd.locale.zhCN, // 暂时禁用，需要正确的 v5 locale 导入方式
         theme: {
           token: {
-            colorPrimary: '#1890ff',
-            borderRadius: 8,
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+            // v5 视觉系统
+            colorPrimary: 'var(--rilo-accent-v5, #221C8B)',
+            colorInfo: 'var(--rilo-accent-v5, #221C8B)',
+            colorSuccess: 'var(--emerald, #2f7d67)',
+            colorWarning: 'var(--amber, #b78128)',
+            colorError: 'var(--brick, #9d5b4b)',
+            borderRadius: 12,
+            fontFamily: 'var(--font-sans, "Noto Sans SC", "PingFang SC", sans-serif)'
+          },
+          components: {
+            Button: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Input: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            InputNumber: {
+              borderRadius: 12,
+              borderWidth: 1,
+              controlWidth: '100%'
+            },
+            Select: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Slider: {
+              trackBg: 'var(--rilo-accent-v5, #56657d)',
+              trackHoverBg: 'var(--rilo-accent-v5, #56657d)',
+              railBg: 'rgba(34, 31, 26, 0.10)',
+              railHoverBg: 'rgba(34, 31, 26, 0.14)',
+              handleColor: 'var(--rilo-accent-v5, #56657d)',
+              handleActiveColor: 'var(--rilo-accent-v5, #56657d)'
+            },
+            Card: {
+              borderRadiusLG: 22,
+              borderRadius: 16,
+              boxShadow: 'var(--shadow-v5, 0 8px 24px rgba(0,0,0,0.12))'
+            },
+            Tabs: {
+              borderRadius: 12
+            }
           }
         }
       }, children);

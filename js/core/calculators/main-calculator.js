@@ -60,7 +60,7 @@ window.MainCalculator = (function() {
             total: isNaN(cost.variable.total) ? 0 : cost.variable.total
           },
           cogs: {
-            members: isNaN(cost.cogs.members) ? 0 : cost.cogs.members,
+            members: isNaN(cost.cogs.member) ? 0 : cost.cogs.member,
             boarding: isNaN(cost.cogs.boarding) ? 0 : cost.cogs.boarding,
             medical: isNaN(cost.cogs.medical) ? 0 : cost.cogs.medical,
             retail: isNaN(cost.cogs.retail) ? 0 : cost.cogs.retail,

@@ -1,0 +1,42 @@
+{
+  "previewUrl": "http://127.0.0.1:4173/index.html",
+  "pageOrder": [
+    "overview",
+    "settings",
+    "analysis"
+  ],
+  "viewports": [
+    "desktop",
+    "mobile"
+  ],
+  "generatedAt": "2026-03-25T00:27:03.554Z",
+  "screenshots": [
+    "artifacts/visual/current/desktop/overview.png",
+    "artifacts/visual/current/desktop/settings.png",
+    "artifacts/visual/current/desktop/analysis.png",
+    "artifacts/visual/current/desktop/glossary-drawer.png",
+    "artifacts/visual/current/mobile/overview.png",
+    "artifacts/visual/current/mobile/settings.png",
+    "artifacts/visual/current/mobile/analysis.png",
+    "artifacts/visual/current/mobile/glossary-drawer.png"
+  ],
+  "consoleErrors": [],
+  "pageErrors": [
+    {
+      "viewport": "desktop",
+      "text": "Unexpected token '{'"
+    },
+    {
+      "viewport": "desktop",
+      "text": "Unexpected token '{'"
+    },
+    {
+      "viewport": "mobile",
+      "text": "Unexpected token '{'"
+    },
+    {
+      "viewport": "mobile",
+      "text": "Unexpected token '{'"
+    }
+  ]
+}

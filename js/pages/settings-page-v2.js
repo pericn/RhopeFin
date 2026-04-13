@@ -1,129 +1,129 @@
-// 参数设置页面 v2.0 - 左右双栏布局，使用模块化组件
+// 参数设置页面 v2.1 - 紧凑双栏编辑布局
 window.SettingsPage = (function() {
+  const h = React.createElement;
 
-  // 主设置页面组件 - 左右双栏布局
+  const CATEGORIES = [
+    { key: 'basic', label: '基础设置', note: '面积与营业节奏' },
+    { key: 'investment', label: '投资参数', note: '装修与一次性投入' },
+    { key: 'cost', label: '成本参数', note: '固定与变动支出' },
+    { key: 'revenue', label: '收入参数', note: '房量与客单价' }
+  ];
+
   const SettingsPage = ({ data, updateData, formulaEngine }) => {
-    return React.createElement('div', {
-      className: 'space-y-6'
-    }, [
-      // 基础设置 - 占据100%宽度
-      React.createElement(window.BasicSettings.BasicSettings, {
+    const [activeCategory, setActiveCategory] = React.useState('basic');
+
+    let calculations = null;
+    if (window.MainCalculator && formulaEngine) {
+      try {
+        const calculator = new window.MainCalculator(formulaEngine);
+        calculations = calculator.calculate(data);
+      } catch (error) {
+        console.warn('基础结果计算失败', error);
+      }
+    }
+
+    const glossaryTerms = {
+      fitout: { title: '装修标准', body: '每平米装修投入标准，直接影响初始投资额与回本周期。' }
+    };
+
+    const editorSurface = h('div', { className: 'settings-form' }, [
+      activeCategory === 'basic' && h(window.BasicSettings.BasicSettings, {
         key: 'basic-settings',
-        data: data,
-        updateData: updateData
+        data,
+        updateData
       }),
+      activeCategory === 'investment' && h(window.InvestmentSettings.InvestmentSettings, {
+        key: 'investment-settings',
+        data,
+        updateData
+      }),
+      activeCategory === 'cost' && h(window.CostSettings.CostSettings, {
+        key: 'cost-settings',
+        data,
+        updateData,
+        formulaEngine
+      }),
+      activeCategory === 'revenue' && h(window.RevenueSettings.RevenueSettings, {
+        key: 'revenue-settings',
+        data,
+        updateData,
+        formulaEngine
+      }),
+    ]);
 
-      // 左右双栏布局 (3:2)
-      React.createElement(window.UIComponents.Row, {
-        key: 'main-content',
-        gutter: [24, 24]
-      }, [
-        // 左栏：投资设置 + 成本设置 + 收入设置 (3/5宽度)
-        React.createElement(window.UIComponents.Col, {
-          key: 'left-column',
-          xs: 24,
-          lg: 14
-        }, React.createElement(window.UIComponents.Space, {
-          direction: 'vertical',
-          size: 'large',
-          style: { width: '100%' }
-        }, [
-          // 投资设置
-          React.createElement(window.InvestmentSettings.InvestmentSettings, {
-            key: 'investment-settings',
-            data: data,
-            updateData: updateData
-          }),
+    const left = h('div', { className: 'space-y-4 lg:space-y-5 rilo-zh-page' }, [
+      h(SettingsGlossaryHeader, {
+        key: 'settings-header'
+      }),
+      h('div', { key: 'settings-layout', className: 'settings-layout settings-layout--reset settings-layout--adaptive' }, [
+        h('aside', { key: 'settings-sidebar', className: 'settings-sidebar' }, [
+          h('div', { key: 'sidebar-card', className: 'settings-sidebar-card' }, [
+            h('nav', { key: 'settings-nav', className: 'settings-cat-nav', 'aria-label': '参数分组' },
+              CATEGORIES.map((category, index) => h('button', {
+                key: category.key,
+                type: 'button',
+                className: `cat-item ${activeCategory === category.key ? 'active' : ''}`,
+                onClick: () => setActiveCategory(category.key)
+              }, [
+                h('span', { key: 'index', className: 'cat-item-index' }, `${index + 1}`.padStart(2, '0')),
+                h('span', { key: 'copy', className: 'cat-item-copy' }, [
+                  h('span', { key: 'label', className: 'cat-item-label' }, category.label),
+                  h('span', { key: 'note', className: 'cat-item-note' }, category.note)
+                ]),
+                h('span', { key: 'dot', className: 'cat-item-dot' })
+              ]))
+            )
+          ])
+        ]),
+        h('section', { key: 'editor', className: 'settings-editor' }, [
+          h('div', { key: 'editor-head', className: 'settings-editor-header' }, [
+            h('h2', { key: 'title', className: 'settings-editor-title rilo-section-title' }, CATEGORIES.find(item => item.key === activeCategory)?.label || '参数配置')
+          ]),
+          editorSurface
+        ])
+      ])
+    ]);
 
-          // 成本设置
-          React.createElement(window.CostSettings.CostSettings, {
-            key: 'cost-settings',
-            data: data,
-            updateData: updateData,
-            formulaEngine: formulaEngine
-          }),
+    const process = h('div', { className: 'space-y-3 rilo-zh-page' }, [
+      h('div', { key: 'panel', className: 'bg-[var(--rilo-surface-2)] rounded-2xl p-4 border border-[var(--rilo-border-deep)]' }, [
+        h('h3', { key: 'title', className: 'text-sm font-semibold text-[var(--rilo-text-1)] mb-2' }, '计算公式'),
+        h(window.FormulaDisplay.FormulaDisplay, {
+          key: 'formula-display-component',
+          data,
+          formulaEngine
+        })
+      ])
+    ]);
 
-          // 收入设置
-          React.createElement(window.RevenueSettings.RevenueSettings, {
-            key: 'revenue-settings',
-            data: data,
-            updateData: updateData,
-            formulaEngine: formulaEngine
-          })
-        ])),
+    const mainContent = window.RiloUI?.TwoPaneLayout
+      ? h(window.RiloUI.TwoPaneLayout, {
+          leftTitle: null,
+          left,
+          inspectorTitle: '经营设置',
+          conclusion: null,
+          process,
+          glossaryTerms
+        })
+      : left;
 
-        // 右栏：计算数据和公式显示 (2/5宽度)
-        React.createElement(window.UIComponents.Col, {
-          key: 'right-column',
-          xs: 24,
-          lg: 10
-        }, React.createElement('div', {
-          key: 'formula-display',
-          className: 'bg-gray-50 rounded-2xl p-4 border border-gray-200'
-        }, [
-          React.createElement('h3', {
-            key: 'title',
-            className: 'text-md font-semibold text-gray-700 mb-3'
-          }, '📊 计算公式与数据'),
-          React.createElement(window.FormulaDisplay.FormulaDisplay, {
-            key: 'formula-display-component',
-            data: data,
-            formulaEngine: formulaEngine
-          })
-        ]))
-      ]),
+    return h(React.Fragment, null, mainContent);
+  };
 
-      // 底部工具栏
-      React.createElement('div', {
-        key: 'bottom-toolbar',
-        className: 'mt-8 pt-6 border-t border-gray-200'
-      }, [
-        React.createElement(window.UIComponents.Row, {
-          key: 'toolbar-row',
-          justify: 'space-between',
-          align: 'middle'
-        }, [
-          React.createElement(window.UIComponents.Col, {
-            key: 'help-col'
-          }, React.createElement(window.CustomModules.FormulaHelpPanel, {
-            formulaEngine: formulaEngine
-          })),
-
-          React.createElement(window.UIComponents.Col, {
-            key: 'actions-col'
-          }, React.createElement(window.UIComponents.Space, null, [
-            React.createElement(window.UIComponents.Button, {
-              key: 'preset-btn',
-              onClick: () => {
-                if (window.dataManager) {
-                  const presetData = window.dataManager.applyPreset();
-                  // 保留用户的项目名称
-                  const preservedProjectName = data?.basic?.projectName;
-                  if (preservedProjectName && preservedProjectName !== "Hopeful 宠物综合体（示例）") {
-                    presetData.basic.projectName = preservedProjectName;
-                  }
-                  updateData(presetData);
-                }
-              }
-            }, '📋 套用预设参数'),
-
-            React.createElement(window.UIComponents.Button, {
-              key: 'export-btn',
-              onClick: () => {
-                if (window.dataManager) {
-                  window.dataManager.exportData(data);
-                }
-              },
-              variant: 'secondary'
-            }, '💾 导出数据')
-          ]))
+  const SettingsGlossaryHeader = () => {
+    return h('div', {
+      className: 'rilo-ledger-panel rilo-card-hierarchy-high rounded-2xl border border-[var(--rilo-border-deep)] px-5 py-5 md:px-6 md:py-6 rilo-zh-page'
+    }, [
+      h('div', { key: 'top', className: 'rilo-ledger-header' }, [
+        h('div', { key: 'row', className: 'flex flex-col gap-4' }, [
+          h('div', { key: 'copy', className: 'rilo-ledger-header-copy' }, [
+            h('div', { key: 'eyebrow', className: 'rilo-ledger-eyebrow' }, '经营参数'),
+            h('h1', { key: 'title', className: 'rilo-ledger-title rilo-display-serif rilo-zh-header' }, '经营设置'),
+            h('p', { key: 'hint', className: 'rilo-ledger-subtitle rilo-zh-subtle' }, '将鼠标悬停在下划线术语上查看解释，点击"查看更多"打开参考面板')
+          ])
         ])
       ])
     ]);
   };
 
-  return {
-    SettingsPage
-  };
-
+  return { SettingsPage };
 })();

@@ -2,13 +2,108 @@
 (function() {
   'use strict';
 
+  const ReferenceIcon = ({ className = '' }) => React.createElement('svg', {
+    viewBox: '0 0 20 20',
+    width: 18,
+    height: 18,
+    fill: 'currentColor',
+    'aria-hidden': 'true',
+    className
+  }, React.createElement('path', {
+    d: 'M5.75 3A2.75 2.75 0 0 0 3 5.75v8.5A2.75 2.75 0 0 0 5.75 17h8.5A2.75 2.75 0 0 0 17 14.25v-8.5A2.75 2.75 0 0 0 14.25 3h-8.5Zm1.5 2.25a.75.75 0 0 1 .75-.75h2.9a3.1 3.1 0 0 1 0 6.2H9.7v1.05a.75.75 0 0 1-1.5 0V10a.75.75 0 0 1 .75-.75h1.95a1.6 1.6 0 0 0 0-3.2H8a.75.75 0 0 1-.75-.8Zm1.5 9.35a.95.95 0 1 1 1.9 0 .95.95 0 0 1-1.9 0Z'
+  }));
+
+  const AlertIcon = ({ className = '' }) => React.createElement('svg', {
+    viewBox: '0 0 24 24',
+    width: 48,
+    height: 48,
+    fill: 'none',
+    'aria-hidden': 'true',
+    className
+  }, [
+    React.createElement('path', {
+      key: 'outline',
+      d: 'M12 3.75l8.25 14.25A1.5 1.5 0 0 1 18.96 20.25H5.04A1.5 1.5 0 0 1 3.75 18L12 3.75Z',
+      stroke: 'currentColor',
+      strokeWidth: '1.5',
+      strokeLinejoin: 'round'
+    }),
+    React.createElement('path', {
+      key: 'mark',
+      d: 'M12 9v4.5m0 3h.008',
+      stroke: 'currentColor',
+      strokeWidth: '1.8',
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round'
+    })
+  ]);
+
+  class PageContentBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error) {
+      return {
+        hasError: true,
+        error
+      };
+    }
+
+    componentDidCatch(error, info) {
+      console.error('Page content render failed:', error, info);
+    }
+
+    componentDidUpdate(prevProps) {
+      if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+        this.setState({ hasError: false, error: null });
+      }
+    }
+
+    render() {
+      if (this.state.hasError) {
+        return React.createElement('div', {
+          className: 'rounded-[var(--radius-lg)] border border-[var(--brick-soft)] bg-[var(--rilo-surface-1)] p-6'
+        }, [
+          React.createElement('div', {
+            key: 'title',
+            className: 'text-base font-semibold text-[var(--rilo-text-1)]'
+          }, '当前页面未能正常加载'),
+          React.createElement('div', {
+            key: 'body',
+            className: 'mt-2 text-sm leading-7 text-[var(--rilo-text-2)]'
+          }, this.state.error?.toString() || '未知错误'),
+          React.createElement(window.UIComponents?.Button || 'button', {
+            key: 'retry',
+            type: 'button',
+            onClick: () => this.setState({ hasError: false, error: null }),
+            className: 'mt-4'
+          }, '重试当前页面')
+        ]);
+      }
+
+      return this.props.children;
+    }
+  }
+
+
   // 主应用组件
   const App = () => {
     const [data, setData] = React.useState(null);
     const [calculations, setCalculations] = React.useState(null);
-    const [activeTab, setActiveTab] = React.useState('settings'); // 恢复页签模式
+    const [activeTab, setActiveTab] = React.useState('overview');
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
+    const [isDrawerOpen, setIsDrawerOpen] = React.useState(false); // 抽屉状态
+    const [drawerTermKey, setDrawerTermKey] = React.useState(null);
+    const [drawerSection, setDrawerSection] = React.useState('glossary');
+    const [drawerContent, setDrawerContent] = React.useState({
+      title: '说明面板',
+      conclusion: null,
+      process: null,
+      glossaryTerms: {}
+    });
 
     // 初始化数据管理器和计算引擎
     const [dataManager] = React.useState(() => new window.DataManager());
@@ -42,12 +137,123 @@
       window.calculator = calculator;
     }, [dataManager, formulaEngine, calculator]);
 
+    React.useEffect(() => {
+      window.RiloUI = window.RiloUI || {};
+      window.RiloUI.inspectorMode = 'drawer';
+      window.RiloUI.setDefinitionsDrawerContent = (content = {}) => {
+        setDrawerContent(prev => ({
+          ...prev,
+          ...content,
+          glossaryTerms: Object.assign({}, prev.glossaryTerms || {}, content.glossaryTerms || {})
+        }));
+      };
+
+      window.RiloUI.openDefinitionsDrawer = (termKey = null, section = 'glossary') => {
+        setDrawerTermKey(termKey);
+        setDrawerSection(section || 'glossary');
+        setIsDrawerOpen(true);
+      };
+
+      return () => {
+        if (window.RiloUI?.setDefinitionsDrawerContent) {
+          delete window.RiloUI.setDefinitionsDrawerContent;
+        }
+
+        if (window.RiloUI?.openDefinitionsDrawer) {
+          delete window.RiloUI.openDefinitionsDrawer;
+        }
+
+        if (window.RiloUI) {
+          delete window.RiloUI.inspectorMode;
+        }
+      };
+    }, []);
+
     // 页签配置
     const tabs = [
-      { id: 'settings', label: '参数配置', icon: '⚙️' },
-      { id: 'overview', label: '财务分析', icon: '📊' },
-      { id: 'analysis', label: '敏感度分析', icon: '📈' }
+      { key: 'overview', label: '项目概况' },
+      { key: 'settings', label: '经营设置' },
+      { key: 'analysis', label: '敏感度分析' }
     ];
+
+    const settingsPageActions = activeTab === 'settings' ? React.createElement('div', {
+      key: 'settings-actions',
+      className: 'mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--rilo-border-deep)] bg-[var(--rilo-surface-1)] px-4 py-3'
+    }, [
+      React.createElement(window.UIComponents.Button, {
+        key: 'preset',
+        onClick: () => {
+          const presetData = dataManager.applyPreset();
+          const currentProjectName = data?.basic?.projectName;
+          const initialProjectName = dataManager.getInitialData().basic.projectName;
+          const shouldPreserveProjectName = currentProjectName &&
+            currentProjectName !== initialProjectName &&
+            currentProjectName !== presetData?.basic?.projectName;
+
+          const finalData = shouldPreserveProjectName ? {
+            ...presetData,
+            basic: {
+              ...presetData.basic,
+              projectName: currentProjectName
+            }
+          } : presetData;
+          setData(finalData);
+          updateData(finalData);
+        },
+        variant: 'secondary',
+        size: 'small',
+        className: 'rilo-toolbar-action'
+      }, '示例参数'),
+      React.createElement(window.UIComponents.Button, {
+        key: 'export',
+        onClick: () => dataManager.exportData(data),
+        variant: 'outline',
+        size: 'small',
+        className: 'rilo-toolbar-action'
+      }, '导出数据'),
+      React.createElement('label', {
+        key: 'import',
+        className: 'relative inline-flex'
+      }, [
+        React.createElement('input', {
+          key: 'import-input',
+          type: 'file',
+          accept: '.json',
+          onChange: (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            dataManager.importData(file, (importError, importedData) => {
+              alert(importError ? `导入失败: ${importError.message}` : '数据导入成功！');
+              if (!importError) {
+                setData(importedData);
+                updateData(importedData);
+              }
+              event.target.value = '';
+            });
+          },
+          className: 'absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0'
+        }),
+        React.createElement(window.UIComponents.Button, {
+          key: 'import-button',
+          variant: 'outline',
+          size: 'small',
+          className: 'pointer-events-none rilo-toolbar-action'
+        }, '导入数据')
+      ]),
+      React.createElement(window.UIComponents.Button, {
+        key: 'clear',
+        onClick: () => {
+          if (confirm('确认清除所有保存的数据？')) {
+            const cleared = dataManager.clearStorage();
+            setData(cleared);
+            updateData(cleared);
+          }
+        },
+        variant: 'danger',
+        size: 'small',
+        className: 'rilo-toolbar-action'
+      }, '清除数据')
+    ]) : null;
 
     // 初始化数据
     React.useEffect(() => {
@@ -121,7 +327,7 @@
           React.createElement('div', {
             key: 'icon',
             className: 'text-6xl text-center mb-4'
-          }, '❌'),
+          }, '错误'),
           React.createElement('h2', {
             key: 'title',
             className: 'text-xl font-bold text-red-600 text-center mb-4'
@@ -189,166 +395,116 @@
     return window.UIComponents.createAntdApp(
       React.createElement('div', {
         key: 'app-wrapper',
-        className: 'min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50'
+        className: 'app-container'
       }, [
+        // 术语抽屉
+        window.RiloUI?.DefinitionsDrawer ? React.createElement(window.RiloUI.DefinitionsDrawer, {
+          key: 'definitions-drawer',
+          isOpen: isDrawerOpen,
+          onClose: () => {
+            setIsDrawerOpen(false);
+            setDrawerTermKey(null);
+          },
+          title: drawerContent.title || '参考',
+          activeSection: drawerSection,
+          onSectionChange: setDrawerSection,
+          process: drawerContent.process,
+          glossaryTerms: Object.assign({}, window.RiloUI.termRegistry || {}, drawerContent.glossaryTerms || {}),
+          selectedTerm: drawerTermKey
+        }) : null,
+
         React.createElement('div', {
           key: 'container',
-          className: 'container mx-auto px-4 py-8'
+          className: 'rilo-app-shell'
         }, [
-          // 顶部标题栏
           React.createElement('div', {
-            key: 'header',
-            className: 'bg-white rounded-2xl shadow mb-6'
+            key: 'sidebar',
+            className: 'rilo-app-sidebar'
           }, [
             React.createElement('div', {
-              key: 'header-content',
-              className: 'px-6 py-4'
+              key: 'brand',
+              className: 'rilo-app-brand'
             }, [
               React.createElement('div', {
-                key: 'title-row',
-                className: 'flex items-center justify-between mb-4'
-              }, [
-                React.createElement('div', {
-                  key: 'title-section'
-                }, [
-                  React.createElement('h1', {
-                    key: 'title',
-                    className: 'text-2xl font-bold text-gray-800'
-                  }, data?.basic?.projectName || '宠物综合体经营测算'),
-                  React.createElement('p', {
-                    key: 'subtitle',
-                    className: 'text-sm text-gray-600'
-                  }, 'v2.0 模块化版本 · 专业财务建模工具')
-                ]),
-                React.createElement('div', {
-                  key: 'status',
-                  className: 'text-right'
-                }, [
-                  React.createElement('div', {
-                    key: 'profit-status',
-                    className: `text-sm font-medium ${
-                      calculations?.profitability?.profit > 0 ? 'text-green-600' : 'text-red-600'
-                    }`
-                  }, calculations?.profitability?.profit > 0 ? '✅ 盈利中' : '❌ 亏损中'),
-                  React.createElement('div', {
-                    key: 'amount',
-                    className: 'text-xs text-gray-500'
-                  }, `${data?.basic?.currency || '¥'}${(calculations?.profitability?.profit || 0).toLocaleString()}/年`)
-                ])
-              ]),
-
-              // 快捷操作
-              React.createElement('div', {
-                key: 'quick-actions-row',
-                className: 'flex items-center justify-between border-t pt-4'
-              }, [
-                React.createElement('div', {
-                  key: 'quick-actions',
-                  className: 'flex gap-3'
-                }, [
-                  React.createElement(window.UIComponents.Button, {
-                    key: 'preset',
-                    size: 'small',
-                    variant: 'secondary',
-                    onClick: () => {
-                      const presetData = dataManager.getPresetData();
-                      // 保留用户的项目名称
-                      const preservedProjectName = data?.basic?.projectName;
-                      if (preservedProjectName && preservedProjectName !== "Hopeful 宠物综合体（示例）") {
-                        presetData.basic.projectName = preservedProjectName;
-                      }
-                      setData(presetData);
-                      updateData(presetData);
-                    }
-                  }, '📋 示例参数'),
-                  React.createElement(window.UIComponents.Button, {
-                    key: 'export',
-                    size: 'small',
-                    variant: 'primary',
-                    onClick: () => dataManager.exportData(data)
-                  }, '📤 导出数据'),
-                  React.createElement('div', {
-                    key: 'import-wrapper',
-                    className: 'relative'
-                  }, [
-                    React.createElement('input', {
-                      key: 'import-input',
-                      type: 'file',
-                      accept: '.json',
-                      onChange: (event) => {
-                        const file = event.target.files[0];
-                        if (file && dataManager) {
-                          dataManager.importData(file, (error, importedData) => {
-                            alert(error ? '导入失败: ' + error.message : '数据导入成功！');
-                            if (!error) updateData(importedData);
-                            event.target.value = '';
-                          });
-                        }
-                      },
-                      className: 'absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-                    }),
-                    React.createElement(window.UIComponents.Button, {
-                      key: 'import',
-                      size: 'small',
-                      variant: 'outline',
-                      onClick: (event) => {
-                        const input = event.target.closest('.relative').querySelector('input[type="file"]');
-                        if (input) input.click();
-                      }
-                    }, '📥 导入数据')
-                  ]),
-                  React.createElement(window.UIComponents.Button, {
-                    key: 'clear',
-                    size: 'small',
-                    variant: 'danger',
-                    onClick: () => {
-                      if (confirm('确认清除所有保存的数据？')) {
-                        const clearedData = dataManager.clearStorage();
-                        setData(clearedData);
-                        updateData(clearedData);
-                      }
-                    }
-                  }, '🗑️ 清除数据')
-                ]),
-                // 页签导航
-                React.createElement(window.UIComponents.Tabs, {
-                  key: 'tabs',
-                  tabs: tabs,
-                  activeTab: activeTab,
-                  onTabChange: setActiveTab
-                })
-              ])
-            ])
+                key: 'eyebrow',
+                className: 'rilo-app-brand-kicker'
+              }, '经营测算'),
+              React.createElement('h1', {
+                key: 'title',
+                className: 'rilo-app-brand-title'
+              }, 'Rilo Analysis'),
+              React.createElement('p', {
+                key: 'subtitle',
+                className: 'rilo-app-brand-copy'
+              }, '宠物综合体项目的经营测算与复核工作台')
+            ]),
+            React.createElement('div', {
+              key: 'nav-section-title',
+              className: 'rilo-app-sidebar-section-title'
+            }, '页面'),
+            React.createElement('nav', {
+              key: 'nav',
+              className: 'rilo-app-nav',
+              'aria-label': '主导航'
+            }, tabs.map(tab => React.createElement('button', {
+              key: tab.key,
+              type: 'button',
+              className: `rilo-app-nav-item ${activeTab === tab.key ? 'is-active' : ''}`,
+              onClick: () => setActiveTab(tab.key)
+            }, [
+              React.createElement('span', { key: 'index', className: 'rilo-app-nav-index' }, tab.key === 'overview' ? '01' : tab.key === 'settings' ? '02' : '03'),
+              React.createElement('span', { key: 'label', className: 'rilo-app-nav-label' }, tab.label),
+              React.createElement('span', { key: 'dot', className: 'rilo-app-nav-dot' })
+            ]))),
+            React.createElement('div', {
+              key: 'sidebar-inspector-action',
+              className: 'rilo-app-sidebar-action-wrap'
+            }, React.createElement('button', {
+              type: 'button',
+              className: 'rilo-sidebar-action-btn',
+              'aria-label': '打开说明面板',
+              title: '打开说明面板',
+              onClick: () => window.RiloUI?.activeInspectorApi?.toggleInspector?.()
+            }, React.createElement(ReferenceIcon, {
+              className: 'text-[var(--rilo-text-2)] transition-colors hover:text-[var(--rilo-accent)]'
+            })))
           ]),
 
-          // 页面内容
           React.createElement('div', {
-            key: 'page-content'
+            key: 'main',
+            className: 'rilo-app-main'
           }, [
-            activeTab === 'settings' && React.createElement(window.SettingsPage.SettingsPage, {
-            key: 'settings',
-            data: data,
-            updateData: updateData,
-            formulaEngine: formulaEngine
-          }),
+            settingsPageActions,
+            React.createElement(PageContentBoundary, {
+              key: 'page-boundary',
+              resetKey: activeTab
+            }, React.createElement('div', {
+              key: 'page-content',
+              className: 'rilo-app-content'
+            }, [
+              activeTab === 'settings' && React.createElement((window.SettingsPage?.SettingsPage || window.SettingsPage), {
+                key: 'settings',
+                data: data,
+                updateData: updateData,
+                formulaEngine: formulaEngine
+              }),
 
-          // 经营概览页
-          activeTab === 'overview' && React.createElement(window.OverviewPage.OverviewPage, {
-            key: 'overview',
-            data: data,
-            calculations: calculations,
-            formulaEngine: formulaEngine,
-            currency: data?.basic?.currency || '¥'
-          }),
+              activeTab === 'overview' && React.createElement((window.OverviewPage?.OverviewPage || window.OverviewPage), {
+                key: 'overview',
+                data: data,
+                calculations: calculations,
+                formulaEngine: formulaEngine,
+                currency: data?.basic?.currency || '¥'
+              }),
 
-          // 敏感度分析页
-          activeTab === 'analysis' && React.createElement(window.AnalysisPage.AnalysisPage, {
-            key: 'analysis',
-            data: data,
-            calculations: calculations,
-            formulaEngine: formulaEngine,
-            currency: data?.basic?.currency || '¥'
-          })
+              activeTab === 'analysis' && React.createElement((window.AnalysisPage?.AnalysisPage || window.AnalysisPage), {
+                key: 'analysis',
+                data: data,
+                calculations: calculations,
+                formulaEngine: formulaEngine,
+                currency: data?.basic?.currency || '¥'
+              })
+            ]))
           ])
         ])
       ])
@@ -381,6 +537,9 @@
     }, []);
 
     if (hasError) {
+      // 如果 UIComponents 尚未就绪，降级使用原生 button，避免再次触发 React #130
+      const SafeButton = window.UIComponents?.Button || 'button';
+
       return React.createElement('div', {
         className: 'min-h-screen bg-red-50 flex items-center justify-center p-4'
       }, [
@@ -390,8 +549,8 @@
         }, [
           React.createElement('div', {
             key: 'icon',
-            className: 'text-6xl text-center mb-4'
-          }, '💥'),
+            className: 'mb-4 flex justify-center text-[var(--rilo-value-danger)]'
+          }, React.createElement(AlertIcon)),
           React.createElement('h2', {
             key: 'title',
             className: 'text-2xl font-bold text-red-600 text-center mb-4'
@@ -408,28 +567,28 @@
             key: 'actions',
             className: 'flex flex-col sm:flex-row gap-3 justify-center'
           }, [
-            React.createElement(window.UIComponents.Button, {
+            React.createElement(SafeButton, {
               key: 'reload',
               onClick: () => window.location.reload(),
               variant: 'primary'
-            }, '🔄 重新加载'),
-            React.createElement(window.UIComponents.Button, {
+            }, '重新加载'),
+            React.createElement(SafeButton, {
               key: 'clear',
               onClick: () => {
                 localStorage.clear();
                 window.location.reload();
               },
               variant: 'secondary'
-            }, '🗑️ 清除数据重启'),
-            React.createElement(window.UIComponents.Button, {
+            }, '清除数据重启'),
+            React.createElement(SafeButton, {
               key: 'report',
               onClick: () => {
-                const subject = encodeURIComponent('宠物综合体经营测算应用错误报告');
+                const subject = encodeURIComponent('Rilo Analysis 应用错误报告');
                 const body = encodeURIComponent(`错误详情：\n${error?.toString() || '未知错误'}\n\n浏览器：${navigator.userAgent}\n时间：${new Date().toISOString()}`);
                 window.open(`mailto:support@example.com?subject=${subject}&body=${body}`);
               },
               variant: 'outline'
-            }, '📧 报告错误')
+            }, '报告错误')
           ])
         ])
       ]);
@@ -439,10 +598,12 @@
   };
 
   // 应用初始化检查 - 增强版
+  // 说明：React 报错 #130 通常是 createElement 传入了 undefined 组件。
+  // 这里除了检查全局模块对象外，也要检查实际渲染用到的“嵌套导出”（例如 SettingsPage.SettingsPage）。
   const checkDependencies = () => {
     const requiredGlobals = [
       'React',
-      'ReactDOM', 
+      'ReactDOM',
       'DataManager',
       'FormulaEngine',
       'Calculator',
@@ -459,13 +620,40 @@
 
     const missingDependencies = requiredGlobals.filter(dep => !window[dep]);
 
-    if (missingDependencies.length > 0) {
-      console.warn('暂时缺失的依赖模块:', missingDependencies);
+    // 额外检查：UI 组件与页面组件的实际导出是否存在
+    const missingExports = [];
+
+    const requireFn = (name, fn) => {
+      try {
+        if (!fn()) missingExports.push(name);
+      } catch (e) {
+        missingExports.push(name);
+      }
+    };
+
+    requireFn('UIComponents.Button', () => typeof window.UIComponents?.Button === 'function');
+    requireFn('UIComponents.Tabs', () => typeof window.UIComponents?.Tabs === 'function');
+    requireFn('UIComponents.Loading', () => typeof window.UIComponents?.Loading === 'function');
+
+    // 页面组件兼容两种导出：
+    // 1) window.XxxPage = { XxxPage }
+    // 2) window.XxxPage = function XxxPage() {}
+    requireFn('SettingsPage', () => typeof (window.SettingsPage?.SettingsPage || window.SettingsPage) === 'function');
+    requireFn('OverviewPage', () => typeof (window.OverviewPage?.OverviewPage || window.OverviewPage) === 'function');
+    requireFn('AnalysisPage', () => typeof (window.AnalysisPage?.AnalysisPage || window.AnalysisPage) === 'function');
+
+    if (missingDependencies.length > 0 || missingExports.length > 0) {
+      if (missingDependencies.length > 0) {
+        console.warn('暂时缺失的依赖模块:', missingDependencies);
+      }
+      if (missingExports.length > 0) {
+        console.warn('依赖模块已存在，但缺少必要导出:', missingExports);
+      }
       console.info('等待模块完全加载...');
       return false;
     }
 
-    console.info('✅ 所有依赖模块已加载完成');
+    console.info('所有依赖模块已加载完成');
     return true;
   };
 
@@ -484,21 +672,27 @@
       retryCount++;
       if (retryCount >= maxRetries) {
         // 超过重试次数，显示错误
-        document.getElementById('root').innerHTML = `
-          <div class="min-h-screen bg-red-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-              <div class="text-6xl mb-4">⚠️</div>
-              <h2 class="text-xl font-bold text-red-600 mb-4">模块加载失败</h2>
-              <p class="text-gray-600 mb-6">部分必需的模块未能正确加载，请检查网络连接或刷新页面重试。</p>
-              <button 
-                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                onclick="window.location.reload()"
-              >
-                🔄 重新加载
-              </button>
-            </div>
-          </div>
-        `;
+        document.getElementById('root').textContent = '';
+        const err = document.createElement('div');
+        err.style.cssText = 'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:#fef2f2;';
+        const card = document.createElement('div');
+        card.style.cssText = 'background:white;border-radius:1rem;box-shadow:xl;padding:2rem;max-width:28rem;text-align:center;';
+        const icon = document.createElement('div');
+        icon.style.cssText = 'font-size:3rem;margin-bottom:1rem;';
+        icon.textContent = '错误';
+        const title = document.createElement('h2');
+        title.style.cssText = 'font-size:1.25rem;font-weight:700;color:#dc2626;margin-bottom:1rem;';
+        title.textContent = '模块加载失败';
+        const msg = document.createElement('p');
+        msg.style.cssText = 'color:#525252;margin-bottom:1.5rem;';
+        msg.textContent = '部分必需的模块未能正确加载，请检查网络连接或刷新页面重试。';
+        const btn = document.createElement('button');
+        btn.style.cssText = 'padding:0.5rem 1rem;background:#dc2626;color:white;border-radius:0.5rem;border:none;cursor:pointer;font-size:1rem;';
+        btn.textContent = '重新加载';
+        btn.onclick = function() { window.location.reload(); };
+        card.append(icon, title, msg, btn);
+        err.append(card);
+        document.getElementById('root').appendChild(err);
         return;
       }
       // 延迟重试，等待更多模块加载
@@ -517,8 +711,8 @@
       document.getElementById('root')
     );
 
-    console.log('🐾 宠物综合体经营测算应用已启动 v2.0');
-    console.log('📊 模块化架构 · 所有功能已加载');
+    console.log('Rilo Analysis 应用已启动 v2.0');
+    console.log('模块化架构，所有功能已加载');
   };
 
   // 将startApp暴露为全局函数，供模块加载完成后调用

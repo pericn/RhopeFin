@@ -128,7 +128,7 @@ window.CustomCostManager = (function() {
         React.createElement('h3', {
           key: 'title',
           className: 'text-lg font-semibold text-red-800'
-        }, '💸 自定义成本模块'),
+        }, '自定义成本模块'),
         React.createElement('div', {
           key: 'buttons',
           className: 'flex gap-2'
@@ -156,7 +156,7 @@ window.CustomCostManager = (function() {
         React.createElement('div', {
           key: 'icon',
           className: 'text-4xl mb-2'
-        }, '💰'),
+        }, ''),
         React.createElement('div', {
           key: 'text'
         }, '暂无自定义成本模块，点击上方按钮添加')

@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>宠物综合体经营测算 v2.0</title>
+  <title>Rilo Analysis - 宠物综合体经营测算 v2.0</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <meta name="description" content="专业的宠物综合体财务建模工具，支持收入预测、成本分析、投资回报计算和情景分析">
-  <meta name="keywords" content="宠物综合体,经营测算,财务建模,投资回报,盈亏平衡">
+  <meta name="description" content="Rilo Analysis: 专业的宠物综合体财务建模工具，支持收入预测、成本分析、投资回报计算和情景分析">
+  <meta name="keywords" content="Rilo Analysis,宠物综合体,经营测算,财务建模,投资回报,盈亏平衡">
   
   <!-- 外部依赖 -->
   <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <script src="https://unpkg.com/dayjs@1.11.9/dayjs.min.js"></script>
   <script src="https://unpkg.com/dayjs@1.11.9/locale/zh-cn.js"></script>
   
@@ -24,14 +23,465 @@
   
   <!-- 自定义样式 -->
   <style>
+    :root {
+      /* Design tokens (minimal, can be expanded later) */
+      --rilo-accent: #2563EB; /* Tailwind v2 blue-600 */
+      --rilo-accent-500: #3B82F6; /* Tailwind v2 blue-500 (optional) */
+      --rilo-accent-50: #EFF6FF;
+      --rilo-muted: #6B7280;
+
+      /* Optional “poetic cool” palette B (docs/design-tokens.md) */
+      --rilo-ink: #0F172A; /* slate-900 */
+      --rilo-fog: #F8FAFC; /* slate-50 */
+      --rilo-qingdai: #2F3A4A;
+      --rilo-mist-blue: #AFC4DA;
+
+      /* === Shared Shell Tokens (aligned to v5 paper system) === */
+      --rilo-bg-deep: #ede6dc;
+      --rilo-surface-1: rgba(249, 245, 239, 0.88);
+      --rilo-surface-2: rgba(241, 236, 228, 0.90);
+      --rilo-surface-3: rgba(234, 236, 238, 0.86);
+      --rilo-surface-panel: rgba(247, 242, 235, 0.94);
+      --rilo-surface-card: rgba(245, 240, 233, 0.96);
+      --rilo-surface-muted: rgba(248, 244, 238, 0.88);
+      --rilo-surface-accent: rgba(238, 239, 242, 0.94);
+      --rilo-border-deep: rgba(34, 31, 26, 0.14);
+      --rilo-border-strong: rgba(34, 31, 26, 0.22);
+      --rilo-text-1: var(--ink-1);
+      --rilo-text-2: var(--ink-2);
+      --rilo-text-3: var(--ink-3);
+
+      /* Jewel accents */
+      --rilo-brand: #221C86;
+      --rilo-jewel-sapphire: #2D3A8C;
+      --rilo-jewel-amethyst: #6D28D9;
+      --rilo-jewel-emerald: #10B981;
+      --rilo-jewel-citrine: #F59E0B;
+      --rilo-jewel-ruby: #EF4444;
+
+      /* Semantic colors (unified) */
+      --rilo-sem-success: var(--emerald);
+      --rilo-sem-warning: var(--amber);
+      --rilo-sem-danger: var(--brick);
+      --rilo-sem-info: var(--rilo-accent-v5);
+
+      /* Radius, shadow, spacing */
+      --rilo-radius-card: 16px;
+      --rilo-radius-control: 12px;
+      --rilo-shadow-card: 0 6px 16px rgba(85, 61, 28, 0.04);
+      --rilo-shadow-soft: 0 2px 6px rgba(85, 61, 28, 0.022);
+      --rilo-shadow-press: 0 6px 14px rgba(85, 61, 28, 0.06);
+      --rilo-shadow-shell: 0 16px 34px rgba(85, 61, 28, 0.055);
+      --rilo-gap-page: 24px;
+      --rilo-gap-form: 16px;
+
+      /* Motion */
+      --rilo-motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --rilo-motion-fast: 120ms;
+      --rilo-motion-mid: 180ms;
+      --rilo-motion-slow: 240ms;
+
+      /* Chinese typography */
+      --rilo-font-cn: "SF Pro SC", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      --rilo-leading-copy: 1.72;
+      --rilo-leading-ui: 1.58;
+      --rilo-tracking-cn: 0.01em;
+      --rilo-tracking-tight-cn: -0.012em;
+
+      /* === v5 Visual System: Paper + Ink + Jewel === */
+      /* Paper base (warm, matte) */
+      --paper-base: #f0ebe4;
+      --paper-warm: #e8e0d6;
+      --paper-cool: #e3e6e8;
+      --paper-line: #d2c8ba;
+      --paper-fold: #c1b4a5;
+
+      /* Ink (text hierarchy) */
+      --ink-1: #2c333b;
+      --ink-2: #58595B;  /* darkened for WCAG AA contrast on light backgrounds */
+      --ink-3: #58595B;  /* was #87909b - failed WCAG AA on cream bg */
+
+      /* Accent (primary brand - 深蓝) */
+      --rilo-accent-v5: #667180;
+      --rilo-accent: var(--rilo-accent-v5);
+      --rilo-accent-600: #566379;
+      --rilo-accent-700: #3d4a5c;
+      --rilo-accent-500: #748092;
+      --rilo-accent-50: rgba(102, 113, 128, 0.07);
+
+      /* Semantic jewel accents (V5-only, capped at 4 coordinated colors) */
+      --emerald: #7a8978;
+      --amber: #8b7e6a;
+      --brick: #877069;
+
+      /* Derived soft variants */
+      --rilo-accent-soft-v5: rgba(102, 113, 128, 0.08);
+      --rilo-accent-mid-v5: rgba(102, 113, 128, 0.14);
+      --emerald-soft: rgba(122, 137, 120, 0.10);
+      --amber-soft: rgba(139, 126, 106, 0.10);
+      --brick-soft: rgba(135, 112, 105, 0.10);
+
+      /* Lines */
+      --line: rgba(34, 31, 26, 0.13);
+      --line-strong: rgba(34, 31, 26, 0.22);
+
+      /* Shadows */
+      --shadow-v5: 0 26px 80px rgba(85, 61, 28, 0.12);
+
+      /* Radius scale (v5) */
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+
+      /* Spacing scale (v5) */
+      --space-1: 12px;
+      --space-2: 16px;
+      --space-3: 20px;
+      --space-4: 28px;
+      --space-5: 38px;
+      --space-6: 50px;
+      --control-height: 42px;
+      --control-height-sm: 36px;
+
+      /* Font stack (v5) */
+      --font-display: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+      --font-sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", Menlo, monospace;
+      --font-display-weight: 650;
+      --rilo-value-info: #586f8c;
+      --rilo-value-success: #5d8a64;
+      --rilo-value-warning: #9a7446;
+      --rilo-value-danger: #9a645c;
+      --rilo-value-info-soft: rgba(88, 111, 140, 0.14);
+      --rilo-value-success-soft: rgba(93, 138, 100, 0.14);
+      --rilo-value-warning-soft: rgba(154, 116, 70, 0.14);
+      --rilo-value-danger-soft: rgba(154, 100, 92, 0.14);
+      --rilo-value-info-border: rgba(88, 111, 140, 0.24);
+      --rilo-value-success-border: rgba(93, 138, 100, 0.24);
+      --rilo-value-warning-border: rgba(154, 116, 70, 0.24);
+      --rilo-value-danger-border: rgba(154, 100, 92, 0.24);
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.85;
+      letter-spacing: 0.02em;
+      background:
+        radial-gradient(circle at left top, rgba(102, 113, 128, 0.024), transparent 22%),
+        radial-gradient(circle at right 10%, rgba(139, 126, 106, 0.022), transparent 18%),
+        linear-gradient(180deg, #f4f0ea 0%, var(--paper-base) 52%, #e8e0d4 100%);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+      color: var(--ink-1);
+      margin: 0;
+    }
+
+    /* 纸张纹理叠加（可选，增强质感） */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(34, 31, 26, 0.017) 0,
+          rgba(34, 31, 26, 0.017) 1px,
+          transparent 1px,
+          transparent 7px
+        );
+      mix-blend-mode: multiply;
+      z-index: -1;
+    }
+
+    /* 主应用容器（v5 风格） */
+    #root > .app-container {
+      width: min(1520px, calc(100% - 28px));
+      margin: 18px auto 26px;
+      border-radius: var(--radius-xl, 30px);
+      overflow: hidden;
+      background: rgba(244, 239, 232, 0.94);
+      box-shadow: var(--rilo-shadow-shell);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      min-height: calc(100vh - 48px);
+      position: relative;
+    }
+
+    /* === Ant Design 主题覆盖 === */
+    /* 按钮 */
+    .ant-btn {
+      border-radius: var(--radius-control, 12px) !important;
+      border: 1px solid var(--line) !important;
+      font-family: var(--font-sans) !important;
+      letter-spacing: var(--rilo-tracking-cn, 0.01em);
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+      box-shadow: none !important;
+    }
+
+    .ant-btn-primary {
+      background-color: var(--rilo-accent-v5, #221C8B) !important;
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      color: #fff !important;
+    }
+
+    .ant-btn-primary:hover,
+    .ant-btn-primary:focus {
+      background-color: rgba(34, 28, 139, 0.90) !important;
+      border-color: rgba(34, 28, 139, 0.90) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.15) !important;
+    }
+
+    .ant-btn-default:hover,
+    .ant-btn-default:focus {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.10) !important;
+    }
+
+    /* 输入框与数字输入 */
+    .ant-input,
+    .ant-input-number {
+      min-height: 44px;
+      border-radius: var(--radius-control, 12px) !important;
+      border: 1px solid var(--line) !important;
+      font-family: var(--font-sans) !important;
+      letter-spacing: var(--rilo-tracking-cn, 0.01em);
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+      background: rgba(255,255,255,0.56) !important;
+      box-shadow: none !important;
+    }
+
+    .ant-input-number-input,
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      font-size: 14px !important;
+      line-height: 1.6 !important;
+      color: var(--ink-1) !important;
+    }
+
+    .ant-input:focus,
+    .ant-input-number:focus {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.12) !important;
+    }
+
+    .ant-input-number-handler-wrap {
+      background: transparent !important;
+      border-left: 1px solid var(--line) !important;
+    }
+
+    /* 下拉选择 */
+    .ant-select {
+      font-family: var(--font-sans) !important;
+    }
+
+    .ant-select-selector {
+      min-height: 44px !important;
+      padding-inline: 12px !important;
+      border-radius: var(--radius-control, 12px) !important;
+      border: 1px solid var(--line) !important;
+      background: rgba(255,255,255,0.56) !important;
+      box-shadow: none !important;
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+    }
+
+    .ant-select-selection-wrap {
+      align-items: center !important;
+    }
+
+    .ant-select-open .ant-select-selector,
+    .ant-select-focused .ant-select-selector {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.12) !important;
+    }
+
+    /* 卡片 */
+    .ant-card {
+      border-radius: var(--radius-lg, 22px) !important;
+      border: 1px solid var(--line) !important;
+      background: rgba(255, 255, 255, 0.60) !important;
+      box-shadow: var(--rilo-shadow-card, 0 8px 24px rgba(0,0,0,0.12)) !important;
+      overflow: hidden;
+    }
+
+    .ant-card-head {
+      border-bottom: 1px solid var(--line) !important;
+      padding: var(--space-2, 16px) var(--space-4, 28px) !important;
+      min-height: auto !important;
+    }
+
+    .ant-card-head-title {
+      font-family: var(--font-display) !important;
+      font-size: 1.125rem !important;
+      font-weight: 600;
+      color: var(--ink-1) !important;
+      letter-spacing: 0.02em;
+    }
+
+    .ant-card-body {
+      padding: var(--space-4, 28px) !important;
+    }
+
+    /* 滑块 (Slider) */
+    .ant-slider {
+      margin: 10px 0 6px !important;
+    }
+
+    .ant-slider-rail {
+      background-color: rgba(34, 31, 26, 0.1) !important;
+      height: 6px !important;
+      border-radius: 3px !important;
+    }
+
+    .ant-slider-track {
+      background-color: var(--rilo-accent-v5, #221C8B) !important;
+      height: 6px !important;
+      border-radius: 3px !important;
+    }
+
+    .ant-slider-handle {
+      border-color: var(--rilo-accent-v5, #221C8B) !important;
+      box-shadow: 0 2px 6px rgba(34, 28, 139, 0.25) !important;
+      width: 18px !important;
+      height: 18px !important;
+      margin-top: -6px !important;
+    }
+
+    .rilo-token-control.ant-input-number,
+    .rilo-token-control .ant-select-selector,
+    .rilo-token-slider {
+      /* BUGFIX-6: 统一 Settings 控件的尺寸、背景与焦点层级，让 InputNumber / Select / Slider 回到 design token 基线。 */
+      box-shadow: none !important;
+    }
+
+    /* 折叠面板 */
+    .ant-collapse-header {
+      border-radius: var(--radius-md, 16px) !important;
+      background: rgba(255,255,255,0.40) !important;
+      border: 1px solid var(--line) !important;
+      padding: var(--space-2, 16px) var(--space-4, 28px) !important;
+      font-family: var(--font-sans) !important;
+    }
+
+    .ant-collapse-item {
+      border: none !important;
+      margin-bottom: 8px !important;
+      border-radius: var(--radius-md, 16px) !important;
+      overflow: hidden !important;
+    }
+
+    /* 标签页 */
+    .ant-tabs {
+      font-family: var(--font-sans) !important;
+    }
+
+    .ant-tabs-tab {
+      padding: 8px 16px !important;
+      font-size: 14px !important;
+      color: var(--ink-2) !important;
+      transition: all 0.2s var(--rilo-motion-ease) !important;
+    }
+
+    .ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--rilo-accent-v5, #221C8B) !important;
+      font-weight: 600 !important;
+    }
+
+    .ant-tabs-ink-bar {
+      background-color: var(--rilo-accent-v5, #221C8B) !important;
+      height: 2px !important;
+      border-radius: 1px !important;
+    }
+
+    /* 表格 */
+    .ant-table {
+      font-family: var(--font-sans) !important;
+      border-radius: var(--radius-md, 16px) !important;
+      overflow: hidden !important;
+    }
+
+    .ant-table-thead > tr > th {
+      background: var(--paper-warm, #efe5d7) !important;
+      border-bottom: 1px solid var(--line) !important;
+      color: var(--ink-2) !important;
+      font-weight: 600 !important;
+      font-size: 12px !important;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .ant-table-tbody > tr > td {
+      border-bottom: 1px solid var(--line) !important;
+      color: var(--ink-1) !important;
+      background: rgba(255,255,255,0.48) !important;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: rgba(34, 28, 139, 0.04) !important;
+    }
+
+    /* 消息提示 */
+    .ant-message {
+      font-family: var(--font-sans) !important;
+    }
+
+    /* 全局滚动条美化（可选） */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--paper-base, #f6f0e6);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--ink-3);
+    }
+
+    /* 语义色工具类 */
+    .text-success { color: var(--rilo-value-success) !important; }
+    .text-warning { color: var(--rilo-value-warning) !important; }
+    .text-danger { color: var(--rilo-value-danger) !important; }
+    .text-info { color: var(--rilo-value-info) !important; }
+    .text-muted { color: var(--ink-3) !important; }
+    .text-secondary { color: var(--ink-2) !important; }
+
+    /* 背景容器（卡片内 white 混合） */
+    .bg-paper-base { background-color: var(--paper-base) !important; }
+    .bg-paper-warm { background-color: var(--paper-warm) !important; }
+    .bg-paper-cool { background-color: var(--paper-cool) !important; }
+    .bg-white-mix { background: rgba(255,255,255,0.60) !important; }
+
+    .rilo-zh-page {
+      line-height: var(--rilo-leading-copy);
+      letter-spacing: var(--rilo-tracking-cn);
+    }
+
+    .rilo-zh-header {
+      line-height: 1.24;
+      letter-spacing: var(--rilo-tracking-tight-cn);
+    }
+
+    .rilo-zh-subtle {
+      line-height: var(--rilo-leading-ui);
+    }
+
+    .rilo-kpi-grid-tight {
+      gap: 0.875rem;
     }
     
     /* 加载动画 */
     .loading-spinner {
       border: 2px solid #f3f4f6;
-      border-top: 2px solid #3b82f6;
+      border-top: 2px solid var(--rilo-accent);
       border-radius: 50%;
       width: 32px;
       height: 32px;
@@ -80,15 +530,988 @@
         box-shadow: none !important;
       }
     }
+
+    .settings-layout {
+      display: grid;
+      grid-template-columns: minmax(220px, 248px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .settings-layout--reset {
+      min-height: 0;
+    }
+
+    .settings-layout--adaptive {
+      container-type: inline-size;
+    }
+
+    .settings-sidebar,
+    .settings-editor {
+      min-width: 0;
+    }
+
+    .settings-sidebar-card,
+    .settings-editor {
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      border-radius: var(--radius-lg);
+      background: rgba(245, 240, 233, 0.98);
+      box-shadow: none;
+    }
+
+    .settings-sidebar-card {
+      position: sticky;
+      top: 18px;
+      padding: 14px;
+    }
+
+    .settings-sidebar-title,
+    .settings-editor-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .settings-cat-nav {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .cat-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+      padding: 12px 13px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(250, 247, 242, 0.94);
+      color: inherit;
+      text-align: left;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+      cursor: pointer;
+    }
+
+    .cat-item:hover {
+      border-color: rgba(86, 101, 125, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .cat-item.active {
+      border-color: rgba(102, 113, 128, 0.18);
+      background: rgba(237, 239, 242, 0.92);
+      box-shadow: inset 3px 0 0 var(--rilo-accent);
+    }
+
+    .cat-item-index {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--ink-3);
+    }
+
+    .cat-item-copy {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .cat-item-label {
+      font-size: 14px;
+      font-weight: var(--font-display-weight);
+      color: var(--ink-1);
+    }
+
+    .cat-item-note {
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .cat-item-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(86, 101, 125, 0.18);
+    }
+
+    .cat-item.active .cat-item-dot {
+      background: var(--rilo-accent);
+    }
+
+    .settings-editor {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .settings-editor .ant-space,
+    .settings-editor .ant-space-item {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .settings-editor-header {
+      display: grid;
+      gap: 6px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(34, 31, 26, 0.08);
+    }
+
+    .settings-editor-title {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ink-1);
+    }
+
+    .settings-form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .settings-basic-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 16px;
+      align-items: start;
+    }
+
+    .settings-basic-grid--compact .ant-space {
+      min-width: 0;
+    }
+
+    .settings-field-copy {
+      max-width: 42rem;
+    }
+
+    .settings-header-note {
+      max-width: 44rem;
+    }
+
+    @container (max-width: 960px) {
+      .settings-layout--adaptive {
+        /* BUGFIX-7: 按 Settings 实际可用宽度自适应布局，Inspector 打开时自动改单栏，避免控件被横向挤压。 */
+        grid-template-columns: 1fr;
+      }
+
+      .settings-layout--adaptive .settings-sidebar-card {
+        position: static;
+      }
+
+      .settings-layout--adaptive .settings-basic-grid,
+      .settings-layout--adaptive .settings-outcome-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .settings-outcome-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 2px;
+    }
+
+    .feedback-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feedback-card {
+      padding: 16px 18px;
+      border: 1px solid var(--rilo-border-deep, #2A2622);
+      border-radius: var(--rilo-radius-card, 16px);
+      background: rgba(255,255,255,0.30);
+    }
+
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--rilo-text-3, #8A847D);
+      margin-bottom: 8px;
+    }
+
+    .small-note {
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--rilo-text-2, #B6B0A8);
+      margin-top: 6px;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .settings-layout,
+      .settings-outcome-strip,
+      .settings-basic-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-sidebar-card {
+        position: static;
+      }
+
+      .settings-cat-nav {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 中文排版增强 - 防止溢出与提升可读性 */
+    .rilo-zh-page * {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .field-label strong {
+      line-height: 1.6;
+    }
+
+    /* === v5: Tailwind utility overrides === */
+    /* 全局字体覆盖 */
+    body, .ant-typography, .ant-btn, .ant-input, .ant-select, .ant-card, .ant-table {
+      font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Tailwind utility overrides (v5 palette) */
+    .text-gray-500 { color: var(--ink-3) !important; }
+    .text-gray-600 { color: var(--ink-2) !important; }
+    .text-gray-800 { color: var(--ink-1) !important; }
+    .text-sm { font-size: 0.875rem; line-height: 1.85; }
+    .text-xs { font-size: 0.75rem; line-height: 1.85; color: var(--ink-3); }
+
+    .bg-white { background: var(--paper-warm) !important; }
+    .bg-gray-50 { background: var(--paper-base) !important; }
+    .bg-gray-100 { background: var(--paper-warm) !important; }
+
+    .border { border-color: var(--line) !important; }
+    .border-2 { border-color: var(--line-strong) !important; }
+
+    .rounded { border-radius: var(--radius-md) !important; }
+    .rounded-lg { border-radius: var(--radius-lg) !important; }
+    .rounded-xl { border-radius: var(--radius-xl) !important; }
+    .rounded-2xl { border-radius: calc(var(--radius-lg) * 1.2) !important; }
+
+    .shadow { box-shadow: var(--shadow-v5) !important; }
+    .shadow-lg { box-shadow: 0 10px 40px rgba(85, 61, 28, 0.18) !important; }
+
+    /* 卡片统一类（v5） */
+    .rilo-card {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(34, 31, 26, 0.1);
+      border-radius: var(--radius-lg, 22px);
+      padding: var(--space-4, 28px);
+    }
+
+    .rilo-ledger-panel {
+      background: rgba(246, 241, 234, 0.94);
+      border: 1px solid rgba(34, 31, 26, 0.1);
+      border-radius: calc(var(--radius-lg) * 1.05);
+      box-shadow: var(--rilo-shadow-soft);
+      position: relative;
+    }
+
+    .rilo-ledger-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 30%);
+      pointer-events: none;
+    }
+
+    .rilo-shell-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: clamp(22px, 2vw, 34px);
+      align-items: start;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .rilo-shell-main {
+      display: grid;
+      gap: clamp(22px, 2vw, 34px);
+      min-width: 0;
+      width: 100%;
+    }
+
+    .rilo-shell-side {
+      min-width: 0;
+    }
+
+    .rilo-shell-side > * {
+      min-width: 0;
+    }
+
+    .rilo-inspector-panel {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 14px;
+      padding: 14px;
+      background: rgba(244, 239, 232, 0.96);
+      border: 1px solid rgba(34, 31, 26, 0.12);
+      border-radius: calc(var(--radius-lg) * 1.04);
+      box-shadow: var(--rilo-shadow-card);
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .rilo-inspector-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 56px;
+      background: linear-gradient(180deg, rgba(102, 113, 128, 0.028), transparent);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .rilo-inspector-header {
+      display: grid;
+      gap: 10px;
+      padding: 6px 4px 2px;
+    }
+
+    .rilo-inspector-kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-inspector-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .rilo-inspector-section {
+      background: rgba(247, 243, 237, 0.96);
+      border: 1px solid rgba(34,31,26,0.10);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--rilo-shadow-soft);
+      overflow: hidden;
+    }
+
+    .rilo-inspector-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(241, 236, 229, 0.96);
+    }
+
+    .rilo-inspector-section-body {
+      padding: 14px 16px 16px;
+      color: var(--rilo-text-2);
+    }
+
+    .rilo-explainer-card {
+      position: relative;
+      border: 1px solid rgba(34,31,26,0.10);
+      border-radius: var(--radius-md);
+      background: rgba(248, 244, 238, 0.96);
+      padding: 14px 15px;
+      overflow: hidden;
+    }
+
+    .rilo-explainer-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: linear-gradient(180deg, rgba(102, 113, 128, 0.18), rgba(102, 113, 128, 0));
+    }
+
+    .rilo-explainer-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 8px;
+    }
+
+    .rilo-explainer-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: var(--ink-1);
+    }
+
+    .rilo-explainer-copy {
+      margin-top: 6px;
+      font-size: 0.9rem;
+      line-height: 1.82;
+      color: var(--ink-2);
+    }
+
+    .rilo-kpi-strong {
+      background: rgba(251, 248, 243, 0.84);
+      border: 1px solid rgba(34,31,26,0.09);
+    }
+
+    .rilo-card-hierarchy-high {
+      background: rgba(246, 241, 234, 0.97);
+      border-color: rgba(34,31,26,0.12) !important;
+      box-shadow: none !important;
+    }
+
+    .rilo-card-hierarchy-mid {
+      background: rgba(248, 244, 238, 0.95);
+      border-color: rgba(34,31,26,0.10) !important;
+      box-shadow: var(--rilo-shadow-soft) !important;
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    .rilo-control-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .rilo-control-field {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34,31,26,0.10);
+      background: rgba(255,255,255,0.38);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+    }
+
+    .rilo-btn-soft {
+      border: 1px solid rgba(34,31,26,0.12);
+      background: rgba(255,251,246,0.58);
+      color: var(--rilo-accent);
+      box-shadow: var(--rilo-shadow-soft);
+    }
+
+    .rilo-btn-soft:hover {
+      border-color: rgba(86,101,125,0.18);
+      background: rgba(255,255,255,0.62);
+    }
+
+    .rilo-btn-strong {
+      border: 1px solid rgba(86,101,125,0.22);
+      background: linear-gradient(180deg, rgba(101,118,144,0.98), rgba(86,101,125,0.98));
+      color: #f7f2ea;
+      box-shadow: 0 10px 24px rgba(86,101,125,0.16);
+    }
+
+    .rilo-btn-strong:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(86,101,125,0.18);
+    }
+
+    .rilo-app-shell {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.10));
+    }
+
+    .rilo-app-sidebar {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 16px;
+      padding: 20px 16px;
+      border-right: 1px solid rgba(34, 31, 26, 0.09);
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(236,229,220,0.56));
+      align-content: start;
+      align-self: start;
+    }
+
+    .rilo-app-brand {
+      display: grid;
+      gap: 8px;
+      padding: 6px 6px 2px;
+    }
+
+    .rilo-app-sidebar-actions {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 0 6px;
+    }
+
+    .rilo-app-icon-slot {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px dashed rgba(86, 101, 125, 0.28);
+      background: rgba(255,255,255,0.26);
+    }
+
+    .rilo-app-brand-kicker {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-app-brand-title {
+      margin: 0;
+      font-family: var(--font-display), Georgia, serif;
+      font-size: 1.45rem;
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      font-weight: var(--font-display-weight);
+      color: var(--ink-1);
+    }
+
+    .rilo-app-brand-copy {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--ink-2);
+    }
+
+    .rilo-app-nav {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .rilo-app-sidebar-action-wrap {
+      margin-top: auto;
+      padding: 8px 6px 0;
+    }
+
+    .rilo-app-sidebar-section-title {
+      padding: 0 6px;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-app-nav-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(255,255,255,0.30);
+      color: var(--ink-1);
+      text-align: left;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+    }
+
+    .rilo-app-nav-item:hover {
+      border-color: rgba(86, 101, 125, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .rilo-app-nav-item.is-active {
+      background: linear-gradient(90deg, rgba(86, 101, 125, 0.08), rgba(255,255,255,0.52));
+      border-color: rgba(86, 101, 125, 0.20);
+      box-shadow: inset 3px 0 0 var(--rilo-accent);
+    }
+
+    .rilo-app-nav-index {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      color: var(--ink-3);
+    }
+
+    .rilo-app-nav-label,
+    .rilo-app-nav-meta {
+      display: block;
+    }
+
+    .rilo-app-nav-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-1);
+    }
+
+    .rilo-app-nav-meta {
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--ink-2);
+    }
+
+    .rilo-app-nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(86, 101, 125, 0.16);
+    }
+
+    .rilo-app-nav-item.is-active .rilo-app-nav-dot {
+      background: var(--rilo-accent);
+    }
+
+    .rilo-sidebar-action-btn {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: linear-gradient(90deg, rgba(102, 113, 128, 0.07), rgba(255,255,255,0.46));
+      color: var(--ink-1);
+      text-align: left;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+      box-shadow: inset 3px 0 0 rgba(102, 113, 128, 0.18);
+    }
+
+    .rilo-sidebar-action-btn:hover {
+      border-color: rgba(86, 101, 125, 0.22);
+      background: linear-gradient(90deg, rgba(102, 113, 128, 0.10), rgba(255,255,255,0.58));
+      transform: translateY(-1px);
+    }
+
+    .rilo-sidebar-action-btn:focus-visible {
+      outline: 2px solid rgba(86, 101, 125, 0.28);
+      outline-offset: 2px;
+    }
+
+    .rilo-sidebar-action-btn .rilo-app-nav-index {
+      letter-spacing: 0.08em;
+    }
+
+    .rilo-sidebar-action-btn .rilo-app-nav-label {
+      font-weight: 500;
+    }
+
+    .rilo-sidebar-action-btn .rilo-app-nav-dot {
+      background: rgba(102, 113, 128, 0.24);
+    }
+
+    .rilo-app-sidebar-tools {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      align-content: start;
+    }
+
+    .rilo-app-sidebar-tool {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(255,255,255,0.34);
+      color: var(--ink-1);
+      font-size: 13px;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+    }
+
+    .rilo-app-sidebar-tool:hover {
+      border-color: rgba(86, 101, 125, 0.22);
+      background: rgba(255,255,255,0.48);
+    }
+
+    .rilo-app-sidebar-tool.is-danger:hover {
+      border-color: rgba(141, 117, 111, 0.28);
+    }
+
+    .rilo-app-sidebar-footer {
+      padding: 2px 6px 0;
+    }
+
+    .rilo-app-sidebar-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 28px;
+      width: auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink-2);
+      font-size: 12px;
+      transition: all 0.18s var(--rilo-motion-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
+    }
+
+    .rilo-app-sidebar-link:hover {
+      color: var(--ink-1);
+    }
+
+    .rilo-app-main {
+      min-width: 0;
+      padding: 20px 22px 22px;
+      display: grid;
+      align-content: start;
+      align-self: start;
+      gap: 0;
+    }
+
+    .rilo-app-content {
+      min-width: 0;
+      padding-top: 0;
+      margin-top: 0;
+      align-self: start;
+    }
+
+    .rilo-shell-grid,
+    .rilo-app-sidebar,
+    .rilo-app-main,
+    .rilo-app-content {
+      align-self: start;
+    }
+
+    input[type='range'] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(102, 113, 128, 0.24), rgba(139, 126, 106, 0.20));
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(34, 31, 26, 0.08);
+    }
+
+    input[type='range']::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(102, 113, 128, 0.24), rgba(139, 126, 106, 0.20));
+    }
+
+    input[type='range']::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      margin-top: -5px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 31, 26, 0.14);
+      background: var(--rilo-text-2);
+      box-shadow: 0 2px 6px rgba(34, 31, 26, 0.14);
+    }
+
+    input[type='range']::-moz-range-track {
+      height: 6px;
+      border-radius: 999px;
+      border: 0;
+      background: linear-gradient(90deg, rgba(102, 113, 128, 0.24), rgba(139, 126, 106, 0.20));
+    }
+
+    input[type='range']::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 31, 26, 0.14);
+      background: var(--rilo-text-2);
+      box-shadow: 0 2px 6px rgba(34, 31, 26, 0.14);
+    }
+
+    input[type='range']:focus-visible::-webkit-slider-thumb {
+      box-shadow: 0 0 0 4px rgba(102, 113, 128, 0.14), 0 2px 6px rgba(34, 31, 26, 0.14);
+    }
+
+    input[type='range']:focus-visible::-moz-range-thumb {
+      box-shadow: 0 0 0 4px rgba(102, 113, 128, 0.14), 0 2px 6px rgba(34, 31, 26, 0.14);
+    }
+
+    @media (min-width: 1024px) {
+      .rilo-shell-grid.rilo-shell-grid--with-inspector {
+        grid-template-columns: minmax(0, 1fr) minmax(292px, 336px);
+      }
+
+      .rilo-shell-grid.rilo-shell-grid--expanded {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .rilo-app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .rilo-app-sidebar {
+        grid-template-rows: auto auto auto;
+        border-right: 0;
+        border-bottom: 1px solid rgba(34, 31, 26, 0.09);
+      }
+
+      .rilo-app-nav {
+        grid-template-columns: 1fr;
+      }
+
+      .rilo-app-sidebar-tools {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .rilo-ledger-header {
+      display: grid;
+      gap: 20px;
+    }
+
+    .rilo-ledger-header-copy {
+      max-width: 780px;
+    }
+
+    .rilo-ledger-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-ledger-title {
+      margin-top: 12px;
+      font-family: var(--font-sans), "PingFang SC", sans-serif;
+      font-size: clamp(1.7rem, 2.3vw, 2.45rem);
+      line-height: 1.16;
+      letter-spacing: -0.012em;
+      font-weight: 700;
+      color: var(--ink-1);
+    }
+
+    .rilo-ledger-subtitle {
+      margin-top: 12px;
+      max-width: 68ch;
+      font-size: 0.97rem;
+      line-height: 1.9;
+      color: var(--ink-2);
+    }
+
+    .rilo-ledger-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .rilo-ledger-metric {
+      min-height: 92px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      background: rgba(250, 247, 242, 0.84);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .rilo-ledger-metric-label {
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    .rilo-ledger-metric-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--ink-1);
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .rilo-ledger-metric-note {
+      font-size: 0.75rem;
+      color: var(--ink-2);
+    }
+
+    .rilo-ledger-band {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .rilo-ledger-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 14px;
+      border: 1px solid rgba(34, 31, 26, 0.10);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.44);
+      color: var(--ink-2);
+      font-size: 0.8rem;
+    }
+
+    .rilo-ledger-pill strong {
+      color: var(--ink-1);
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .rilo-ledger-metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rilo-display-serif {
+      font-family: var(--font-display), Georgia, serif;
+      font-weight: 680;
+      letter-spacing: 0.008em;
+      color: var(--ink-1);
+    }
+
+    .rilo-section-title {
+      font-family: var(--font-sans), "PingFang SC", sans-serif;
+      font-weight: 650;
+      letter-spacing: -0.006em;
+      color: var(--ink-1);
+    }
+
+    .bg-success-light { background: var(--rilo-value-success-soft) !important; }
+    .bg-warning-light { background: var(--rilo-value-warning-soft) !important; }
+    .bg-danger-light { background: var(--rilo-value-danger-soft) !important; }
+
+    /* KPI 卡片样式（v5） */
+    .kpi-card {
+      background: var(--rilo-surface-card);
+      border: 1px solid rgba(34, 31, 26, 0.11);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--rilo-shadow-card);
+      padding: var(--space-4);
+      text-align: left;
+    }
+    .kpi-card .kpi-title {
+      font-size: 0.875rem;
+      color: var(--ink-2);
+      margin-bottom: var(--space-2);
+      font-weight: 500;
+    }
+    .kpi-card .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--ink-1);
+      line-height: 1.2;
+    }
+    .kpi-card .kpi-suffix {
+      font-size: 0.875rem;
+      color: var(--ink-3);
+      margin-left: 2px;
+    }
+
+    /* Hover tooltip 术语提示 */
+    .term-hover {
+      border-bottom: 1px dotted var(--rilo-accent-v5);
+      cursor: help;
+    }
+
   </style>
 </head>
 <body>
   <!-- 应用根节点 -->
   <div id="root">
     <!-- 初始加载状态 -->
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center">
-      <div class="bg-white rounded-2xl shadow-xl p-8 text-center max-w-md">
-        <div class="text-6xl mb-4">🐾</div>
+    <div class="min-h-screen bg-[var(--rilo-bg-deep)] flex items-center justify-center">
+      <div class="bg-[var(--rilo-surface-1)] rounded-2xl shadow-xl p-8 text-center max-w-md border border-[var(--rilo-border-deep)]">
+        <div class="text-6xl mb-4"></div>
         <h1 class="text-2xl font-bold text-gray-800 mb-4">宠物综合体经营测算</h1>
         <p class="text-gray-600 mb-6">v2.0 模块化版本</p>
         <div class="loading-spinner mx-auto mb-4"></div>
@@ -111,7 +1534,7 @@
       
       // 只在关键进度点显示日志
       if (loadedModules === 1 || loadedModules % 10 === 0 || loadedModules >= totalModules) {
-        console.log(`📦 加载进度: ${progress.toFixed(0)}% (${loadedModules}/${totalModules})`);
+        console.log(`加载进度: ${progress.toFixed(0)}% (${loadedModules}/${totalModules})`);
       }
       
       // 更新页面加载指示器（如果存在）
@@ -123,7 +1546,7 @@
       // 所有模块加载完成后，触发应用启动检查
       if (loadedModules >= totalModules && !window.modulesLoadComplete) {
         window.modulesLoadComplete = true;
-        console.log('🎉 所有模块加载完成，启动应用...');
+        console.log('所有模块加载完成，启动应用...');
         setTimeout(() => {
           if (window.startApp) {
             window.startApp();
@@ -138,7 +1561,7 @@
       document.getElementById('root').innerHTML = `
         <div class="min-h-screen bg-red-50 flex items-center justify-center p-4">
           <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-            <div class="text-6xl mb-4">❌</div>
+            <div class="text-6xl mb-4"></div>
             <h2 class="text-xl font-bold text-red-600 mb-4">模块加载失败</h2>
             <p class="text-gray-600 mb-4">模块 <code>${moduleName}</code> 无法加载</p>
             <p class="text-sm text-gray-500 mb-6">请检查网络连接或联系技术支持</p>
@@ -174,7 +1597,16 @@
   <!-- 4. UI组件库 (Ant Design版本) -->
   <script src="js/components/ui-components-antd.js" onerror="handleModuleError('UIComponents', event)" onload="updateLoadingProgress()"></script>
   
-  <!-- 5. 图表组件 (拆分后) -->
+  <!-- 5. 共享壳层组件 (TwoPaneLayout, Inspector, Term) -->
+  <script src="js/shared/rilo-ui.js" onerror="handleModuleError('RiloUI', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 5a. 术语注册表 -->
+  <script src="js/shared/term-registry.js" onerror="handleModuleError('TermRegistry', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 5b. 定义说明抽屉 -->
+  <script src="js/components/rilo-ui/drawer.js" onerror="handleModuleError('DefinitionsDrawer', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- 6. 图表组件 (拆分后) -->
   <script src="js/components/charts/revenue-chart.js" onerror="handleModuleError('RevenueChart', event)" onload="updateLoadingProgress()"></script>
   <script src="js/components/charts/cost-chart.js" onerror="handleModuleError('CostChart', event)" onload="updateLoadingProgress()"></script>
   <script src="js/components/charts/breakeven-chart.js" onerror="handleModuleError('BreakevenChart', event)" onload="updateLoadingProgress()"></script>
@@ -216,6 +1648,9 @@
   <script src="js/modules/breakeven/visualization.js" onerror="handleModuleError('Visualization', event)" onload="updateLoadingProgress()"></script>
   <script src="js/modules/breakeven/index.js" onerror="handleModuleError('BreakevenAnalysis', event)" onload="updateLoadingProgress()"></script>
   
+  <!-- 共享卡片组件库 -->
+  <script src="js/shared/cards.js" onerror="handleModuleError('Cards', event)" onload="updateLoadingProgress()"></script>
+  
   <!-- 10. 情景分析模块 (拆分后) -->
   <script src="js/modules/scenario/parameters.js" onerror="handleModuleError('ScenarioParameters', event)" onload="updateLoadingProgress()"></script>
   <script src="js/modules/scenario/comparison.js" onerror="handleModuleError('ScenarioComparison', event)" onload="updateLoadingProgress()"></script>
@@ -227,11 +1662,14 @@
   <!-- 11. 概览页面 -->
   <script src="js/pages/overview-page.js" onerror="handleModuleError('OverviewPage', event)" onload="updateLoadingProgress()"></script>
   
-  <!-- 12. 设置页面 (v2.0 双栏布局) -->
+  <!-- 12. 设置页面 -->
   <script src="js/pages/settings-page-v2.js" onerror="handleModuleError('SettingsPage', event)" onload="updateLoadingProgress()"></script>
   
-  <!-- 13. 分析页面 -->
+  <!-- 分析页面 -->
   <script src="js/pages/analysis-page.js" onerror="handleModuleError('AnalysisPage', event)" onload="updateLoadingProgress()"></script>
+  
+  <!-- Shared Shell UI (must load before app.js) -->
+  <script src="js/components/rilo-ui/shell.js" onerror="handleModuleError('RiloUIShell', event)" onload="updateLoadingProgress()"></script>
   
   <!-- 主应用启动 -->
   <script src="app.js" onerror="handleModuleError('App', event)"></script>
