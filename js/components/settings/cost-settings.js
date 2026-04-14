@@ -4,7 +4,8 @@ window.CostSettings = (function() {
   const CostSettings = ({ data, updateData, formulaEngine }) => {
     const updateField = (path, value) => {
       if (window.dataManager) {
-        const newData = window.dataManager.updateDataPath(data, path, value);
+        const latestData = window.dataManager.getData() || data;
+        const newData = window.dataManager.updateDataPath(latestData, path, value);
         updateData(newData);
       }
     };
