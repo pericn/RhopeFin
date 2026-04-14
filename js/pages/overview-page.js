@@ -406,7 +406,7 @@ window.OverviewPage = (function() {
   // 业务概览
   // 收入结构条形图（同步计算，不依赖父组件 state）
   const InlineRevenueChart = ({ currency }) => {
-    const revData = (() => { console.log("InlineRevenueChart IIFE running");
+    const revData = React.useMemo(() => {
       try {
         const dm = window.dataManager;
         const calc = window.calculator;
@@ -419,7 +419,7 @@ window.OverviewPage = (function() {
         }
       } catch(e) {}
       return null;
-    })();
+    }, []);
     
     const rev = revData?.revenue || {};
     const total = rev.total || 0;
