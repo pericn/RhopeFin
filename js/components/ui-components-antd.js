@@ -74,12 +74,17 @@ window.UIComponents = (function() {
       ]),
       
       type === 'number' ? React.createElement(InputNumber, {
-        // key 以 value 为基础：当用户输入导致 value 变化时，React 会 remount 组件，
-        // 这会重置 antd 内部 rc-input-number 状态，彻底避免 controlled 模式下的状态不同步问题
-        key: 'input-' + String(value ?? ''),
+        key: 'input',
         className: 'rilo-token-control',
         value: value,
         onChange: onChange,
+        // 覆盖 onBlur：antd InputNumber 在 blur 时会重置 DOM 值为 props.value，
+        // 这会导致用户刚输入的值丢失。我们在这里保留用户输入的内容，
+        // 在调用原始 onChange 之前先把用户输入的原始值传给 React 处理
+        onBlur: (e) => {
+          // 保留用户正在编辑的值，让 React 先处理 onChange
+          if (onChange) onChange(e.target.value);
+        },
         step: step,
         style: { width: '100%' },
         addonAfter: suffix || undefined,
