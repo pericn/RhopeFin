@@ -480,4 +480,500 @@ window.UIComponents = (function() {
     }
   };
 
+})();      type === 'number' ? React.createElement('input', {
+        key: 'input-' + String(value ?? ''),
+        className: 'ant-input-number ant-input',
+        style: Object.assign({ width: '100%', minHeight: '44px', borderRadius: '12px', border: '1px solid #d9d9d9', padding: '0 11px', boxSizing: 'border-box', fontFamily: 'var(--font-sans, sans-serif)', fontSize: '14px', background: 'rgba(255,255,255,0.56)', outline: 'none' }, style || {}),
+        type: 'number',
+        value: value !== null && value !== undefined ? value : '',
+        onChange: function(e) {
+          var raw = e.target.value;
+          var num = raw === '' ? null : (raw === String(Math.floor(Number(raw))) ? Number(raw) : (isNaN(Number(raw)) ? raw : Number(raw)));
+          if (onChange) onChange(num);
+        },
+        placeholder: hint,
+        min: 0,
+        step: step || 1
+      })组件库 - 基于 Ant Design 的 UI 组件集合
+window.UIComponents = (function() {
+  'use strict';
+
+  // 设置中文本地化
+  if (typeof dayjs !== 'undefined' && typeof antd !== 'undefined') {
+    dayjs.locale('zh-cn');
+    // Ant Design v5 不再需要全局配置，使用 ConfigProvider 在组件级别配置
+    // antd.ConfigProvider.config({
+    //   locale: {
+    //     ...antd.locale.zhCN,
+    //     locale: 'zh-cn',
+    //   }
+    // });
+  }
+
+  // Ant Design 组件解构
+  const {
+    Input: AntInput,
+    InputNumber,
+    Select: AntSelect,
+    Slider: AntSlider,
+    Button: AntButton,
+    Card,
+    Tabs,
+    Row,
+    Col,
+    Space,
+    Typography,
+    Divider,
+    Spin,
+    Modal: AntModal,
+    Tooltip: AntTooltip,
+    Switch,
+    Badge,
+    Progress,
+    Statistic,
+    ConfigProvider
+  } = antd;
+
+  const { Title, Text } = Typography;
+
+  // 通用输入组件 - 包装 Ant Design InputNumber
+  const Input = ({ label, value, onChange, type = "number", step = 1, suffix = "", hint = "", required = false, width = "100%" }) => {
+    // 支持四种预设宽度：25%, 50%, 75%, 100%
+    const getWidthStyle = (width) => {
+      if (typeof width === 'string') {
+        return width;
+      }
+      switch (width) {
+        case 'small': return '25%';
+        case 'medium': return '50%';
+        case 'large': return '75%';
+        case 'full': return '100%';
+        default: return width;
+      }
+    };
+
+    return React.createElement(Space, {
+      direction: 'vertical',
+      size: 4,
+      style: { width: getWidthStyle(width) }
+    }, [
+      label && React.createElement(Text, {
+        key: 'label',
+        type: required && !value ? 'danger' : undefined,
+        strong: required
+      }, [
+        label,
+        required && React.createElement('span', {
+          key: 'required',
+          style: { color: '#ff4d4f', marginLeft: 4 }
+        }, '*')
+      ]),
+      
+      type === 'number' ? React.createElement('input', {
+        key: 'input',
+        className: 'ant-input-number ant-input',
+        style: { width: '100%', height: '44px', borderRadius: '12px', border: '1px solid #d9d9d9', fontFamily: 'var(--font-sans)', fontSize: '14px', background: 'rgba(255,255,255,0.56)', padding: '0 11px', boxSizing: 'border-box', outline: 'none' },
+        type: 'number',
+        value: value ?? '',
+        onChange: (e) => {
+          var raw = e.target.value;
+          var v = raw === '' ? null : (isNaN(Number(raw)) ? raw : Number(raw));
+          if (onChange) onChange(v);
+        },
+        placeholder: hint,
+        min: 0,
+        step: step || 1
+      })}) : React.createElement(AntInput, {
+        key: 'input',
+        className: 'rilo-token-control',
+        value: value,
+        onChange: (e) => onChange(e.target.value),
+        suffix: suffix,
+        placeholder: hint,
+        status: required && !value ? 'error' : undefined
+      }),
+      
+      hint && React.createElement(Text, {
+        key: 'hint',
+        type: 'secondary',
+        style: { fontSize: 12 }
+      }, hint)
+    ]);
+  };
+
+  const SelectComponent = ({ label, value, onChange, options = [], hint = "", width = "100%", placeholder = "" }) => React.createElement(Space, {
+    direction: 'vertical',
+    size: 4,
+    style: { width }
+  }, [
+    label && React.createElement(Text, {
+      key: 'label',
+      strong: true
+    }, label),
+    // BUGFIX-6: 为 Settings 暴露统一 token 化的 Select/Slider 封装，保证与 InputNumber 共用同一套视觉基线。
+    React.createElement(AntSelect, {
+      key: 'select',
+      className: 'rilo-token-control',
+      value,
+      onChange,
+      placeholder,
+      style: { width: '100%' },
+      options
+    }),
+    hint && React.createElement(Text, {
+      key: 'hint',
+      type: 'secondary',
+      style: { fontSize: 12 }
+    }, hint)
+  ]);
+
+  const SliderComponent = ({ label, value = 0, onChange, min = 0, max = 100, step = 1, hint = "", width = "100%" }) => React.createElement(Space, {
+    direction: 'vertical',
+    size: 6,
+    style: { width }
+  }, [
+    label && React.createElement(Text, {
+      key: 'label',
+      strong: true
+    }, label),
+    React.createElement(AntSlider, {
+      key: 'slider',
+      className: 'rilo-token-slider',
+      value,
+      onChange,
+      min,
+      max,
+      step
+    }),
+    hint && React.createElement(Text, {
+      key: 'hint',
+      type: 'secondary',
+      style: { fontSize: 12 }
+    }, hint)
+  ]);
+
+  // 文本域组件 - 包装 Ant Design Input.TextArea
+  const TextArea = ({ label, value, onChange, placeholder = "", rows = 3 }) => {
+    return React.createElement(Space, {
+      direction: 'vertical',
+      size: 4,
+      style: { width: '100%' }
+    }, [
+      label && React.createElement(Text, {
+        key: 'label',
+        strong: true
+      }, label),
+      
+      React.createElement(AntInput.TextArea, {
+        key: 'textarea',
+        rows: rows,
+        value: value,
+        placeholder: placeholder,
+        onChange: (e) => onChange(e.target.value)
+      })
+    ]);
+  };
+
+  // 按钮组件 - 包装 Ant Design Button
+  const Button = ({ children, onClick, variant = 'primary', size = 'middle', disabled = false, loading = false, ...props }) => {
+    const typeMap = {
+      'primary': 'primary',
+      'secondary': 'default',
+      'success': 'primary',
+      'danger': 'primary',
+      'outline': 'default'
+    };
+
+    const colorMap = {
+      'success': '#52c41a',
+      'danger': '#ff4d4f'
+    };
+
+    return React.createElement(AntButton, {
+      type: typeMap[variant],
+      size: size,
+      onClick: onClick,
+      disabled: disabled,
+      loading: loading,
+      style: colorMap[variant] ? { backgroundColor: colorMap[variant], borderColor: colorMap[variant] } : undefined,
+      ...props
+    }, children);
+  };
+
+  // 卡片/节组件 - 包装 Ant Design Card
+  const Section = ({ title, children, className = "", icon = "" }) => {
+    return React.createElement(Card, {
+      title: React.createElement(Space, null, [
+        icon && React.createElement('span', { key: 'icon' }, icon),
+        React.createElement(Text, { key: 'title', strong: true }, title)
+      ]),
+      className: className,
+      style: { marginBottom: 16 }
+    }, children);
+  };
+
+  // 关键指标组件 - 使用 Ant Design Statistic
+  const KPI = ({ title, value, prefix = "", suffix = "", trend = null, color = "default", className = "" }) => {
+    const colorMap = {
+      'success': 'var(--rilo-value-success)',
+      'danger': 'var(--rilo-value-danger)',
+      'warning': 'var(--rilo-value-warning)',
+      'info': 'var(--rilo-value-info)',
+      'default': 'var(--rilo-text-1)'
+    };
+
+    const surfaceMap = {
+      'success': 'rgba(244, 247, 242, 0.9)',
+      'danger': 'rgba(248, 243, 242, 0.9)',
+      'warning': 'rgba(247, 244, 239, 0.9)',
+      'info': 'rgba(242, 245, 247, 0.9)',
+      'default': 'rgba(247, 243, 237, 0.9)'
+    };
+
+    return React.createElement(Card, {
+      className: className,
+      style: {
+        textAlign: 'left',
+        background: surfaceMap[color] || surfaceMap.default,
+        borderColor: 'rgba(34, 31, 26, 0.08)',
+        boxShadow: 'var(--rilo-shadow-soft)'
+      }
+    }, [
+      React.createElement(Statistic, {
+        key: 'statistic',
+        title: React.createElement('span', {
+          style: {
+            color: 'var(--rilo-text-3)',
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase'
+          }
+        }, title),
+        value: value,
+        prefix: prefix,
+        suffix: suffix,
+        valueStyle: {
+          color: colorMap[color],
+          fontWeight: 650,
+          letterSpacing: '-0.03em'
+        }
+      }),
+      
+      trend && React.createElement(Space, {
+        key: 'trend',
+        style: { marginTop: 8 }
+      }, [
+        React.createElement('span', {
+          key: 'trend-icon',
+          style: {
+            color: trend > 0 ? 'var(--rilo-value-success)' : trend < 0 ? 'var(--rilo-value-danger)' : 'var(--rilo-text-3)'
+          }
+        }, trend > 0 ? '↗' : trend < 0 ? '↘' : '→'),
+        React.createElement(Text, {
+          key: 'trend-text',
+          type: 'secondary',
+          style: { fontSize: 12 }
+        }, `${Math.abs(trend)}%`)
+      ])
+    ]);
+  };
+
+  // 页签组件 - 包装 Ant Design Tabs
+  const TabsComponent = ({ tabs = [], activeTab, onTabChange, className = "" }) => {
+    const tabItems = tabs.map(tab => ({
+      key: tab.id,
+      label: React.createElement(Space, null, [
+        tab.icon && React.createElement('span', { key: 'icon' }, tab.icon),
+        React.createElement('span', { key: 'label' }, tab.label)
+      ])
+    }));
+
+    return React.createElement(Tabs, {
+      activeKey: activeTab,
+      onChange: onTabChange,
+      items: tabItems,
+      className: className
+    });
+  };
+
+  // 模态框组件 - 包装 Ant Design Modal
+  const Modal = ({ isOpen, onClose, title, children, size = 'default', footer = null }) => {
+    const widthMap = {
+      'small': 520,
+      'default': 700,
+      'large': 1000,
+      'extra-large': 1200
+    };
+
+    return React.createElement(AntModal, {
+      open: isOpen,
+      onCancel: onClose,
+      title: title,
+      width: widthMap[size],
+      footer: footer,
+      centered: true
+    }, children);
+  };
+
+  // 提示组件 - 包装 Ant Design Tooltip
+  const Tooltip = ({ content, children, position = 'top' }) => {
+    return React.createElement(AntTooltip, {
+      title: content,
+      placement: position
+    }, children);
+  };
+
+  // 加载组件 - 包装 Ant Design Spin
+  const Loading = ({ size = 'default', color = 'primary' }) => {
+    return React.createElement(Spin, {
+      size: size === 'large' ? 'large' : size === 'small' ? 'small' : 'default'
+    });
+  };
+
+  // 网格布局组件 - 包装 Ant Design Row/Col
+  const Grid = ({ children, cols = 1, gap = 16, className = "" }) => {
+    const span = 24 / cols;
+    
+    return React.createElement(Row, {
+      gutter: [gap, gap],
+      className: className
+    }, React.Children.map(children, (child, index) => 
+      React.createElement(Col, {
+        key: index,
+        span: span,
+        xs: 24,
+        sm: cols > 2 ? 12 : span,
+        md: span
+      }, child)
+    ));
+  };
+
+  // 分隔线组件 - 包装 Ant Design Divider
+  const Separator = ({ text = "", orientation = 'center' }) => {
+    return React.createElement(Divider, {
+      orientation: orientation
+    }, text);
+  };
+
+  // 警告/通知组件 - 包装 Ant Design Alert
+  const Alert = ({ type = 'info', message, description, showIcon = true, closable = false }) => {
+    return React.createElement(antd.Alert, {
+      type: type,
+      message: message,
+      description: description,
+      showIcon: showIcon,
+      closable: closable,
+      style: { marginBottom: 16 }
+    });
+  };
+
+  // 进度条组件 - 包装 Ant Design Progress
+  const ProgressBar = ({ percent = 0, status = 'active', showInfo = true, strokeColor }) => {
+    return React.createElement(Progress, {
+      percent: Math.round(percent),
+      status: status,
+      showInfo: showInfo,
+      strokeColor: strokeColor
+    });
+  };
+
+  // 徽章组件 - 包装 Ant Design Badge
+  const BadgeComponent = ({ count, children, color, text }) => {
+    return React.createElement(Badge, {
+      count: count,
+      color: color,
+      text: text
+    }, children);
+  };
+
+  // 开关组件 - 包装 Ant Design Switch
+  const SwitchComponent = ({ checked, onChange, checkedChildren, unCheckedChildren, disabled = false }) => {
+    return React.createElement(Switch, {
+      checked: checked,
+      onChange: onChange,
+      checkedChildren: checkedChildren,
+      unCheckedChildren: unCheckedChildren,
+      disabled: disabled
+    });
+  };
+
+  // 导出所有组件
+  return {
+    Input,
+    Select: SelectComponent,
+    Slider: SliderComponent,
+    TextArea,
+    Button,
+    Section,
+    KPI,
+    Tabs: TabsComponent,
+    Modal,
+    Tooltip,
+    Loading,
+    Grid,
+    Separator,
+    Alert,
+    Progress: ProgressBar,
+    Badge: BadgeComponent,
+    Switch: SwitchComponent,
+    
+    // Ant Design 原生组件的直接导出
+    Space,
+    Row,
+    Col,
+    Card,
+    Typography,
+    Divider,
+    ConfigProvider,
+    
+    // 工具函数
+    createAntdApp: (children) => {
+      return React.createElement(ConfigProvider, {
+        // locale: antd.locale.zhCN, // 暂时禁用，需要正确的 v5 locale 导入方式
+        theme: {
+          token: {
+            // v5 视觉系统
+            colorPrimary: 'var(--rilo-accent-v5, #221C8B)',
+            colorInfo: 'var(--rilo-accent-v5, #221C8B)',
+            colorSuccess: 'var(--emerald, #2f7d67)',
+            colorWarning: 'var(--amber, #b78128)',
+            colorError: 'var(--brick, #9d5b4b)',
+            borderRadius: 12,
+            fontFamily: 'var(--font-sans, "Noto Sans SC", "PingFang SC", sans-serif)'
+          },
+          components: {
+            Button: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Input: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Select: {
+              borderRadius: 12,
+              borderWidth: 1
+            },
+            Slider: {
+              trackBg: 'var(--rilo-accent-v5, #56657d)',
+              trackHoverBg: 'var(--rilo-accent-v5, #56657d)',
+              railBg: 'rgba(34, 31, 26, 0.10)',
+              railHoverBg: 'rgba(34, 31, 26, 0.14)',
+              handleColor: 'var(--rilo-accent-v5, #56657d)',
+              handleActiveColor: 'var(--rilo-accent-v5, #56657d)'
+            },
+            Card: {
+              borderRadiusLG: 22,
+              borderRadius: 16,
+              boxShadow: 'var(--shadow-v5, 0 8px 24px rgba(0,0,0,0.12))'
+            },
+            Tabs: {
+              borderRadius: 12
+            }
+          }
+        }
+      }, children);
+    }
+  };
+
 })();
