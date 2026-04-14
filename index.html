@@ -177,6 +177,22 @@
       margin: 0;
     }
 
+    /* 测试标识 */
+    body::after {
+      content: "✅ 在线测试 2026-04-14 20:21";
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      background: #10b981;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 0 0 8px 0;
+      pointer-events: none;
+    }
+
     /* 纸张纹理叠加（可选，增强质感） */
     body::before {
       content: "";
