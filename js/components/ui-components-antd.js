@@ -73,24 +73,21 @@ window.UIComponents = (function() {
         }, '*')
       ]),
       
-      type === 'number' ? React.createElement(InputNumber, {
+      type === 'number' ? React.createElement('input', {
         key: 'input',
-        className: 'rilo-token-control',
-        value: value,
-        onChange: onChange,
-        // 覆盖 onBlur：antd InputNumber 在 blur 时会重置 DOM 值为 props.value，
-        // 这会导致用户刚输入的值丢失。我们在这里保留用户输入的内容，
-        // 在调用原始 onChange 之前先把用户输入的原始值传给 React 处理
-        onBlur: (e) => {
-          // 保留用户正在编辑的值，让 React 先处理 onChange
-          if (onChange) onChange(e.target.value);
+        className: 'ant-input-number ant-input',
+        style: { width: '100%', height: '44px', borderRadius: '12px', border: '1px solid #d9d9d9', fontFamily: 'var(--font-sans)', fontSize: '14px', background: 'rgba(255,255,255,0.56)', padding: '0 11px', boxSizing: 'border-box', outline: 'none' },
+        type: 'number',
+        value: value ?? '',
+        onChange: (e) => {
+          var raw = e.target.value;
+          var v = raw === '' ? null : (isNaN(Number(raw)) ? raw : Number(raw));
+          if (onChange) onChange(v);
         },
-        step: step,
-        style: { width: '100%' },
-        addonAfter: suffix || undefined,
         placeholder: hint,
-        status: required && !value ? 'error' : undefined
-      }) : React.createElement(AntInput, {
+        min: 0,
+        step: step || 1
+      })}) : React.createElement(AntInput, {
         key: 'input',
         className: 'rilo-token-control',
         value: value,
