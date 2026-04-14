@@ -78,6 +78,9 @@ window.UIComponents = (function() {
         className: 'rilo-token-control',
         value: value,
         onChange: onChange,
+        // fix antd v5 InputNumber controlled: identity formatter/parser bypasses internal value normalization
+        formatter: (v) => String(v ?? ''),
+        parser: (v) => v,
         step: step,
         style: { width: '100%' },
         addonAfter: suffix || undefined,
