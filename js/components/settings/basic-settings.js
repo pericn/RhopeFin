@@ -4,7 +4,9 @@ window.BasicSettings = (function() {
   const BasicSettings = ({ data, updateData }) => {
     const updateField = (path, value) => {
       if (window.dataManager) {
-        const newData = window.dataManager.updateDataPath(data, path, value);
+        // 从 dataManager 读取最新数据，避免闭包捕获旧 data prop
+        const latestData = window.dataManager.getData() || data;
+        const newData = window.dataManager.updateDataPath(latestData, path, value);
         updateData(newData);
       }
     };
