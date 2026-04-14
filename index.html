@@ -259,14 +259,11 @@
     .ant-input,
     .ant-input-number {
       min-height: 44px;
-      overflow: visible !important;
       border-radius: var(--radius-control, 12px) !important;
       border: 1px solid var(--line) !important;
       font-family: var(--font-sans) !important;
       letter-spacing: var(--rilo-tracking-cn, 0.01em);
-      transition: all 0.2s var(--rilo-motion-ease) !important;
       background: rgba(255,255,255,0.56) !important;
-      /* 注意：antd InputNumber 需要 box-shadow 来追踪内部 focus 状态，不设置 none */
     }
 
     .ant-input-number-input,
@@ -277,8 +274,7 @@
       color: var(--ink-1) !important;
     }
 
-    .ant-input:focus,
-    .ant-input-number:focus {
+    .ant-input-number-focused {
       border-color: var(--rilo-accent-v5, #221C8B) !important;
       box-shadow: 0 0 0 2px rgba(34, 28, 139, 0.12) !important;
     }
