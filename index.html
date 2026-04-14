@@ -250,7 +250,7 @@
       letter-spacing: var(--rilo-tracking-cn, 0.01em);
       transition: all 0.2s var(--rilo-motion-ease) !important;
       background: rgba(255,255,255,0.56) !important;
-      box-shadow: none !important;
+      /* 注意：antd InputNumber 需要 box-shadow 来追踪内部 focus 状态，不设置 none */
     }
 
     .ant-input-number-input,
@@ -353,7 +353,14 @@
     .rilo-token-control .ant-select-selector,
     .rilo-token-slider {
       /* BUGFIX-6: 统一 Settings 控件的尺寸、背景与焦点层级，让 InputNumber / Select / Slider 回到 design token 基线。 */
-      box-shadow: none !important;
+      /* 注意：antd InputNumber 需要 box-shadow 来追踪 focus 状态，不能去掉 */
+    }
+
+    /* 确保 antd InputNumber 内部 input 元素能正常接收键盘事件 */
+    .ant-input-number input.ant-input-number-input {
+      pointer-events: auto !important;
+      -webkit-user-select: text !important;
+      user-select: text !important;
     }
 
     /* 折叠面板 */
