@@ -74,7 +74,9 @@ window.UIComponents = (function() {
       ]),
       
       type === 'number' ? React.createElement(InputNumber, {
-        key: 'input',
+        // key 以 value 为基础：当用户输入导致 value 变化时，React 会 remount 组件，
+        // 这会重置 antd 内部 rc-input-number 状态，彻底避免 controlled 模式下的状态不同步问题
+        key: 'input-' + String(value ?? ''),
         className: 'rilo-token-control',
         value: value,
         onChange: onChange,
