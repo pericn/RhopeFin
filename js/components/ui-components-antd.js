@@ -450,10 +450,6 @@ window.UIComponents = (function() {
               borderRadius: 12,
               borderWidth: 1
             },
-            InputNumber: {
-              borderRadius: 12,
-              borderWidth: 1
-            },
             Select: {
               borderRadius: 12,
               borderWidth: 1
