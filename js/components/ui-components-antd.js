@@ -76,9 +76,10 @@ window.UIComponents = (function() {
       type === 'number' ? React.createElement(InputNumber, {
         key: 'input',
         className: 'rilo-token-control',
-        value: value,
+        // 使用 defaultValue 让 antd InputNumber 变为 uncontrolled 模式，
+        // 解决 antd v5 InputNumber controlled 模式下 onBlur 恢复旧值的 bug（issue #28700）
+        defaultValue: value,
         onChange: onChange,
-        // fix antd v5 InputNumber controlled: identity formatter/parser bypasses internal value normalization
         formatter: (v) => String(v ?? ''),
         parser: (v) => v,
         step: step,
