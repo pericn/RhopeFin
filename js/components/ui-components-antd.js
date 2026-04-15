@@ -88,7 +88,7 @@ window.UIComponents = (function() {
         placeholder: hint,
         min: 0,
         step: step || 1
-      })}) : React.createElement(AntInput, {
+      }) : React.createElement(AntInput, {
         key: 'input',
         className: 'rilo-token-control',
         value: value,
