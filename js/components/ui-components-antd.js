@@ -76,22 +76,46 @@ window.UIComponents = (function() {
       
       type === 'number' ? React.createElement('input', {
         key: 'input',
-        className: 'ant-input-number ant-input',
-        style: { width: '100%', height: '44px', borderRadius: '12px', border: '1px solid #d9d9d9', fontFamily: 'var(--font-sans)', fontSize: '14px', background: 'rgba(255,255,255,0.56)', padding: '0 11px', boxSizing: 'border-box', outline: 'none' },
-        type: 'number',
+        className: 'ant-input ant-input-number',
+        type: 'text',
+        inputMode: 'decimal',
         value: value ?? '',
-        onChange: (e) => {
+        onChange: function(e) {
           var raw = e.target.value;
-          var v = raw === '' ? null : (isNaN(Number(raw)) ? raw : Number(raw));
-          if (onChange) onChange(v);
+          // 直接转换，不做正则过滤，避免中断输入
+          if (raw === '') {
+            if (onChange) onChange(null);
+          } else {
+            var n = Number(raw);
+            if (!isNaN(n) && isFinite(n)) {
+              if (onChange) onChange(n);
+            }
+            // 如果 parseFloat 失败（比如含字母），不做任何处理，输入框保持原值
+          }
         },
-        placeholder: hint,
-        min: 0,
-        step: step || 1
+        onBlur: function(e) {
+          var raw = e.target.value;
+          if (raw !== '') {
+            var n = Number(raw);
+            if (!isNaN(n) && isFinite(n)) {
+              // 失焦时把显示值规范化为纯数字
+              e.target.value = n;
+              if (onChange) onChange(n);
+            }
+          } else {
+            if (onChange) onChange(null);
+          }
+        },
+        placeholder: hint
       }) : React.createElement(AntInput, {
         key: 'input',
         className: 'rilo-token-control',
         value: value,
+        onChange: (e) => onChange(e.target.value),
+        suffix: suffix,
+        placeholder: hint,
+        status: required && !value ? 'error' : undefined
+      }),        value: value,
         onChange: (e) => onChange(e.target.value),
         suffix: suffix,
         placeholder: hint,
